@@ -1,0 +1,347 @@
+\documentclass[12pt,leqno]{scrartcl}
+
+% \usepackage[francais]{babel} %% what is the difference with french, or
+                 %% frenchb?
+
+\usepackage{a4wide} %% maybe not so good for the
+            %% non-europeans. Should we use the geometry package?
+
+%% in order to use accented characters.
+
+%\usepackage{isolatin1}
+
+\usepackage{theorem}
+
+\usepackage{amsmath}
+
+%% for other fonts like \mathbb and \mathfrak; amssymb contains
+%% amsfonts.... So that gives more choice for the typists.
+
+\usepackage{amssymb}
+
+%% for simple rectangular diagrams
+
+\usepackage{amscd}
+
+%% for the more complicated diagrams one can use the XY-pic package.
+
+\usepackage[all]{xy}
+
+%% Why not use the times fonts
+
+\usepackage{times}
+
+%% for a maybe nicer script font
+
+\usepackage{mathrsfs}
+
+%% We want fancy headings
+
+\usepackage{fancyheadings}
+\usepackage{hyperref}
+
+%% This comes from the LaTeX companion, pages 92-93.
+
+\newcommand{\clearemptydoublepage}
+{\newpage{\pagestyle{empty}\cleardoublepage}}
+
+%% We want the chapter numbers in large Roman numbers.
+
+% \renewcommand{\thechapter}{\Roman{chapter}}
+
+%% we want the numbering of the sections and subsections to be as in
+%% the book, i.e., without the chapter number in front of them
+
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+\renewcommand{\theparagraph}{\thesubsubsection.\arabic{paragraph}}
+\renewcommand{\theequation}{\arabic{equation}}
+
+%% We define the theorem environments
+
+%% First those that have their text underlined (becomes slanted).
+
+\theorembodyfont{\sl}
+\newtheorem{prop}[subsection]{Proposition}
+\newtheorem{lemma}[subsection]{Lemma}
+\newtheorem{thm}[subsection]{Theorem}
+\newtheorem{cor}[subsection]{Corollary}
+
+\newtheorem{sublemma}[subsubsection]{Lemma}
+\newtheorem{subthm}[subsubsection]{Theorem}
+\newtheorem{subprop}[subsubsection]{Proposition}
+\newtheorem{subcor}[subsubsection]{Corollary}
+
+
+%% And those that do not have their text underlined.
+
+\theorembodyfont{\rmfamily}
+
+\newtheorem{defi}[subsection]{Definition}
+\newtheorem{rmk}[subsection]{Remark}
+\newtheorem{exemple}[subsection]{Exemple}
+\newtheorem{remarques}[subsection]{Remarques}
+\newtheorem{fait}[subsection]{Fait}
+
+\newtheorem{subdef}[subsubsection]{Definition}
+\newtheorem{subrmk}[subsubsection]{Remark}
+\newtheorem{subex}[subsubsection]{Example}
+\newtheorem{subremarques}[subsubsection]{Remarques}
+\newtheorem{subnotation}[subsubsection]{Notation}
+\newtheorem{subfact}[subsubsection]{Fact}
+
+%% And a *-form:
+
+\newtheorem{remarquesstar}{Remarques}
+\renewcommand{\theremarquesstar}{}
+\newtheorem{exemplesstar}{Exemples}
+\renewcommand{\theexemplesstar}{}
+\newtheorem{remarquestar}{Remarque}
+\renewcommand{\theremarquestar}{}
+\newtheorem{anything}{}
+
+
+%% Preuves
+
+\newenvironment{proof}{\vspace{0.3cm}\noindent
+\emph{Proof.}}{\hfill $\square$ \vspace{0.3cm}}
+\newenvironment{proofarg}[1]{\vspace{0.3cm}\noindent
+\emph{Proof of \nobreakspace#1.}}{\hfill
+$\square$ \vspace{0.3cm}}
+
+%% for the equations: this will not work for every chapter since the
+%% numbering depends heavily on the chapter
+
+\numberwithin{equation}{subsubsection}
+
+%% redefine \subsection so that the text following it starts on the
+%% same line.
+
+% \makeatletter
+% \renewcommand{\subsection}
+% {\@startsection {subsection}{2}{\z@ }{-3.25ex\@plus -1ex \@minus
+% -.2ex} {-1.5ex}{\normalfont \normalsize \bfseries }} \makeatother
+
+
+%% redefine \subsubsection so that the text following it starts on the
+%% same line.
+
+% \makeatletter
+% \renewcommand{\subsubsection}
+% {\@startsection {subsubsection}{3}{\z@ }{-3.25ex\@plus -1ex
+% \@minus -.2ex} {-1.5ex}{\normalfont \normalsize \bfseries }}
+% \makeatother
+
+%% redefine \paragraphsection so that the text following it starts on the
+%% same line.
+
+% \makeatletter
+% \renewcommand{\paragraph}
+% {\@startsection {paragraph}{4}{\z@ }{-3.25ex\@plus -1ex \@minus
+% -.2ex} {-1.5ex}{\normalfont \normalsize \bfseries }} \makeatother
+
+%% Some commands for the typesetting choices....
+
+%% The choice for the script font. Some underlined math symbols become
+%% script. For example: \mathcal{O} for structure sheaves.
+
+\renewcommand{\mathcal}{\mathscr}
+
+%% The choice for the black board bold font.
+
+\renewcommand{\Bbb}{\mathbb}
+
+%% The choice for the gothic font. These are handwritten in the typed
+%% text.
+
+\newcommand{\goth}{\mathfrak}
+
+%% make the old font selection commands from LaTeX 2.09 work as the
+%% ones we want, but only in math mode.
+
+\renewcommand{\rm}{\mathrm}
+\renewcommand{\it}{\mathit}
+\renewcommand{\bf}{\mathbf}
+\renewcommand{\cal}{\mathcal}
+
+%% Macros. See AMSLaTex user's guide for explanations.
+
+%% Ensembles
+
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Fi}{\mathbb{F}}
+\newcommand{\Af}{\mathbb{A}_f}
+\newcommand{\Aff}{\mathbb{A}}
+\newcommand{\Proj}{\mathbb{P}}
+
+%% Cohomologie
+
+\newcommand{\Hp}{{}^p\mathrm{H}}
+\renewcommand{\H}{\mathrm{H}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\HyH}{\mathbb{H}}
+\newcommand{\Hc}{\check{\mathrm{H}}}
+
+%% Hom
+
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\Ext}{Ext}
+\DeclareMathOperator{\Homf}{\underline{Hom}}
+\DeclareMathOperator{\Extf}{\underline{Ext}}
+
+%% Groupes
+
+\newcommand{\SD}{\mathbb{S}}
+\newcommand{\GL}{\bf {GL}}
+%%\newcommand{\SL}{\bf SL}
+\newcommand{\GSp}{\bf GSp}
+\newcommand{\Sp}{\bf Sp}
+\newcommand{\GU}{\bf GU}
+\newcommand{\SU}{\bf SU}
+\newcommand{\Gr}{\mathbb{G}}
+\newcommand{\Pa}{\bf P}
+\newcommand{\QP}{\bf Q}
+\newcommand{\RP}{\bf R}
+\newcommand{\B}{\bf B}
+\newcommand{\N}{\bf N}
+\newcommand{\Le}{\bf L}
+\newcommand{\Se}{\bf S}
+\newcommand{\Ar}{\mathrm{A}}
+\newcommand{\Hr}{\mathrm{H}}
+
+%% Faisceaux
+
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\Gf}{\mathcal{G}}
+\newcommand{\Of}{\mathcal{O}}
+\newcommand{\Hf}{\mathcal{H}}
+\newcommand{\Kf}{\mathcal{K}}
+\newcommand{\Mf}{\mathcal{M}}
+\newcommand{\Bf}{\mathcal{B}}
+\newcommand{\Uf}{\mathcal{U}}
+\newcommand{\Cf}{\mathcal{C}}
+\newcommand{\Pf}{\mathcal{P}}
+
+%% Divers
+
+\newcommand{\Ab}{\mathbf{Ab}}  %% category of abelian groups
+\newcommand{\adj}{\mathrm{adj}} 
+\newcommand{\aff}{\mathrm{aff}} 
+\newcommand{\as}{\underline{a}}
+\DeclareMathOperator{\can}{can}
+\DeclareMathOperator{\card}{card} 
+\DeclareMathOperator{\Chow}{Chow}
+\DeclareMathOperator{\codim}{codim}
+\DeclareMathOperator{\Coker}{Coker}
+\DeclareMathOperator{\D}{D} %% cat�gorie d�riv�e
+\DeclareMathOperator{\DF}{DF} %% cat�gorie d�riv�e filtr�e
+\DeclareMathOperator{\DM}{DM} %% motifs mixtes
+\newcommand{\DP}{{}^{w}\D}
+\newcommand{\Dp}{{}^{p}\D}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\E}{E} %% spectral sequence (I.2.6)
+\newcommand\equv{\Longleftrightarrow}
+\newcommand{\et}{\mathrm{\acute{e}t}} %% plus accent
+\newcommand{\fl}{\longrightarrow}
+\newcommand{\ra}{\longrightarrow}
+\newcommand{\Ra}{\Longrightarrow}
+\def\flnom#1{\stackrel{#1}{\fl}}
+\newcommand{\fle}{\longmapsto}
+\DeclareMathOperator{\Frac}{Frac}
+\DeclareMathOperator{\Gra}{Gr} %% graded
+\DeclareMathOperator{\Gal}{Gal} %% for Galois group
+\newcommand{\id}{\mathrm{id}} %% morphisme identit� 
+\renewcommand{\Im}{\mathrm{Im}} %% replaces old \Im (Imaginary part
+                 %% of complex number)
+\DeclareMathOperator{\Ind}{Ind}
+\newcommand{\iso}{\stackrel{\sim}{\fl}}
+\DeclareMathOperator{\Ker}{Ker}
+\newcommand{\lin}{\ell} 
+\newcommand{\Lf}{\mathcal{L}} %% syst�me local
+\newcommand{\Ltimes}{\otimes^L}
+\newcommand{\LS}{\mathrm{LS}}
+\newcommand{\PLS}{\mathrm{PLS}}
+\newcommand{\SL}{\mathrm{SL}}
+\newcommand{\M}{\mathcal{M}} %% cat�gorie de faisceaux pervers
+\DeclareMathOperator{\Ob}{\mathrm{Ob}}
+\newcommand{\op}{\mathrm{op}} 
+\newcommand\oQ{\overline{\Q}}
+\DeclareMathOperator{\Perv}{Perv}
+\DeclareMathOperator{\Pro}{Pro}
+\DeclareMathOperator{\PSh}{PSh}
+\DeclareMathOperator{\DR}{R}  %% for right-derivation of functors
+\DeclareMathOperator{\DL}{L} %% for left-derivation of functors
+\DeclareMathOperator{\Pre}{Pre}
+\newcommand\quash[1]{}
+\newcommand{\real}{\mathrm{real}} %% foncteur r�alisation
+\newcommand{\red}{\mathrm{r\acute{e}d}} %% for reduced closed subscheme
+\newcommand{\Sf}{\mathcal{S}}
+\newcommand{\Sch}{\mathbf{Sch}}
+\newcommand{\Sets}{\mathrm{Sets}} 
+\DeclareMathOperator{\Sh}{Sh}
+\newcommand{\ssi}{si et seulement si}
+\newcommand{\sous}{\setminus}
+\DeclareMathOperator{\Spec}{Spec}
+\DeclareMathOperator{\supp}{supp} %% for the support of a sheaf
+\DeclareMathOperator{\Sym}{Sym} %% puissances sym�triques
+\newcommand{\tame}{\mathrm{t}}
+\newcommand{\TR}{\mathfrak{TR}}
+\newcommand{\til}{\widetilde}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\ungras}{1\!\!\mkern -1mu1}
+\newcommand{\var}{\mathrm{var}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Y}{\mathcal{Y}}
+\newcommand{\Zar}{\mathrm{Zar}} 
+
+%% For comments to myself.
+
+% \newcommand\footnotevar[1]{\footnote{#1}}
+\newcommand\footnotevar[1]{}
+
+%% In order to prevent line breaks in formulas.
+
+\relpenalty=10000 \binoppenalty=10000
+
+
+%% In order to avoid too many over hboxes and so on for the moment.
+
+\sloppy
+
+
+%% The following is an attempt to make the table of contents better,
+%% as the Roman numbers were too wide.
+
+% \makeatletter
+
+% \renewcommand*\l@chapter[2]{%
+%   \ifnum \c@tocdepth >\m@ne
+%     \addpenalty{-\@highpenalty}%
+%     \vskip 1.0em \@plus\p@
+%    \setlength\@tempdima{2.5em}%
+%    \begingroup
+%      \parindent \z@ \rightskip \@pnumwidth
+%      \parfillskip -\@pnumwidth
+%      \leavevmode \bfseries
+%      \advance\leftskip\@tempdima
+%      \hskip -\leftskip
+%      #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+%      \penalty\@highpenalty
+%    \endgroup
+%  \fi}
+%
+% \renewcommand{\l@section}
+% {\@dottedtocline {1}{2.5em}{2.3em}}
+
+% \makeatother
+
+
+%% We make the space between paragraphs bigger (note: it is
+%% temporarily changed back in the table of contents)
+
+\setlength{\parskip}{0.5\baselineskip}
