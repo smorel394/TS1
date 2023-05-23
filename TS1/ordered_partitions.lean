@@ -11,8 +11,7 @@ variable {α : Type _}
 
 /- Sending a linear order to a preorder in one step. -/
 
-def PreorderofLinearOrder (r : LinearOrder α) : Preorder α :=
-@PartialOrder.toPreorder α (@LinearOrder.toPartialOrder α r)
+def PreorderofLinearOrder (r : LinearOrder α) : Preorder α := r.toPartialOrder.toPreorder
 
 /- Dual of a linear order. -/
 
@@ -22,9 +21,9 @@ def dual (r : LinearOrder α) := @OrderDual.linearOrder α r
 /- The set of linearly ordered partitions on α is the set of total preorders on α. (We get the corresponding partition by looking at
 the equivalence classes of the antisymmetrization.) They are partially ordered by the partial order on preorders. -/
 
-def LinearlyOrderedPartitions (α : Type _) := {s : Preorder α | Total s.le}
+def LinearOrderedPartitions (α : Type _) := {s : Preorder α | Total s.le}
 
-instance LinearlyOrderedPartitions.PartialOrder : PartialOrder (LinearlyOrderedPartitions α) :=
+instance LinearOrderedPartitions.PartialOrder : PartialOrder (LinearOrderedPartitions α) :=
 Subtype.partialOrder (fun (s : Preorder α) => Total s.le) 
 
 
@@ -36,11 +35,11 @@ namespace LinearlyOrderedPartitions
 lemma trivialPreorder_is_total : Total (trivialPreorder α).le := 
 fun _ _ => by change True ∨ True; simp only
 
-lemma trivialPreorder_is_greatest_partition (p : LinearlyOrderedPartitions α) : p ≤ ⟨trivialPreorder α, TrivialPreorder_is_total⟩ := by
+lemma trivialPreorder_is_greatest_partition (p : LinearOrderedPartitions α) : p ≤ ⟨trivialPreorder α, TrivialPreorder_is_total⟩ := by
   change ↑p ≤ trivialPreorder α  
   exact trivialPreorder_is_greatest _ 
 
-/- The minimal elements are exactly the linear orders. First we prove that they are minimal. We could write e version of this
+/- The minimal elements are exactly the linear orders. First we prove that they are minimal. We could write a version of this
 with IsMin, using ordered partitions. (Maybe we should at some point.)-/
 
 lemma linearOrder_is_minimal_partition {s : Preorder α} (hlin : IsLinearOrder α s.le) {t : Preorder α} (ht : Total t.le) :
@@ -141,7 +140,7 @@ LinearOrder_of_total_preorder_and_linear_order r s =s :=
 
 /- We can now prove that minimal ordered partitions are linear orders. -/
 
-lemma minimal_partition_is_linear_order (p : LinearlyOrderedPartitions α) (hmin : ∀ (q : LinearlyOrderedPartitions α), q ≤ p → q = p) :
+lemma minimal_partition_is_linear_order (p : LinearOrderedPartitions α) (hmin : ∀ (q : LinearOrderedPartitions α), q ≤ p → q = p) :
 IsLinearOrder α p.1.le := by
   set r := WellFounded.wellOrderExtension (@emptyWf α).wf 
   have heq := hmin ⟨LinearOrder_of_total_preorder_and_linear_order r p.1, LinearOrder_of_total_preorder_and_linear_order_is_total r p.2⟩
@@ -163,11 +162,6 @@ fun a b => s.le a b ∨ (s.le b a ∧ ∀ (c d : α), s.le b c → s.le c d → 
 
 lemma DescentPartition_aux_refl (r : LinearOrder α) (s : Preorder α) (a : α) : DescentPartition_aux r s a a :=
 Or.inl (s.le_refl a)
-
--- Is this useful ?
-lemma DescentPartition_aux_prop (r : LinearOrder α) (s : Preorder α) {a b : α} 
-(hab : AntisymmRel (DescentPartition_aux r s) a b) {c d : α} (hac : s.le a c) (hcd : s.le c d) (hdb : s.le d b) 
-(hlin : IsLinearOrder α s.le) : r.le a c ∧ r.le c d ∧ r.le d b := sorry
 
 
 
@@ -300,7 +294,7 @@ r.le a b → r.le a c → s.le b c := by
     exact @WellFounded.min_le α (dual r) (@Finite.Preorder.wellFounded_gt α (Finite.of_fintype α) (PreorderofLinearOrder r)) c Set.univ 
       (Set.mem_univ b) Set.univ_nonempty 
   rw [←habeq, ←haceq]
-  exact s.le_refl _  
+  
 
 
 /- We will have to modify the "smallest facet" map, as linear orders are not eventually trivial (unless α is finite). The target of the new

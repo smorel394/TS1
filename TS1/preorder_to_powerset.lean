@@ -2,12 +2,6 @@ import TS1.general_preorder_stuff
 
 namespace Preorder 
 
-/- What I used to call "principal ideals" is already in mathlib as "intervals". Just for my own (temporary) reference here
-is the correspondence table:
-ideal_generated s a -> @Set.Ici α s a
-ideal_strictly_generated s a -> @Set.Ioi α s a
-left_ideal_generated s a -> @Set.Iic α s a
-left_ideal_strictly_generated s a -> @Set.Iio α s a  -/
 
 /- The goal is to describe a map from Preorder α to Set (Set α), sending a preorder to the set of its nontrivial lower sets
 (here "nontrivial" means different from ⊥ and ⊥). This map reverses the order and it is injective. We will prove in another file
@@ -15,7 +9,6 @@ that,  if α is finite, its image is closed under taking subsets (so it will def
 
 /- We start with the definition of the map from Preorder α to Set (Set α). -/
 
---def isProperSet : Set α → Prop := fun s => s ≠ ⊤  ∧ s ≠ ⊤   -- useless ?
 
 def preorderToPowerset (s : Preorder α) : Set (Set α) := {β : Set α | β ≠ ⊥ ∧ β ≠ ⊤ ∧ (@IsLowerSet α {le := s.le} β)}
 
@@ -35,6 +28,24 @@ lemma preorderToPowerset_TrivialPreorder_is_empty : preorderToPowerset (trivialP
                                                                  simp only [Set.mem_univ, iff_true]
                                                                  exact hβ.2.2 (by triv) ha 
                                   exact hβ.2.1 htop 
+
+
+
+/- If s is total, then its image is totally ordered by inclusion.-/
+
+lemma preorderToPowerset_total_is_total {s : Preorder α} (htot : Total s.le) : Total (fun (X : (preorderToPowerset s)) => 
+fun (Y : preorderToPowerset s) => X.1 ⊆ Y.1) := by 
+  intro X Y 
+  simp only
+  by_cases hXY : X.1 ⊆ Y.1
+  . exact Or.inl hXY 
+  . rw [Set.not_subset] at hXY
+    match hXY with 
+    | ⟨a, ⟨haX, haY⟩⟩ => apply Or.inr 
+                         intro b hbY 
+                         cases htot a b with 
+                         | inl hab =>  exfalso; exact haY (Y.2.2.2 hab hbY)  
+                         | inr hba => exact X.2.2.2 hba haX 
 
 
 
@@ -64,6 +75,25 @@ def powersetToPreorder (E : Set (Set α)) : Preorder α :=
 
 lemma powersetToPreorder_antitone {E F : Set (Set α)} (hEF : E ⊆ F) : powersetToPreorder F ≤ powersetToPreorder E := 
 fun _ _ hab β hβ hbβ => hab β (hEF hβ) hbβ
+
+/- If E is totally ordered by inclusion, then its image is total.-/
+
+lemma powersetToPreorder_total_is_total {E : Set (Set α)} (hEtot : Total (fun (X : E) => fun (Y : E) => X.1 ⊆ Y.1)) : 
+Total (powersetToPreorder E).le := by 
+  intro a b 
+  letI : Preorder α := powersetToPreorder E 
+  by_cases hab : a ≤ b  
+  . exact Or.inl hab 
+  . change ¬(∀ (Y : Set α), Y ∈ E → b ∈ Y → a ∈ Y) at hab
+    push_neg at hab
+    match hab with
+    | ⟨Y, ⟨hYE, hbY, haY⟩⟩ => apply Or.inr 
+                              intro Z hZE haZ 
+                              cases hEtot ⟨Y, hYE⟩ ⟨Z, hZE⟩ with 
+                              | inl hYZ => exact hYZ hbY
+                              | inr hZY => exfalso; exact haY (hZY haZ) 
+  
+
 
 /- We prove that powersetToPreorder is a left inverse of preorderToPowerset. -/
 
