@@ -58,7 +58,7 @@ lemma preorderToPowerset_antitone {s t : Preorder α} (hst : s ≤ t) : preorder
                        . exact hβ.1
                        . constructor
                          . exact hβ.2.1
-                         . exact fun b a hab hb => hβ.2.2 (hst _ _ hab) hb
+                         . exact fun b a hab hb => hβ.2.2 (hst hab) hb
 
 
 

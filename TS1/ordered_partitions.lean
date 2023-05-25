@@ -1,5 +1,4 @@
 import TS1.preorder_to_powerset  
-import TS1.general_preorder_stuff 
 import Mathlib.Order.Extension.Well
 import Init.WF
 
@@ -27,9 +26,9 @@ instance LinearOrderedPartitions.PartialOrder : PartialOrder (LinearOrderedParti
 Subtype.partialOrder (fun (s : Preorder α) => Total s.le) 
 
 
-namespace LinearlyOrderedPartitions 
+namespace LinearOrderedPartitions 
 
-/- LinearlyOrderedPartitions has a greatest element, which is given by the trivial preorder. -/
+/- LinearOrderedPartitions has a greatest element, which is given by the trivial preorder. -/
 
 
 lemma trivialPreorder_is_total : Total (trivialPreorder α).le := 
@@ -48,10 +47,10 @@ t ≤ s → t = s := by
   apply Preorder.ext
   intro a b 
   constructor
-  . exact fun htab => hts _ _ htab
+  . exact fun htab => hts htab
   . exact fun hsab => by cases (ht a b) with
                          | inl htab => exact htab
-                         | inr htba => rw [hlin.toIsPartialOrder.toIsAntisymm.antisymm a b hsab (hts _ _ htba)]
+                         | inr htba => rw [hlin.toIsPartialOrder.toIsAntisymm.antisymm a b hsab (hts htba)]
                                       
 
 
@@ -275,7 +274,7 @@ lemma EventuallyTrivial_IsUpperSet (r : LinearOrder α) : IsUpperSet (Eventually
   constructor
   . exact Total_IsUpperSet hrs hr.1 
   . cases (hr.2) with
-    | intro a ha => exact ⟨a, fun b c hab hac => hrs _ _ (ha b c hab hac)⟩
+    | intro a ha => exact ⟨a, fun b c hab hac => hrs (ha b c hab hac)⟩
 
 
 /- If α is finite (and nonempty), then everything is eventually trivial.-/
@@ -368,4 +367,4 @@ lemma DescentPartition_linear_implies_dual_linear_order (r : LinearOrder α) {s 
 
 
 
-end LinearlyOrderedPartitions
+end LinearOrderedPartitions

@@ -196,9 +196,19 @@ lemma ELFP_is_locally_WellFounded {s : Preorder α} (ELPF : EssentiallyLocallyFi
 /- Let's define a partial order on preorders (we just lift the existing partial order on relations). Maybe this
 is already in mathlib somewhere ? -/
 
-instance : PartialOrder (Preorder α) :=
-PartialOrder.lift (fun s => (@Preorder.toLE α s).le)  
-    (fun f g heq => by apply Preorder.ext; simp only at heq; exact fun x y => by erw [heq])
+instance instPreorder.le : LE (Preorder α) :=
+  ⟨fun r s =>  ∀ ⦃a b : α⦄, r.le a b → s.le a b⟩
+
+instance Preorder.PartialOrder : PartialOrder (Preorder α) where
+le := (. ≤ .)
+lt r s := r ≤ s ∧ ¬(s ≤ r)
+le_refl r := fun _ _ h => h  
+le_trans r s t := fun hrs hst => fun _ _ h => hst (hrs h) 
+lt_iff_le_not_le _ _ := Iff.rfl 
+le_antisymm r s := fun hrs hsr => by apply Preorder.ext; 
+                                     exact fun _ _ => ⟨fun h => hrs h, fun h => hsr h⟩  
+
+
 
 
 
@@ -232,7 +242,7 @@ lemma nontrivial_preorder_iff_exists_not_le (s : Preorder α) :
 
 lemma AntisymmRel_monotone {r s : Preorder α} (hrs : r ≤ s) : ∀ {a b : α},
 AntisymmRel r.le a b → AntisymmRel s.le a b :=
-fun hab => ⟨hrs _ _ hab.1 , hrs _ _ hab.2⟩ 
+fun hab => ⟨hrs hab.1, hrs hab.2⟩
 
 /- So we get a function from the antisymmetrization of r to that of s by sending x to toAntisymmetrization s.le (ofAntisymmetrization r.le x).-/
 
@@ -269,7 +279,7 @@ lemma AntisymmetrizationtoAntisymmetrization_monotone {r s : Preorder α} (hrs :
   rw [←(AntisymmetrizationtoAntisymmetrization_lift hrs), ←(AntisymmetrizationtoAntisymmetrization_lift hrs)]
   rw [toAntisymmetrization_le_toAntisymmetrization_iff]
   rw [←(@ofAntisymmetrization_le_ofAntisymmetrization_iff α r x y)] at hxy 
-  exact hrs _ _ hxy
+  exact hrs hxy
   
 
 
@@ -300,7 +310,7 @@ Set.image (AntisymmetrizationtoAntisymmetrization r s)
       rw [←(toAntisymmetrization_ofAntisymmetrization s.le z), ←hcdef, toAntisymmetrization_le_toAntisymmetrization_iff] at hzb
       exact hzb
     cases (hrtot a c) with 
-    | inr hca => have hsym : AntisymmRel s.le a c := ⟨hsac, hrs _ _ hca⟩
+    | inr hca => have hsym : AntisymmRel s.le a c := ⟨hsac, hrs hca⟩
                  exists @toAntisymmetrization α r.le (@instIsPreorderLeToLE α r) a
                  constructor
                  . unfold Set.Icc
@@ -314,7 +324,7 @@ Set.image (AntisymmetrizationtoAntisymmetrization r s)
                    rw [←AntisymmRel.setoid_r] at hsym
                    exact hsym  
     | inl hac => . cases (hrtot c b) with
-                   | inr hbc => have hsym : AntisymmRel s.le b c := ⟨hrs _ _ hbc, hscb⟩
+                   | inr hbc => have hsym : AntisymmRel s.le b c := ⟨hrs hbc, hscb⟩
                                 exists @toAntisymmetrization α r.le (@instIsPreorderLeToLE α r) b
                                 constructor
                                 . unfold Set.Icc
@@ -344,8 +354,8 @@ Set.image (AntisymmetrizationtoAntisymmetrization r s)
 lemma Total_IsUpperSet : IsUpperSet {s : Preorder α | Total s.le} := by
   intro s t hst hstot a b
   cases (hstot a b) with
-  | inl hsab => exact Or.inl (hst _ _ hsab)
-  | inr hsba => exact Or.inr (hst _ _ hsba) 
+  | inl hsab => exact Or.inl (hst hsab)
+  | inr hsba => exact Or.inr (hst hsba) 
 
 /- And so do total essentially locally finite preorders. -/
 
@@ -373,7 +383,7 @@ noncomputable def TotalELPF_IsUpperSet {r s : Preorder α} (htot : Total r.le) (
       | inr hryx => by_cases hsxy : s.le (@ofAntisymmetrization α s.le (@instIsPreorderLeToLE α s) x)
                        (@ofAntisymmetrization α s.le (@instIsPreorderLeToLE α s) y)
                     . have hsym : AntisymmRel s.le  (@ofAntisymmetrization α s.le (@instIsPreorderLeToLE α s) x)
-                        (@ofAntisymmetrization α s.le (@instIsPreorderLeToLE α s) y) := ⟨hsxy, hrs _ _ hryx⟩
+                        (@ofAntisymmetrization α s.le (@instIsPreorderLeToLE α s) y) := ⟨hsxy, hrs hryx⟩
                       have heq : x = y := by 
                         rw [←(@toAntisymmetrization_ofAntisymmetrization α s.le (@instIsPreorderLeToLE α s) x)]
                         rw [←(@toAntisymmetrization_ofAntisymmetrization α s.le (@instIsPreorderLeToLE α s) y)]
