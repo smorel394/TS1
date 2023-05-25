@@ -227,6 +227,18 @@ s ≤ DescentPartition r htot := by
   exact Or.inl hsab 
 
 
+lemma DescentPartition_comp (r : LinearOrder α) {s: Preorder α} (htot : Total s.le) : 
+DescentPartition r htot = @DescentPartition _ r (LinearOrder_of_total_preorder_and_linear_order r s)
+(LinearOrder_of_total_preorder_and_linear_order_is_total r htot) := by 
+  ext a b 
+  constructor
+  . intro hab 
+    change s.le a b ∨ (s.le b a ∧ ∀ (c d : α), s.le b c → s.le c d → s.le d a → (r.le b c ∧ r.le c d ∧ r.le d a)) at hab 
+    cases hab with 
+    | inl hsab => apply Or.inl 
+    | inr hsba => sorry 
+  . sorry 
+
 /- One of the big goals: LinearOrder_of_total_preorder_and_linear_order r s is equal to s' if and only s is in the interval
 [s', DescentPartition r s'].-/
 
