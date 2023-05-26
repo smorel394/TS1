@@ -127,6 +127,28 @@ LinearOrder_of_total_preorder_and_linear_order r s ≤ s := by
   | inl hlt => exact le_of_lt hlt
   | inr heq => exact heq.1.1
 
+/- On the blocks of s, the linear orders LO(s) and r coincide.-/
+
+lemma LinearOrder_vs_fixed_LinearOrder (r : LinearOrder α) {s : Preorder α} (htot : Total s.le) {a b : α} (hab : AntisymmRel s.le a b) :
+r.le a b ↔  (LinearOrder_of_total_preorder_and_linear_order r s).le a b := by 
+  constructor
+  . exact fun hrab => Or.inr ⟨hab, hrab⟩
+  . intro hsab 
+    cases hsab with 
+    | inl hlt => exfalso
+                 rw [←(TotalPreorder_lt_iff_not_le htot)] at hlt 
+                 exact hlt hab.2
+    | inr heq => exact heq.2 
+
+/- Formal consequence of the fact that LO(s) ≤ s and the preorders are total.-/
+
+lemma LinearOrder_of_total_preorder_and_linear_order_lt (r : LinearOrder α) {s : Preorder α} (htot : Total s.le) {a b : α}
+(hab : s.lt a b) : (LinearOrder_of_total_preorder_and_linear_order r s).lt a b := by 
+  rw [←(TotalPreorder_lt_iff_not_le htot)] at hab 
+  rw [←(@TotalPreorder_lt_iff_not_le _ (LinearOrder_of_total_preorder_and_linear_order r s) (LinearOrder_of_total_preorder_and_linear_order_is_total r htot))]
+  by_contra habs
+  exact hab (LinearOrder_of_total_preorder_and_linear_order_is_smaller r s habs)
+
 
 /- Sanity check. -/
 
@@ -227,20 +249,361 @@ s ≤ DescentPartition r htot := by
   exact Or.inl hsab 
 
 
-lemma DescentPartition_comp (r : LinearOrder α) {s: Preorder α} (htot : Total s.le) : 
-DescentPartition r htot = @DescentPartition _ r (LinearOrder_of_total_preorder_and_linear_order r s)
+def AscentPartition_aux (r : LinearOrder α) (s : Preorder α) : α → α → Prop :=
+fun a b => s.le a b ∨ (s.le b a ∧ @StrictMonoOn α α s r.toPartialOrder.toPreorder (fun x => x) (@Set.Icc α s b a))
+
+
+lemma AscentPartition_aux_refl (r : LinearOrder α) (s : Preorder α) (a : α) : AscentPartition_aux r s a a :=
+Or.inl (s.le_refl a)
+
+
+lemma AscentPartition_aux_trans (r : LinearOrder α) {s : Preorder α} (htot : Total s.le) (a b c : α) (hab : AscentPartition_aux r s a b)
+(hbc : AscentPartition_aux r s b c) : AscentPartition_aux r s a c := by 
+  cases hab with
+  | inl hab => cases hbc with
+               | inl hbc => exact Or.inl (s.le_trans _ _ _ hab hbc)
+               | inr hcb => cases (htot a c) with
+                            | inl hac => exact Or.inl hac
+                            | inr hca => apply Or.inr 
+                                         rw [and_iff_right hca]
+                                         intro d hd e he hde  
+                                         refine hcb.2 ?_ ?_ hde 
+                                         . rw [Set.mem_Icc] at hd |- 
+                                           exact ⟨hd.1, s.le_trans _ _ _ hd.2 hab⟩ 
+                                         . rw [Set.mem_Icc] at he |- 
+                                           exact ⟨he.1, s.le_trans _ _ _ he.2 hab⟩                       
+  | inr hba => cases hbc with
+               | inl hbc => cases (htot a c) with
+                            | inl hac => exact Or.inl hac 
+                            | inr hca => apply Or.inr
+                                         rw [and_iff_right hca]
+                                         intro d hd e he hde 
+                                         refine hba.2 ?_ ?_ hde 
+                                         . rw [Set.mem_Icc] at hd |-
+                                           exact ⟨s.le_trans _ _ _ hbc hd.1, hd.2⟩
+                                         . rw [Set.mem_Icc] at he |- 
+                                           exact ⟨s.le_trans _ _ _ hbc he.1, he.2⟩
+               | inr hcb => apply Or.inr 
+                            rw [and_iff_right (s.le_trans _ _ _ hcb.1 hba.1)]
+                            intro d hd e he hde 
+                            rw [Set.mem_Icc] at hd he
+                            cases htot d b with 
+                            | inr hbd => refine hba.2 ?_ ?_ hde 
+                                         all_goals rw [Set.mem_Icc]
+                                         . exact ⟨hbd, hd.2⟩
+                                         . exact ⟨le_trans hbd (le_of_lt hde) , he.2⟩
+                            | inl hdb => cases htot b e with 
+                                         | inr heb => refine hcb.2 ?_ ?_ hde 
+                                                      all_goals rw [Set.mem_Icc]
+                                                      . exact ⟨hd.1, hdb⟩
+                                                      . exact ⟨he.1, heb⟩
+                                         | inl hbe => by_cases hdblt : s.lt d b 
+                                                      . by_cases hbelt : s.lt b e 
+                                                        . refine @lt_trans _ r.toPartialOrder.toPreorder _ _ _ (hcb.2 ?_ ?_ hdblt) (hba.2 ?_ ?_ hbelt)
+                                                          all_goals rw [Set.mem_Icc]
+                                                          . exact ⟨hd.1, hdb⟩
+                                                          . exact ⟨hcb.1, s.le_refl b⟩
+                                                          . exact ⟨s.le_refl b, hba.1⟩
+                                                          . exact ⟨hbe, he.2⟩
+                                                        . rw [←(TotalPreorder_lt_iff_not_le htot), not_not] at hbelt
+                                                          refine hcb.2 ?_ ?_ hde 
+                                                          all_goals rw [Set.mem_Icc]
+                                                          . exact ⟨hd.1, hdb⟩
+                                                          . exact ⟨he.1, hbelt⟩
+                                                      . rw [←(TotalPreorder_lt_iff_not_le htot), not_not] at hdblt 
+                                                        refine hba.2 ?_ ?_ hde 
+                                                        all_goals rw [Set.mem_Icc]
+                                                        . exact ⟨hdblt, hd.2⟩
+                                                        . exact ⟨hbe, he.2⟩
+                            
+
+lemma AscentPartition_aux_total (r: LinearOrder α) {s : Preorder α} (htot : Total s.le) (a b : α) :
+AscentPartition_aux r s a b ∨ AscentPartition_aux r s b a := by
+  cases (htot a b) with
+  | inl hab => exact Or.inl (Or.inl hab) 
+  | inr hba => exact Or.inr (Or.inl hba) 
+
+
+
+def AscentPartition (r: LinearOrder α) {s : Preorder α} (htot : Total s.le) : Preorder α where 
+le := AscentPartition_aux r s 
+lt := fun a b => AscentPartition_aux r s a b ∧ ¬(AscentPartition_aux r s b a)
+le_refl := AscentPartition_aux_refl r s 
+le_trans := AscentPartition_aux_trans r htot 
+lt_iff_le_not_le := fun a b => by triv 
+
+
+lemma AscentPartition_is_total (r: LinearOrder α) {s : Preorder α} (htot : Total s.le) :
+Total (AscentPartition r htot).le := AscentPartition_aux_total r htot 
+
+
+lemma AscentPartition_is_greater (r : LinearOrder α) {s: Preorder α} (htot : Total s.le) : 
+s ≤ AscentPartition r htot := by
+  intro a b hsab 
+  change AscentPartition_aux r s a b  
+  exact Or.inl hsab 
+
+
+/- Interaction between the two maps.-/
+
+lemma AscentPartition_comp (r : LinearOrder α) {s: Preorder α} (htot : Total s.le) : 
+AscentPartition r htot = @AscentPartition _ r (LinearOrder_of_total_preorder_and_linear_order r s)
 (LinearOrder_of_total_preorder_and_linear_order_is_total r htot) := by 
+  ext a b 
+  constructor 
+  . intro hab 
+    by_cases hloab : (LinearOrder_of_total_preorder_and_linear_order r s).le a b
+    . exact Or.inl hloab 
+    . rw [@TotalPreorder_lt_iff_not_le _ (LinearOrder_of_total_preorder_and_linear_order r s) 
+       (LinearOrder_of_total_preorder_and_linear_order_is_total r htot)] at hloab 
+      apply Or.inr 
+      rw [and_iff_right (@le_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) _ _ hloab)]
+      intro d hd e he hde 
+      rw [@Set.mem_Icc _ (LinearOrder_of_total_preorder_and_linear_order r s)] at hd he 
+      by_cases hsab : s.le a b 
+      . have heqde : AntisymmRel s.le d e := by 
+          constructor
+          . apply LinearOrder_of_total_preorder_and_linear_order_is_smaller r 
+            exact @le_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) _ _ hde 
+          . refine s.le_trans e a d ?_ (s.le_trans a b d hsab ?_)
+            all_goals apply LinearOrder_of_total_preorder_and_linear_order_is_smaller r 
+            . exact he.2
+            . exact hd.1  
+        apply lt_of_le_of_ne 
+        . rw [LinearOrder_vs_fixed_LinearOrder r htot heqde]
+          exact @le_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) _ _ hde 
+        . exact @ne_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) _ _ hde 
+      . cases hab with 
+        | inl hab => exfalso; exact hsab hab 
+        | inr hba => by_cases hsde : s.lt d e 
+                     . refine hba.2 ?_ ?_ hsde 
+                       all_goals rw [Set.mem_Icc]
+                       . constructor 
+                         all_goals apply LinearOrder_of_total_preorder_and_linear_order_is_smaller r
+                         . exact hd.1 
+                         . exact hd.2  
+                       . constructor 
+                         all_goals apply LinearOrder_of_total_preorder_and_linear_order_is_smaller r 
+                         . exact he.1 
+                         . exact he.2 
+                     . have heqde : AntisymmRel s.le d e :=  by
+                         constructor 
+                         . apply LinearOrder_of_total_preorder_and_linear_order_is_smaller r 
+                           exact @le_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) d e hde                          
+                         . rw [←(TotalPreorder_lt_iff_not_le htot), not_not] at hsde
+                           exact hsde 
+                       apply lt_of_le_of_ne 
+                       . rw [LinearOrder_vs_fixed_LinearOrder r htot heqde]
+                         exact @le_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) d e hde 
+                       . exact @ne_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) d e hde 
+  . intro hab 
+    cases hab with 
+    | inl hloab => exact Or.inl (LinearOrder_of_total_preorder_and_linear_order_is_smaller r s hloab) 
+    | inr hloba => by_cases hsab : s.le a b 
+                   . exact Or.inl hsab 
+                   . apply Or.inr 
+                     rw [TotalPreorder_lt_iff_not_le htot] at hsab
+                     rw [and_iff_right (le_of_lt hsab)]
+                     intro d hd e he hde 
+                     rw [Set.mem_Icc] at hd he 
+                     by_cases hbd : (LinearOrder_of_total_preorder_and_linear_order r s).le b d 
+                     . by_cases hea : (LinearOrder_of_total_preorder_and_linear_order r s).le e a 
+                       . refine hloba.2 ?_ ?_ (LinearOrder_of_total_preorder_and_linear_order_lt r htot hde)
+                         all_goals rw [@Set.mem_Icc _ (LinearOrder_of_total_preorder_and_linear_order r s)]
+                         . constructor
+                           . exact hbd 
+                           . exact (LinearOrder_of_total_preorder_and_linear_order r s).le_trans _ _ _ (Or.inl hde) hea 
+                         . constructor 
+                           . exact (LinearOrder_of_total_preorder_and_linear_order r s).le_trans _ _ _ hbd  (Or.inl hde)
+                           . exact hea 
+                       . change ¬(s.lt e a ∨ (AntisymmRel s.le e a ∧ r.le e a)) at hea 
+                         rw [not_or, not_and, ←(TotalPreorder_lt_iff_not_le htot), not_not] at hea
+                         have hrea := hea.2 ⟨he.2, hea.1⟩
+                         rw [←lt_iff_not_le] at hrea 
+                         refine @lt_trans _ r.toPartialOrder.toPreorder d a e ?_ hrea
+                         have hda : (LinearOrder_of_total_preorder_and_linear_order r s).lt d a := by
+                           apply LinearOrder_of_total_preorder_and_linear_order_lt r htot
+                           exact @lt_of_lt_of_le _ s d e a hde he.2  
+                         refine hloba.2 ?_ ?_ hda 
+                         all_goals rw [@Set.mem_Icc _ (LinearOrder_of_total_preorder_and_linear_order r s)]
+                         . exact ⟨hbd, @le_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) _ _ hda⟩
+                         . exact ⟨Or.inl hsab, (LinearOrder_of_total_preorder_and_linear_order r s).le_refl _⟩
+                     . change ¬(s.lt b d ∨ (AntisymmRel s.le b d ∧ r.le b d)) at hbd
+                       rw [not_or, not_and, ←(TotalPreorder_lt_iff_not_le htot), not_not] at hbd
+                       have hrbd := hbd.2 ⟨hd.1, hbd.1⟩
+                       rw [←lt_iff_not_le] at hrbd 
+                       refine @lt_trans _ r.toPartialOrder.toPreorder d b e hrbd ?_
+                       by_cases hea : (LinearOrder_of_total_preorder_and_linear_order r s).le e a 
+                       . have hbe : (LinearOrder_of_total_preorder_and_linear_order r s).lt b e := by
+                           apply LinearOrder_of_total_preorder_and_linear_order_lt r htot 
+                           exact @lt_of_le_of_lt _ s _ _ _ hd.1 hde 
+                         refine hloba.2 ?_ ?_ hbe 
+                         all_goals rw [@Set.mem_Icc _ (LinearOrder_of_total_preorder_and_linear_order r s)]
+                         . exact ⟨(LinearOrder_of_total_preorder_and_linear_order r s).le_refl _, Or.inl hsab⟩ 
+                         . exact ⟨@le_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) _ _ hbe, hea⟩
+                       . change ¬(s.lt e a ∨ (AntisymmRel s.le e a ∧ r.le e a)) at hea 
+                         rw [not_or, not_and, ←(TotalPreorder_lt_iff_not_le htot), not_not] at hea
+                         have hrea := hea.2 ⟨he.2, hea.1⟩
+                         rw [←lt_iff_not_le] at hrea 
+                         refine @lt_trans _ r.toPartialOrder.toPreorder b a e ?_ hrea
+                         have hba : (LinearOrder_of_total_preorder_and_linear_order r s).lt b a := by
+                           apply LinearOrder_of_total_preorder_and_linear_order_lt r htot
+                           exact @lt_of_lt_of_le _ s b e a (@lt_of_le_of_lt _ s b d e hd.1 hde) he.2
+                         refine hloba.2 ?_ ?_ hba 
+                         all_goals rw [@Set.mem_Icc _ (LinearOrder_of_total_preorder_and_linear_order r s)]
+                         . exact ⟨(LinearOrder_of_total_preorder_and_linear_order r s).le_refl _, @le_of_lt _ 
+                             (LinearOrder_of_total_preorder_and_linear_order r s) _ _ hba⟩  
+                         . exact ⟨@le_of_lt _ (LinearOrder_of_total_preorder_and_linear_order r s) _ _ hba, 
+                             (LinearOrder_of_total_preorder_and_linear_order r s).le_refl _⟩ 
+
+
+lemma LinearOrder_of_AscentPartition (r : LinearOrder α) {s : Preorder α} (hstot : Total s.le) :
+LinearOrder_of_total_preorder_and_linear_order r s = LinearOrder_of_total_preorder_and_linear_order r (AscentPartition r hstot) := by 
   ext a b 
   constructor
   . intro hab 
-    change s.le a b ∨ (s.le b a ∧ ∀ (c d : α), s.le b c → s.le c d → s.le d a → (r.le b c ∧ r.le c d ∧ r.le d a)) at hab 
     cases hab with 
-    | inl hsab => apply Or.inl 
-    | inr hsba => sorry 
-  . sorry 
+    | inl hsltab => by_cases hapab : (AscentPartition r hstot).lt a b 
+                    . exact Or.inl hapab 
+                    . rw [←(@TotalPreorder_lt_iff_not_le _ (AscentPartition r hstot) (AscentPartition_is_total r hstot)), not_not] at hapab
+                      set hapab' := hapab
+                      rw [←(TotalPreorder_lt_iff_not_le hstot)] at hsltab 
+                      change s.le b a ∨ _ at hapab 
+                      rw [or_iff_right hsltab] at hapab
+                      rw [TotalPreorder_lt_iff_not_le hstot] at hsltab
+                      have hrab : r.lt a b := by 
+                        refine hapab.2 ?_ ?_   hsltab 
+                        all_goals rw [Set.mem_Icc]
+                        . exact ⟨s.le_refl a, le_of_lt hsltab⟩
+                        . exact ⟨le_of_lt hsltab, s.le_refl b⟩
+                      apply Or.inr 
+                      rw [and_iff_left (@le_of_lt _ r.toPartialOrder.toPreorder _ _ hrab)]
+                      unfold AntisymmRel
+                      rw [and_iff_left hapab'] 
+                      exact Or.inl (le_of_lt hsltab)                     
+    | inr hrab => apply Or.inr 
+                  rw [and_iff_left hrab.2]
+                  constructor 
+                  . exact AscentPartition_is_greater r hstot hrab.1.1
+                  . exact AscentPartition_is_greater r hstot hrab.1.2
+  . intro hab 
+    cases hab with 
+    | inl hltab => rw [←(@TotalPreorder_lt_iff_not_le _ (AscentPartition r hstot) (AscentPartition_is_total r hstot))] at hltab 
+                   change ¬(s.le b a ∨ _) at hltab 
+                   rw [not_or, TotalPreorder_lt_iff_not_le hstot] at hltab 
+                   exact Or.inl hltab.1
+    | inr heq => have hsab : s.le a b := by 
+                   by_contra habs  
+                   unfold AntisymmRel at heq 
+                   change ((s.le a b ∨ _) ∧ _) ∧ _ at heq
+                   rw [or_iff_right habs] at heq
+                   rw [TotalPreorder_lt_iff_not_le hstot] at habs
+                   have hrba : r.lt b a := by 
+                     refine heq.1.1.2 ?_ ?_ habs 
+                     all_goals rw [Set.mem_Icc]
+                     . exact ⟨s.le_refl _, le_of_lt habs⟩ 
+                     . exact ⟨le_of_lt habs, s.le_refl _⟩ 
+                   exact @not_le_of_lt _ r.toPartialOrder.toPreorder _ _ hrba heq.2 
+                 by_cases hsltab : s.lt a b 
+                 . exact Or.inl hsltab 
+                 . rw [←(TotalPreorder_lt_iff_not_le hstot), not_not] at hsltab 
+                   apply Or.inr 
+                   exact ⟨⟨hsab, hsltab⟩, heq.2⟩ 
+                   
 
 /- One of the big goals: LinearOrder_of_total_preorder_and_linear_order r s is equal to s' if and only s is in the interval
-[s', DescentPartition r s'].-/
+[s', AscentPartition r s'], if and only if AscentPartition r s = AscentPartition r s'. So the intervals [s', AscentPartition r s']
+for s' a linear order are the fibers of the map LinearOrder_etc and also of the map AscentPartition.-/
+
+/-We do the easy part first, i.e. the fact that LinearOrder_etc is constant on any interval [s, AscentPartition r s].-/
+
+lemma LinearOrder_of_total_preorder_and_linear_order_is_constant_on_intervals_aux (r : LinearOrder α) {s t u : Preorder α}
+(httot : Total t.le) (hutot : Total u.le) (hst : s ≤ t) (htu : t ≤ u)
+(heq : LinearOrder_of_total_preorder_and_linear_order r s = LinearOrder_of_total_preorder_and_linear_order r u) :
+LinearOrder_of_total_preorder_and_linear_order r s ≤ LinearOrder_of_total_preorder_and_linear_order r t := by 
+  intro a b hab 
+  by_cases htab : t.lt a b 
+  . exact Or.inl htab 
+  . rw [←(TotalPreorder_lt_iff_not_le httot), not_not] at htab
+    have htab' : t.le a b := by 
+      apply hst 
+      exact LinearOrder_of_total_preorder_and_linear_order_is_smaller r s hab 
+    have huab : ¬(u.lt a b) := by
+      rw [←(TotalPreorder_lt_iff_not_le hutot), not_not]
+      exact htu htab
+    rw [heq] at hab
+    change u.lt a b ∨ _ at hab 
+    rw [or_iff_right huab] at hab 
+    exact Or.inr ⟨⟨htab', htab⟩, hab.2⟩
+
+
+
+lemma LinearOrder_of_total_preorder_and_linear_order_is_constant_on_intervals (r : LinearOrder α) {s t u : Preorder α}
+(hstot : Total s.le) (httot : Total t.le) (hutot : Total u.le) (hst : s ≤ t) (htu : t ≤ u)
+(heq : LinearOrder_of_total_preorder_and_linear_order r s = LinearOrder_of_total_preorder_and_linear_order r u) :
+LinearOrder_of_total_preorder_and_linear_order r s = LinearOrder_of_total_preorder_and_linear_order r t := by 
+  apply le_antisymm
+  . exact LinearOrder_of_total_preorder_and_linear_order_is_constant_on_intervals_aux r httot hutot hst htu heq  
+  . intro a b htab 
+    cases LinearOrder_of_total_preorder_and_linear_order_is_total r hstot a b with 
+    | inl hsab => exact hsab 
+    | inr hsba => have htba := LinearOrder_of_total_preorder_and_linear_order_is_constant_on_intervals_aux r httot hutot hst htu heq hsba 
+                  have heq := LinearOrder_of_total_preorder_and_linear_order_aux_antisymm r t _ _ htab htba 
+                  rw [heq]
+                  exact (LinearOrder_of_total_preorder_and_linear_order r s).le_refl _ 
+
+
+lemma LinearOrder_of_total_preorder_and_linear_order_on_ascent_interval (r : LinearOrder α) {s t : Preorder α} (hstot : Total s.le)
+(httot : Total t.le) (hst : s ≤ t) (hts : t ≤ AscentPartition r hstot) :
+LinearOrder_of_total_preorder_and_linear_order r s = LinearOrder_of_total_preorder_and_linear_order r t := 
+@LinearOrder_of_total_preorder_and_linear_order_is_constant_on_intervals _ r s t (AscentPartition r hstot) hstot httot 
+(AscentPartition_is_total r hstot) hst hts (LinearOrder_of_AscentPartition r hstot)
+
+/- And a corollary when s is a linear order.-/
+
+lemma LinearOrder_of_total_preorder_and_linear_order_on_ascent_interval' (r : LinearOrder α) {s t : Preorder α} 
+(hslin : IsLinearOrder α s.le) (httot : Total t.le) (hst : s ≤ t) (hts : t ≤ AscentPartition r hslin.toIsTotal.total) :
+s = LinearOrder_of_total_preorder_and_linear_order r t := by 
+  rw [←(LinearOrder_of_linear_order_and_linear_order_is_self r hslin)]
+  exact LinearOrder_of_total_preorder_and_linear_order_on_ascent_interval r hslin.toIsTotal.total httot hst hts  
+
+
+/- We show that the fibers of the LinearOrder_etc map are the ascent intervals.-/
+
+lemma LinearOrder_of_total_preorder_and_linear_order_fibers (r : LinearOrder α) {s t : Preorder α}
+(hslin : IsLinearOrder α s.le) (httot : Total t.le) (him : LinearOrder_of_total_preorder_and_linear_order r t = s) :
+s ≤ t ∧ t ≤ (AscentPartition r hslin.toIsTotal.total) := by 
+  constructor 
+  . rw [←him]
+    exact LinearOrder_of_total_preorder_and_linear_order_is_smaller r t 
+  . simp_rw [←him]
+    rw [←AscentPartition_comp] 
+    exact AscentPartition_is_greater r httot 
+
+/- Now we show that the fibers of the AscentPartition map are the same intervals.-/
+
+lemma AscentPartition_fibers (r : LinearOrder α) {s t : Preorder α} (hslin : IsLinearOrder α s.le) (httot : Total t.le) :
+AscentPartition r hslin.toIsTotal.total = AscentPartition r httot ↔ t ≤ AscentPartition r hslin.toIsTotal.total ∧ s ≤ t := by
+  constructor 
+  . intro heq 
+    constructor 
+    . rw [heq]
+      exact AscentPartition_is_greater r httot  
+    . rw [←(LinearOrder_of_linear_order_and_linear_order_is_self r hslin)] 
+      rw [LinearOrder_of_AscentPartition r hslin.toIsTotal.total, heq]
+      rw [←(LinearOrder_of_AscentPartition r httot)]
+      exact LinearOrder_of_total_preorder_and_linear_order_is_smaller r t 
+  . intro hineq 
+    simp_rw [LinearOrder_of_total_preorder_and_linear_order_on_ascent_interval' r hslin httot hineq.2 hineq.1] 
+    rw [←AscentPartition_comp]
+
+lemma AscentPartition_fibers' (r : LinearOrder α) {s t : Preorder α} (hslin : IsLinearOrder α s.le) (httot : Total t.le) :
+AscentPartition r hslin.toIsTotal.total = AscentPartition r httot ↔ s = LinearOrder_of_total_preorder_and_linear_order r t := by 
+  rw [AscentPartition_fibers r hslin httot]
+  constructor
+  . exact fun hineq => LinearOrder_of_total_preorder_and_linear_order_on_ascent_interval' r hslin httot hineq.2 hineq.1 
+  . exact fun heq => And.symm (LinearOrder_of_total_preorder_and_linear_order_fibers r hslin httot (Eq.symm heq))
+
 
 
 /- We want some conditions on ordered partitions that will be respected by LinearOrder_of_total_preorder_and_linear_order and
