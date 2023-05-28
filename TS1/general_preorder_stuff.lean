@@ -15,7 +15,7 @@ import Mathlib.Order.Zorn
 
 
 
-
+set_option autoImplicit false
 
 
 open Classical 

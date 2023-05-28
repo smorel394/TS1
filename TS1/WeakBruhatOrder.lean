@@ -1,10 +1,17 @@
 import TS1.ordered_partitions
+import Mathlib.Order.Cover
+
+
+
+set_option autoImplicit false
 
 universe u 
 
 variable {α : Type u}
 
 open LinearOrderedPartitions
+
+open Classical
 
 namespace WeakBruhatOrder
 
@@ -249,5 +256,530 @@ lemma WeakBruhatOrder_iff (r : LinearOrder α) {s₁ s₂ : Preorder α} (hlins�
 
 
 
+/- Smallest and biggest elements for the weak Bruhat order (i.e. the fixed linear order r and its dual).-/
 
-end WeakBruhatOrder 
+lemma WeakBruhatOrder_smallest (r : LinearOrder α) {s : Preorder α} (hlins : IsLinearOrder α s.le) :
+(WeakBruhatOrder r).le ⟨r.toPartialOrder.toPreorder, @instIsLinearOrderLeToLEToPreorderToPartialOrder _ r⟩ ⟨s, hlins⟩ := by 
+  intro ⟨a,b⟩ hab 
+  exfalso 
+  rw [Inversions_def] at hab 
+  exact @lt_irrefl _ r.toPartialOrder.toPreorder _ (@lt_trans _ r.toPartialOrder.toPreorder _ _ _ hab.1 hab.2)
+
+
+lemma WeakBruhatOrder_greatest (r : LinearOrder α) {s : Preorder α} (hlins : IsLinearOrder α s.le) :
+(WeakBruhatOrder r).le  ⟨s, hlins⟩ ⟨(dual r).toPartialOrder.toPreorder, @instIsLinearOrderLeToLEToPreorderToPartialOrder _ (dual r)⟩ := by 
+  intro ⟨a,b⟩ hab 
+  rw [Inversions_dual_order]
+  rw [Inversions_def] at hab 
+  exact hab.1 
+
+
+/- If s and t are linear orders such that s ≤ t for the weak Bruhat order and Inversions s t is finite, then we can find a chain of linear orders
+s₀ = s ≤ s₁ ≤ ... ≤ sₙ = t  such that each order covers the preceding one (for the weak Bruhat order). Here we will construct s₁ and show that
+s₁ covers s₀ and that Inversions s₁ t is strictly contained in Inversions s t.-/
+
+/-The first step is to show that there exists an element (a,b) of Inversions s t such that b covers a. Then s₁ will be the composition of s and of the
+transposition (a,b).-/
+
+lemma Finite_inversions_exists_elementary_inversion_rec (n : ℕ) {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) :
+∀ (A : Finset α), (Finset.card A ≤ n) → (∀ (a b c : α), a ∈ A → b ∈ A → s.le a c → s.le c b → c ∈ A) → 
+(∃ (a b : α), a ∈ A ∧ b ∈ A ∧ (a,b) ∈ Inversions s.lt t.lt) → ∃ (a b : α), a ∈ A ∧ b ∈ A ∧ (a,b) ∈ Inversions s.lt t.lt ∧ 
+@Covby _ s.toLT a b := by 
+  induction' n with d hd 
+  . intro A hcard _ hinv 
+    exfalso 
+    match hinv with 
+    | ⟨a, _, ⟨ha,_,_⟩⟩ => rw [Nat.le_zero, Finset.card_eq_zero] at hcard  
+                          rw [hcard] at ha 
+                          exact Finset.not_mem_empty a ha                          
+  . intro A hcard hA hinv 
+    match hinv with 
+    | ⟨a, b, ⟨haA, hbA, hab⟩⟩ => 
+        by_cases hcov : @Covby _ s.toLT a b 
+        . exists a; exists b 
+        . change ¬(_ ∧ _) at hcov 
+          rw [Inversions_def] at hab 
+          rw [not_and_or, or_iff_right (Decidable.not_not.mpr hab.1)] at hcov 
+          push_neg at hcov 
+          cases hcov with 
+          | intro c hsc => cases LinearPreorder_trichotomy hlint c a with 
+                           | inl htca => set B := ↑A ∩ @Set.Icc _ s a c with hBdef 
+                                         have hfin : B.Finite := 
+                                           Set.Finite.subset (Finset.finite_toSet A) (Set.inter_subset_left _ _)
+                                         have hBcard : Finset.card (Set.Finite.toFinset hfin) ≤ d := by 
+                                           rw [←Nat.lt_succ]
+                                           refine lt_of_lt_of_le ?_ hcard 
+                                           apply Finset.card_lt_card 
+                                           rw [Set.Finite.toFinset_ssubset]
+                                           rw [Set.ssubset_iff_of_subset (Set.inter_subset_left _ _)]
+                                           exists b 
+                                           rw [Finset.mem_coe, and_iff_right hbA, Set.mem_inter_iff, not_and]
+                                           intro _ 
+                                           rw [@Set.mem_Icc α s, not_and_or]
+                                           apply Or.inr 
+                                           rw [TotalPreorder_lt_iff_not_le hlins.toIsTotal.total]
+                                           exact hsc.2 
+                                         have haB : a ∈ (Set.Finite.toFinset hfin) := by 
+                                           rw [Set.Finite.mem_toFinset, Set.mem_inter_iff, Finset.mem_coe, @Set.mem_Icc _ s]
+                                           exact ⟨haA, ⟨s.le_refl a, @le_of_lt _ s _ _ hsc.1⟩⟩                                           
+                                         have hcB : c ∈ (Set.Finite.toFinset hfin) := by 
+                                           rw [Set.Finite.mem_toFinset, Set.mem_inter_iff, Finset.mem_coe, @Set.mem_Icc _ s]
+                                           rw [and_iff_left ⟨@le_of_lt _ s _ _ hsc.1, s.le_refl c⟩]
+                                           exact hA a b c haA hbA (@le_of_lt _ s _ _ hsc.1) (@le_of_lt _ s _ _ hsc.2)
+                                         match hd (Set.Finite.toFinset hfin) hBcard 
+                                           (fun d e f hdB heB hdf hfe => by rw [Set.Finite.mem_toFinset, hBdef, Set.mem_inter_iff] at hdB heB |- 
+                                                                            constructor 
+                                                                            . rw [Finset.mem_coe] at hdB heB |- 
+                                                                              exact hA d e f hdB.1 heB.1 hdf hfe 
+                                                                            . rw [@Set.mem_Icc _ s] at hdB heB |- 
+                                                                              exact ⟨s.le_trans _ _ _ hdB.2.1 hdf, s.le_trans _ _ _ hfe heB.2.2⟩)
+                                           (by exists a; exists c
+                                               rw [and_iff_right haB, and_iff_right hcB, Inversions_def]
+                                               exact ⟨hsc.1, htca⟩
+                                           ) with
+                                         | ⟨d, e, ⟨hdB, heB, hinvde, hcovde⟩⟩ => rw [Set.Finite.mem_toFinset, Set.mem_inter_iff, Finset.mem_coe] at hdB heB 
+                                                                                 exists d; exists e 
+                                                                                 exact ⟨hdB.1, heB.1, hinvde, hcovde⟩
+                           | inr hmed => cases hmed with 
+                                         | inr heq => exfalso
+                                                      rw [heq] at hsc
+                                                      exact @lt_irrefl _ s _ hsc.1  
+                                         | inl htac => have htbc : t.lt b c := by 
+                                                         by_contra htcb 
+                                                         rw [←(TotalPreorder_lt_iff_not_le hlint.toIsTotal.total), not_not] at htcb
+                                                         exact @lt_irrefl _ t a (@lt_trans _ t _ _ _ (@lt_of_lt_of_le _ t _ _ _ htac htcb) hab.2)  
+                                                       set B := ↑A ∩ @Set.Icc _ s c b with hBdef 
+                                                       have hfin : B.Finite := 
+                                                         Set.Finite.subset (Finset.finite_toSet A) (Set.inter_subset_left _ _)
+                                                       have hBcard : Finset.card (Set.Finite.toFinset hfin) ≤ d := by 
+                                                         rw [←Nat.lt_succ]
+                                                         refine lt_of_lt_of_le ?_ hcard 
+                                                         apply Finset.card_lt_card 
+                                                         rw [Set.Finite.toFinset_ssubset]
+                                                         rw [Set.ssubset_iff_of_subset (Set.inter_subset_left _ _)]
+                                                         exists a 
+                                                         rw [Finset.mem_coe, and_iff_right haA, Set.mem_inter_iff, not_and]
+                                                         intro _ 
+                                                         rw [@Set.mem_Icc α s, not_and_or] 
+                                                         apply Or.inl
+                                                         rw [TotalPreorder_lt_iff_not_le hlins.toIsTotal.total]
+                                                         exact hsc.1 
+                                                       have hbB : b ∈ (Set.Finite.toFinset hfin) := by 
+                                                        rw [Set.Finite.mem_toFinset, Set.mem_inter_iff, Finset.mem_coe, @Set.mem_Icc _ s]
+                                                        exact ⟨hbA, ⟨@le_of_lt _ s _ _ hsc.2, s.le_refl b⟩⟩                                           
+                                                       have hcB : c ∈ (Set.Finite.toFinset hfin) := by 
+                                                         rw [Set.Finite.mem_toFinset, Set.mem_inter_iff, Finset.mem_coe, @Set.mem_Icc _ s]
+                                                         rw [and_iff_left ⟨s.le_refl c, @le_of_lt _ s _ _ hsc.2⟩]
+                                                         exact hA a b c haA hbA (@le_of_lt _ s _ _ hsc.1) (@le_of_lt _ s _ _ hsc.2)
+                                                       match hd (Set.Finite.toFinset hfin) hBcard 
+                                                        (fun d e f hdB heB hdf hfe => by rw [Set.Finite.mem_toFinset, hBdef, Set.mem_inter_iff] at hdB heB |- 
+                                                                                         constructor 
+                                                                                         . rw [Finset.mem_coe] at hdB heB |- 
+                                                                                           exact hA d e f hdB.1 heB.1 hdf hfe 
+                                                                                         . rw [@Set.mem_Icc _ s] at hdB heB |- 
+                                                                                           exact ⟨s.le_trans _ _ _ hdB.2.1 hdf, s.le_trans _ _ _ hfe heB.2.2⟩)
+                                                        (by exists c; exists b
+                                                            rw [and_iff_right hcB, and_iff_right hbB, Inversions_def]
+                                                            exact ⟨hsc.2, htbc⟩
+                                                        ) with
+                                         | ⟨d, e, ⟨hdB, heB, hinvde, hcovde⟩⟩ => rw [Set.Finite.mem_toFinset, Set.mem_inter_iff, Finset.mem_coe] at hdB heB 
+                                                                                 exists d; exists e 
+                                                                                 exact ⟨hdB.1, heB.1, hinvde, hcovde⟩
+
+lemma Finite_inversions_finite_inversion_interval {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) 
+(hfin : (Inversions s.lt t.lt).Finite) {a b : α} (hinv : (a,b) ∈ Inversions s.lt t.lt) : (@Set.Icc _ s a b).Finite := by 
+  rw [←Set.finite_coe_iff] at hfin |- 
+  rw [Inversions_def] at hinv 
+  set f : @Set.Icc _ s a b → Option (Inversions s.lt t.lt) := by
+    intro ⟨c, hc⟩ 
+    rw [@Set.mem_Icc _ s] at hc 
+    by_cases hsac : s.lt a c
+    . by_cases hscb : s.lt c b 
+      . by_cases htca : t.lt c a 
+        . have hac : (a,c) ∈ Inversions s.lt t.lt := by 
+            rw [Inversions_def]
+            exact ⟨hsac, htca⟩
+          exact some ⟨(a,c), hac⟩
+        . by_cases htbc : t.lt b c 
+          . have hcb : (c,b) ∈ Inversions s.lt t.lt := by 
+              rw [Inversions_def]
+              exact ⟨hscb, htbc⟩
+            exact some ⟨(c,b), hcb⟩
+          . exact none
+      . exact none 
+    . exact some ⟨(a,b), hinv⟩ 
+  apply @Finite.of_injective _ _ (@Fintype.finite _ (@instFintypeOption _ (@Fintype.ofFinite _ hfin))) f  
+  intro ⟨c,hc⟩ ⟨d,hd⟩ heq 
+  rw [@Set.mem_Icc _ s] at hc hd 
+  simp only [Subtype.mk.injEq]
+  by_cases hsac : s.lt a c 
+  . simp only [hsac, dite_true] at heq
+    by_cases hscb : s.lt c b 
+    . simp only [hscb, dite_true] at heq
+      by_cases htca : t.lt c a 
+      . simp only [htca, dite_true] at heq
+        by_cases hsad : s.lt a d 
+        . simp only [hsad, dite_true] at heq
+          by_cases hsdb : s.lt d b 
+          . simp only [hsdb, dite_true] at heq
+            by_cases htda : t.lt d a 
+            . simp only [htda, dite_true, Option.some.injEq, Subtype.mk.injEq, Prod.mk.injEq, true_and] at heq 
+              exact heq 
+            . simp only [htda, dite_false] at heq
+              by_cases htbd : t.lt b d 
+              . simp only [htbd, dite_true, Option.some.injEq, Subtype.mk.injEq, Prod.mk.injEq] at heq
+                exfalso 
+                rw [heq.2] at hscb 
+                exact @lt_irrefl _ s _ hscb 
+              . simp only [htbd, dite_false] at heq
+          . simp only [hsdb, dite_false] at heq 
+        . simp only [hsad, dite_false, Option.some.injEq, Subtype.mk.injEq, Prod.mk.injEq, true_and] at heq
+          exfalso 
+          rw [heq] at hscb 
+          exact @lt_irrefl _ s _ hscb 
+      . simp only [htca, dite_false] at heq
+        by_cases htbc : t.lt b c 
+        . simp only [htbc, dite_true] at heq
+          by_cases hsad : s.lt a d 
+          . simp only [hsad, dite_true] at heq
+            by_cases hsdb : s.lt d b
+            . simp only [hsdb, dite_true] at heq
+              by_cases htda : t.lt d a 
+              . simp only [htda, dite_true, Option.some.injEq, Subtype.mk.injEq, Prod.mk.injEq] at heq
+                exfalso 
+                rw [heq.1] at hsac
+                exact @lt_irrefl _ s _ hsac 
+              . simp only [htda, dite_false] at heq
+                by_cases htbd : t.lt b d 
+                . simp only [htbd, dite_true, Option.some.injEq, Subtype.mk.injEq, Prod.mk.injEq, and_true] at heq
+                  exact heq 
+                . simp only [htbd, dite_false] at heq
+            . simp only [hsdb, dite_false] at heq 
+          . simp only [hsad, dite_false, Option.some.injEq, Subtype.mk.injEq, Prod.mk.injEq, and_true] at heq
+            exfalso
+            rw [heq] at hsac 
+            exact @lt_irrefl _ s _ hsac 
+        . exfalso 
+          rw [←(TotalPreorder_lt_iff_not_le hlint.toIsTotal.total), not_not] at htca htbc
+          exact @lt_irrefl _ t _ (@lt_of_le_of_lt _ t _ _ _ (t.le_trans _ _ _ htca htbc) hinv.2) 
+    . simp only [hscb, dite_false] at heq
+      by_cases hsad : s.lt a d
+      . simp only [hsad, dite_true] at heq
+        by_cases hsdb : s.lt d b 
+        . simp only [hsdb, dite_false] at heq  
+          by_cases htda : t.lt d a 
+          . simp only [htda, dite_false, dite_true] at heq
+          . simp only [htda, dite_false, dite_true] at heq
+            by_cases htbd : t.lt b d 
+            . simp only [htbd, dite_true] at heq
+            . simp only [htbd, dite_false] at heq
+              exfalso 
+              rw [←(TotalPreorder_lt_iff_not_le hlint.toIsTotal.total), not_not] at htda htbd
+              exact @lt_irrefl _ t _ (@lt_of_le_of_lt _ t _ _ _ (t.le_trans _ _ _ htda htbd) hinv.2)  
+        . simp only [hsdb, dite_false] at heq 
+          rw [←(TotalPreorder_lt_iff_not_le hlins.toIsTotal.total), not_not] at hscb 
+          rw [←(TotalPreorder_lt_iff_not_le hlins.toIsTotal.total), not_not] at hsdb 
+          have heqbc := hlins.toIsPartialOrder.toIsAntisymm.antisymm _ _ hscb hc.2
+          have heqbd := hlins.toIsPartialOrder.toIsAntisymm.antisymm _ _ hsdb hd.2
+          rw [←heqbc, ←heqbd]  
+      . simp only [hsad, dite_false] at heq 
+  . simp only [hsac, dite_false] at heq
+    by_cases hsad : s.lt a d 
+    . simp only [hsad, dite_true] at heq
+      by_cases hsdb : s.lt d b 
+      . simp only [hsdb, dite_true] at heq 
+        by_cases htda : t.lt d a 
+        . simp only [htda, dite_true, Option.some.injEq, Subtype.mk.injEq, Prod.mk.injEq, true_and] at heq
+          exfalso 
+          rw [heq] at hsdb 
+          exact @lt_irrefl _ s _ hsdb 
+        . simp only [htda, dite_false] at heq
+          by_cases htbd : t.lt b d 
+          . simp only [htbd, dite_true, Option.some.injEq, Subtype.mk.injEq, Prod.mk.injEq, and_true] at heq
+            exfalso 
+            rw [heq] at hsad 
+            exact @lt_irrefl _ s _ hsad 
+          . simp only [htbd, dite_false] at heq
+      . simp only [hsdb, dite_false] at heq 
+    . simp only [hsad, dite_false] at heq
+      rw [←(TotalPreorder_lt_iff_not_le hlins.toIsTotal.total), not_not] at hsac hsad 
+      have heqac := hlins.toIsPartialOrder.toIsAntisymm.antisymm _ _ hc.1 hsac 
+      have heqad := hlins.toIsPartialOrder.toIsAntisymm.antisymm _ _ hd.1 hsad 
+      rw [←heqac, ←heqad]
+
+lemma Finite_inversions_exists_elementary_inversion {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) 
+(hinvne : (Inversions s.lt t.lt).Nonempty) (hinvfin : (Inversions s.lt t.lt).Finite) :
+∃ x : α × α, x ∈ Inversions s.lt t.lt ∧ @Covby _ s.toLT x.1 x.2 := by 
+  match hinvne with 
+  | ⟨⟨a, b⟩, hab⟩ => set A := @Set.Icc _ s a b 
+                     have haA : a ∈ A := by 
+                       rw [@Set.mem_Icc _ s]
+                       exact ⟨s.le_refl _, @le_of_lt _ s _ _ hab.1⟩
+                     have hbA :  b ∈ A := by
+                       rw [@Set.mem_Icc _ s]
+                       exact ⟨@le_of_lt _ s _ _ hab.1, s.le_refl _⟩
+                     have hAfin : A.Finite := Finite_inversions_finite_inversion_interval hlins hlint hinvfin hab 
+                     match Finite_inversions_exists_elementary_inversion_rec (Finset.card (Set.Finite.toFinset hAfin)) hlins hlint 
+                       (Set.Finite.toFinset hAfin) (le_refl _) (fun c d e hcA hdA hce hed => by rw [Set.Finite.mem_toFinset] at hcA hdA |- 
+                                                                                                rw [@Set.mem_Icc _ s] at hcA hdA |- 
+                                                                                                constructor 
+                                                                                                . exact s.le_trans _ _ _ hcA.1 hce  
+                                                                                                . exact s.le_trans _ _ _ hed hdA.2)
+                       (by exists a; exists b; rw [Set.Finite.mem_toFinset, Set.Finite.mem_toFinset]; exact ⟨haA, hbA, hab⟩) with 
+                     | ⟨a, b, ⟨_, _, h1, h2⟩⟩ => exists (a,b) 
+
+
+/- If s < t for the weak Bruhat order (relative to r) and Inversions s t is finite, we get an element of [s, t] covering s by composing s with the
+transposition (a,b), where (a,b) is an element of Inversions s t such that b covers a for s. So we need to define the transposition (it might be in
+Mathlib already, I didn't find it.)-/
+
+noncomputable def Transposition (a b : α) : α → α := by 
+  intro x 
+  by_cases x = a 
+  . exact b
+  . by_cases x = b
+    . exact a
+    . exact x
+
+
+lemma Transposition_is_involutive (a b x : α) : Transposition a b (Transposition a b x) = x := by 
+  unfold Transposition 
+  by_cases ha : x = a
+  . simp only [ha, dite_eq_ite, ite_self, ite_true, ite_eq_right_iff, imp_self]
+  . by_cases hb : x = b 
+    . simp only [hb, eq_self_iff_true, dite_eq_ite, if_true, ite_eq_right_iff, imp_self]
+    . simp only [ha, hb, dite_eq_ite, if_false]
+
+
+lemma Transposition_is_injective (a b  : α) : Function.Injective (Transposition a b) := by 
+  intro x y hxy
+  apply_fun (Transposition a b) at hxy
+  rw [Transposition_is_involutive, Transposition_is_involutive] at hxy 
+  exact hxy  
+
+/- Now we have the transposition, we introduce the transposed preorder.-/
+
+noncomputable def TransposedPreorder (s : Preorder α) (a b : α) := @Preorder.lift _ _ s (Transposition a b)
+
+noncomputable def Transposed_of_linear_is_linear {s : Preorder α} (hlin : IsLinearOrder α s.le) (a b  : α) :
+IsLinearOrder α (TransposedPreorder s a b).le := by 
+  refine {toIsPartialOrder := ?_, toIsTotal := ?_} 
+  . refine {toIsPreorder := @instIsPreorderLeToLE α (TransposedPreorder s a b), toIsAntisymm := ?_}
+    refine {antisymm := fun x y hxy hyx => Transposition_is_injective _ _ (hlin.toIsPartialOrder.toIsAntisymm.antisymm _ _ hxy hyx)}
+  . refine {total := fun x y => hlin.toIsTotal.total _ _}
+
+
+/- Construction of a covering element of s (for the weak Bruhat order) if we are given a t such that s ≤ t and Inversions s t is finite.-/
+
+noncomputable def CoveringElementBruhatOrder {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) 
+(hinvne : (Inversions s.lt t.lt).Nonempty) (hinvfin : (Inversions s.lt t.lt).Finite) : Preorder α := by
+  set x := Classical.choose (Finite_inversions_exists_elementary_inversion hlins hlint hinvne hinvfin)
+  exact TransposedPreorder s x.1 x.2 
+
+noncomputable def CoveringElementBruhatOrder_is_linear {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) 
+(hinvne : (Inversions s.lt t.lt).Nonempty) (hinvfin : (Inversions s.lt t.lt).Finite) : 
+IsLinearOrder α (CoveringElementBruhatOrder hlins hlint hinvne hinvfin).le := Transposed_of_linear_is_linear hlins _ _ 
+
+/- Properties of the covering element: inversions with respect to s and t.-/
+
+lemma CoveringElementBruhatOrder_Inversions1 {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) 
+(hinvne : (Inversions s.lt t.lt).Nonempty) (hinvfin : (Inversions s.lt t.lt).Finite) :
+Inversions s.lt (CoveringElementBruhatOrder hlins hlint hinvne hinvfin).lt = 
+{Classical.choose (Finite_inversions_exists_elementary_inversion hlins hlint hinvne hinvfin)} := by 
+  set x := Classical.choose (Finite_inversions_exists_elementary_inversion hlins hlint hinvne hinvfin)
+  have hx := Classical.choose_spec (Finite_inversions_exists_elementary_inversion hlins hlint hinvne hinvfin)
+  ext ⟨a,b⟩
+  constructor 
+  . intro hinv 
+    rw [Inversions_def] at hx hinv 
+    rw [Set.mem_singleton_iff, Prod.ext_iff]
+    change _ ∧ s.lt (Transposition _ _ _) (Transposition _ _ _) at hinv 
+    unfold Transposition at hinv 
+    by_cases ha : a = x.1 
+    . simp only [ha, dite_eq_ite, ite_self, ite_true] at hinv
+      by_cases hb : b = x.2
+      . exact ⟨ha, hb⟩
+      . simp only [hb, ite_false] at hinv
+        have hb' : b ≠ x.1 := by 
+          by_contra habs 
+          rw [habs] at hinv
+          exact @lt_irrefl _ s _ hinv.1
+        simp only [hb', ite_false] at hinv
+        exfalso
+        exact hx.2.2 hinv.1 hinv.2   
+    . simp only [dite_eq_ite, ha, ite_false] at hinv
+      by_cases hb : b = x.1 
+      . simp only [hb, ite_self, ite_true] at hinv
+        by_cases ha' : a = x.2 
+        . simp only [ha', ite_true, and_self] at hinv
+          exfalso 
+          exact @lt_irrefl _ s _ (@lt_trans _ s _ _ _ hinv hx.1.1) 
+        . simp only [ha', ite_false] at hinv
+          exfalso 
+          exact @lt_irrefl _ s _ (@lt_trans _ s _ _ _ (@lt_trans _ s _ _ _ hinv.1 hx.1.1) hinv.2)  
+      . simp only [hb, ite_false] at hinv
+        by_cases hb' : b = x.2 
+        . simp only [hb', ite_true] at hinv
+          have ha' : a ≠ x.2 := by 
+            by_contra habs 
+            rw [habs] at hinv 
+            exact @lt_irrefl _ s _ hinv.1 
+          simp only [ha', ite_false] at hinv
+          exfalso 
+          exact hx.2.2 hinv.2 hinv.1 
+        . simp only [hb', ite_false] at hinv
+          by_cases ha' : a = x.2 
+          . simp only [ha', ite_true] at hinv
+            exfalso 
+            exact @lt_irrefl _ s _ (@lt_trans _ s _ _ _ hx.1.1 (@lt_trans _ s _ _ _ hinv.1 hinv.2)) 
+          . simp only [ha', ite_false] at hinv
+            exfalso 
+            exact @lt_irrefl _ s _ (@lt_trans _ s _ _ _ hinv.1 hinv.2)  
+  . intro heq 
+    rw [Set.mem_singleton_iff, Prod.ext_iff] at heq
+    simp only at heq  
+    rw [Inversions_def] at hx |-
+    rw [heq.1, heq.2, and_iff_right hx.1.1]
+    change s.lt (Transposition _ _ _) (Transposition _ _ _)
+    unfold Transposition
+    simp only [Ne.symm (@ne_of_lt _ s _ _ hx.1.1), dite_eq_ite, ite_true, ite_false, ite_self]
+    exact hx.1.1 
+    
+
+
+lemma CoveringElementBruhatOrder_Inversions2 {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) 
+(hinvne : (Inversions s.lt t.lt).Nonempty) (hinvfin : (Inversions s.lt t.lt).Finite) :
+Inversions (CoveringElementBruhatOrder hlins hlint hinvne hinvfin).lt t.lt= 
+Inversions s.lt t.lt \ {Classical.choose (Finite_inversions_exists_elementary_inversion hlins hlint hinvne hinvfin)} := by 
+  set x := Classical.choose (Finite_inversions_exists_elementary_inversion hlins hlint hinvne hinvfin)
+  have hx := Classical.choose_spec (Finite_inversions_exists_elementary_inversion hlins hlint hinvne hinvfin)
+  ext ⟨a,b⟩
+  simp only [Set.mem_diff, Set.mem_singleton_iff]
+  rw [Inversions_def, Inversions_def]
+  change (s.lt (Transposition _ _ _) (Transposition _ _ _) ∧ _) ↔ _
+  unfold Transposition 
+  by_cases ha1 : a = x.1 
+  . simp only [ha1, dite_eq_ite, ite_self, ite_true]
+    by_cases hb1 : b = x.1 
+    . simp only [hb1, ite_self, ite_true, lt_self_iff_false, and_false, false_and]
+    . simp only [hb1, ite_false]
+      by_cases hb2 : b = x.2 
+      . simp only [hb2, ite_true, Prod.mk.eta, not_true, and_false, iff_false, not_and]
+        intro habs
+        exfalso 
+        exact @lt_irrefl _ s _ (@lt_trans _ s _ _ _ hx.1.1 habs) 
+      . simp only [hb2, ite_false]
+        constructor 
+        . intro h 
+          rw [and_iff_right (@lt_trans _ s _ _ _ hx.1.1 h.1), and_iff_right h.2]
+          by_contra habs 
+          apply_fun (fun x => x.2) at habs 
+          simp only at habs 
+          rw [←habs] at h 
+          exact @lt_irrefl _ s _ h.1 
+        . intro h 
+          rw [and_iff_left h.1.2]
+          cases LinearPreorder_trichotomy hlins b x.2 with
+          | inl hbx =>  exfalso; exact hx.2.2 h.1.1 hbx  
+          | inr hmed => cases hmed with 
+                        | inl hxb => exact hxb 
+                        | inr heq => exfalso 
+                                     rw [heq] at h
+                                     exact h.2 rfl         
+  . simp only [ha1, dite_eq_ite, ite_false]
+    by_cases ha2 : a = x.2 
+    . simp only [ha2, ite_true]
+      by_cases hb1 : b = x.1 
+      . simp only [hb1, ite_self, ite_true]
+        constructor 
+        . intro h 
+          exfalso 
+          exact @lt_irrefl _ t _ (@lt_trans _ t _ _ _ h.2 hx.1.2) 
+        . intro h 
+          exfalso 
+          exact @lt_irrefl _ s _ (@lt_trans _ s _ _ _ h.1.1 hx.1.1)
+      . simp only [hb1, ite_false]
+        by_cases hb2 : b = x.2 
+        . simp only [hb2, ite_true, lt_self_iff_false, and_false, false_and]
+        . simp only [hb2, ite_false]
+          constructor 
+          . intro h 
+            constructor 
+            . rw [and_iff_left h.2]
+              cases LinearPreorder_trichotomy hlins b x.2 with 
+              | inl hbx => exfalso; exact hx.2.2 h.1 hbx               
+              | inr hmed => cases hmed with 
+                            | inl hxb => exact hxb  
+                            | inr heq => exfalso; exact hb2 heq 
+            . by_contra habs 
+              apply_fun (fun y => y.2) at habs  
+              exact hb2 habs 
+          . intro h 
+            rw [and_iff_left h.1.2]
+            exact @lt_trans _ s _ _ _ hx.1.1 h.1.1 
+    . simp only [ha2, ite_false]
+      by_cases hb1 : b = x.1 
+      . simp only [hb1, ite_self, ite_true]
+        constructor 
+        . intro h 
+          constructor 
+          . rw [and_iff_left h.2]
+            cases LinearPreorder_trichotomy hlins a x.1 with 
+            | inl hax => exact hax 
+            | inr hmed => cases hmed with 
+                          | inl hxa => exfalso; exact hx.2.2 hxa h.1 
+                          | inr heq => exfalso; exact ha1 heq 
+          . by_contra habs 
+            apply_fun (fun y => y.1) at habs 
+            exact ha1 habs 
+        . intro h 
+          rw [and_iff_left h.1.2]
+          exact @lt_trans _ s _ _ _ h.1.1 hx.1.1 
+      . simp only [hb1, ite_false]
+        by_cases hb2 : b = x.2 
+        . simp only [hb2, ite_true]
+          constructor 
+          . intro h 
+            constructor 
+            . rw [and_iff_left h.2]
+              exact @lt_trans _ s _ _ _ h.1 hx.1.1  
+            . by_contra habs 
+              apply_fun (fun y => y.1) at habs 
+              exact ha1 habs 
+          . intro h 
+            rw [and_iff_left h.1.2]
+            cases LinearPreorder_trichotomy hlins a x.1 with 
+            | inl hax => exact hax 
+            | inr hmed => cases hmed with 
+                          | inl hxa => exfalso; exact hx.2.2 hxa h.1.1  
+                          | inr heq => exfalso; exact ha1 heq 
+        . simp only [hb2, ite_false, iff_self_and, and_imp]
+          intro _ _ habs 
+          apply_fun (fun y => y.1) at habs 
+          exact ha1 habs 
+
+
+lemma CoveringElementBruhatOrder_Inversions3 {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) 
+(hinvne : (Inversions s.lt t.lt).Nonempty) (hinvfin : (Inversions s.lt t.lt).Finite) :
+Inversions (CoveringElementBruhatOrder hlins hlint hinvne hinvfin).lt t.lt ⊂ Inversions s.lt t.lt := by 
+  rw [CoveringElementBruhatOrder_Inversions2]
+  simp only [Set.diff_singleton_sSubset]
+  exact (Classical.choose_spec (Finite_inversions_exists_elementary_inversion hlins hlint hinvne hinvfin)).1 
+  
+
+/- More properties of the covering element: if, for a fixed linear order r, we have s ≤ t for teh weak Bruhat order with respect to r
+(and if Inversions s t is finite, as before), then the covering element is a covering element of s, and it is ≤ t. -/
+
+lemma CoveringElementBruhatOrder_covering (r : LinearOrder α) {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) 
+(hinvne : (Inversions s.lt t.lt).Nonempty) (hinvfin : (Inversions s.lt t.lt).Finite) (hwB : (WeakBruhatOrder r).le ⟨s, hlins⟩ ⟨t, hlint⟩) :
+@Covby _ (WeakBruhatOrder r).toLT ⟨s, hlins⟩ ⟨CoveringElementBruhatOrder hlins hlint hinvne hinvfin, CoveringElementBruhatOrder_is_linear hlins hlint
+hinvne hinvfin⟩ := sorry 
+
+
+lemma CoveringElementBruhatOrder_smaller (r : LinearOrder α) {s t : Preorder α} (hlins : IsLinearOrder α s.le) (hlint : IsLinearOrder α t.le) 
+(hinvne : (Inversions s.lt t.lt).Nonempty) (hinvfin : (Inversions s.lt t.lt).Finite) (hwB : (WeakBruhatOrder r).le ⟨s, hlins⟩ ⟨t, hlint⟩) :
+(WeakBruhatOrder r).le ⟨CoveringElementBruhatOrder hlins hlint hinvne hinvfin, CoveringElementBruhatOrder_is_linear hlins hlint hinvne hinvfin⟩
+⟨t, hlint⟩ := sorry
+
+
+end WeakBruhatOrder

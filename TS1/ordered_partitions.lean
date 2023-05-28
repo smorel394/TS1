@@ -2,6 +2,8 @@ import TS1.preorder_to_powerset
 import Mathlib.Order.Extension.Well
 import Init.WF
 
+set_option autoImplicit false
+
 
 open Classical Preorder 
 
@@ -34,7 +36,7 @@ namespace LinearOrderedPartitions
 lemma trivialPreorder_is_total : Total (trivialPreorder α).le := 
 fun _ _ => by change True ∨ True; simp only
 
-lemma trivialPreorder_is_greatest_partition (p : LinearOrderedPartitions α) : p ≤ ⟨trivialPreorder α, TrivialPreorder_is_total⟩ := by
+lemma trivialPreorder_is_greatest_partition (p : LinearOrderedPartitions α) : p ≤ ⟨trivialPreorder α, trivialPreorder_is_total⟩ := by
   change ↑p ≤ trivialPreorder α  
   exact trivialPreorder_is_greatest _ 
 

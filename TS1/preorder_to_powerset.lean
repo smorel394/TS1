@@ -1,7 +1,12 @@
 import TS1.general_preorder_stuff
 
+set_option autoImplicit false
+
 namespace Preorder 
 
+universe u 
+
+variable {α : Type u}
 
 /- The goal is to describe a map from Preorder α to Set (Set α), sending a preorder to the set of its nontrivial lower sets
 (here "nontrivial" means different from ⊥ and ⊥). This map reverses the order and it is injective. We will prove in another file
