@@ -801,15 +801,175 @@ lemma AscentPartition_dual_fixed_linear_order (r : LinearOrder α) :
 But this is not true in general, for example if r is the usual order on ℕ and s is the linear order
 .....6,4,2,0,....,5,3,1. So we need a condition on s, which is that s is locally finite (i.e. bounded intervals are finite).-/
 
-/- Deprecated.
-lemma DescentPartition_linear_implies_dual_linear_order (r : LinearOrder α) {s : Preorder α} (hlin : IsLinearOrder α s.le)
-(heq : DescentPartition r hlin.toIsTotal.total = s) : s = PreorderofLinearOrder (dual r) := by sorry  
+/- We start with an auxiliary lemma. The idea is that we will look at "noninversions", i.e. pairs (a,b) such that a < b both for r and s.
+If the ascent partition of s is equal to s (or, equivalently, a linear order), then, for any such pair, we have ¬(b ≤ a) for the ascent
+partition, so there exist c, d in the interval [a,b]_s such that ¬(r.lt c d). From this data, we construct another noninversion
+(a',b') such that (a',b') > (a,b) for the preorder product of s∘ and of s on α × σ; in particular, we have a',b' ∈ [a,b]_s. So we get
+an infinite sequence of noninversions in [a,b]_s × [a,b]_s; if s is locally finite, this is not possible, and we conclude that there are
+no noninversions, i.e. that s is the dual of r.-/
 
--/
+def ReverseProductOrder (s : Preorder α) := @Prod.instPreorderProd _ _ (@OrderDual.preorder _ s) s 
 
-lemma AscentPartition_linear_implies_dual_linear_order (r : LinearOrder α) {s : Preorder α} (hlin : IsLinearOrder α s.le)
-(heq : AscentPartition r hlin.toIsTotal.total = s) : s = PreorderofLinearOrder (dual r) := by sorry  
+lemma ReverseProductOrder_lt1 (s : Preorder α) {a b c : α} (h : s.lt a b) : (ReverseProductOrder s).lt (b,c) (a,c) := by
+  rw [(ReverseProductOrder s).lt_iff_le_not_le]
+  constructor 
+  . change _ ∧ _ 
+    exact ⟨le_of_lt h, s.le_refl _⟩ 
+  . change ¬(_ ∧ _)
+    rw [and_comm, not_and]
+    intro _ 
+    change ¬(s.le b a)
+    exact not_le_of_lt h 
+  
 
+lemma ReverseProductOrder_lt2 (s : Preorder α) {a b c : α} (h : s.lt b c) : (ReverseProductOrder s).lt (a,b) (a,c) := by 
+  rw [(ReverseProductOrder s).lt_iff_le_not_le]
+  constructor 
+  . change _ ∧ _ 
+    exact ⟨s.le_refl _, le_of_lt h⟩
+  . change ¬(_ ∧ _)
+    rw [not_and]
+    intro _ 
+    change ¬(s.le c b)
+    exact not_le_of_lt h 
+
+lemma Exists_smaller_noninversion (r : LinearOrder α) {s : Preorder α} (hlins : IsLinearOrder α s.le)
+(heq : AscentPartition r hlins.toIsTotal.total = s) {a b : α} (hab : r.lt a b ∧ s.lt a b) :
+∃ (c d : α), r.lt c d ∧ s.lt c d ∧ (ReverseProductOrder s).lt (c,d) (a,b) := by 
+  have hab' : ¬((AscentPartition r hlins.toIsTotal.total).le b a) := by 
+    rw [heq]
+    exact not_le_of_lt hab.2 
+  change ¬(_ ∨ _) at hab' 
+  rw [not_or, not_and] at hab'
+  have hmon := hab'.2 (le_of_lt hab.2)
+  change ¬(∀ ⦃a : α⦄, _ → _) at hmon 
+  rw [not_forall] at hmon 
+  match hmon with 
+  | ⟨c, h⟩ => 
+     rw [not_imp, not_forall] at h 
+     match h with 
+     | ⟨hc, ⟨d,h⟩⟩ => 
+       rw [not_imp, not_imp] at h 
+       match h with
+       | ⟨hd, hcd, h⟩ => 
+         rw [Set.mem_Icc] at hc hd 
+         simp only at h 
+         have hdc : r.lt d c := by 
+           rw [lt_iff_le_and_ne]
+           rw [and_iff_right (le_of_not_lt h)]
+           exact Ne.symm (ne_of_lt hcd)
+         by_cases hac : r.lt a c 
+         . exists a; exists c 
+           rw [and_iff_right hac]
+           constructor 
+           . cases LinearPreorder_trichotomy hlins a c with 
+             | inl hac => exact hac  
+             | inr hmed => cases hmed with 
+                           | inl hca => exfalso; exact lt_irrefl _ (lt_of_lt_of_le hca hc.1)   
+                           | inr heq => exfalso; rw [heq] at hac; exact @lt_irrefl _ r.toPartialOrder.toPreorder _ hac 
+           . apply ReverseProductOrder_lt2 s 
+             exact lt_of_lt_of_le hcd hd.2 
+         . rw [lt_iff_not_le, not_not] at hac 
+           exists d; exists b 
+           constructor 
+           . apply @lt_trans _ r.toPartialOrder.toPreorder _ _ _ hdc
+             exact @lt_of_le_of_lt _ r.toPartialOrder.toPreorder _ _ _ hac hab.1  
+           . constructor 
+             . cases LinearPreorder_trichotomy hlins b d with 
+               | inl hbd => exfalso; exact lt_irrefl _ (lt_of_lt_of_le hbd hd.2)  
+               | inr hmed => cases hmed with 
+                             | inl hdb => exact hdb 
+                             | inr heq => exfalso
+                                          rw [←heq] at hdc
+                                          exact @lt_irrefl _ r.toPartialOrder.toPreorder _ (@lt_trans _ r.toPartialOrder.toPreorder _ _ _ hab.1 
+                                            (@lt_of_lt_of_le _ r.toPartialOrder.toPreorder _ _ _ hdc hac))    
+             . apply ReverseProductOrder_lt1 s 
+               cases LinearPreorder_trichotomy hlins a d with 
+               | inl had => exact had 
+               | inr hmed => cases hmed with 
+                             | inl hda => exfalso; exact lt_irrefl _ (lt_of_lt_of_le hda hd.1) 
+                             | inr heq => exfalso; rw [←heq] at hdc 
+                                          exact @lt_irrefl _ r.toPartialOrder.toPreorder _ (@lt_of_lt_of_le _ r.toPartialOrder.toPreorder _ _ _ hdc hac) 
+
+
+
+
+lemma AscentPartition_linear_implies_dual_linear_order (r : LinearOrder α) {s : Preorder α} (hlins : IsLinearOrder α s.le)
+(hLF : @LocallyFiniteOrder α s) (heq : AscentPartition r hlins.toIsTotal.total = s) : s = (dual r).toPartialOrder.toPreorder := by 
+  by_contra habs 
+  have hinv : ∃ (a b : α), r.lt a b ∧ s.lt a b := by 
+    revert habs 
+    contrapose
+    rw [not_exists, not_not]
+    intro h 
+    ext a b 
+    by_cases heq : a = b 
+    . rw [heq]
+      simp only [_root_.le_refl, true_iff]
+      exact r.le_refl b 
+    . constructor 
+      . intro hab 
+        by_contra habs 
+        erw [←lt_iff_not_le] at habs 
+        have h' := h a
+        rw [not_exists] at h' 
+        have h'' := h' b 
+        rw [not_and] at h'' 
+        have h''' := h'' habs
+        rw [←(@TotalPreorder_lt_iff_not_le _ s hlins.toIsTotal.total), not_not] at h''' 
+        rw [hlins.toIsPartialOrder.toIsAntisymm.antisymm _ _ h''' hab] at habs 
+        exact @lt_irrefl _ r.toPartialOrder.toPreorder _ habs     
+      . intro hab 
+        have hab' : r.lt b a := by 
+          rw [lt_iff_le_and_ne]
+          exact ⟨hab, Ne.symm heq⟩ 
+        have h' := h b 
+        rw [not_exists] at h'
+        have h'' := h' a 
+        rw [not_and] at h''
+        have h''' := h'' hab'
+        rw [←(TotalPreorder_lt_iff_not_le hlins.toIsTotal.total), not_not] at h'''
+        exact h'''
+  match hinv with 
+| ⟨a, b, habinv⟩ => 
+    set A := @Finset.Icc _ _ hLF a b 
+    letI : Preorder (A × A) := @Preorder.lift _ _ (ReverseProductOrder s) (fun ⟨x,y⟩ => ⟨x.1, y.1⟩)
+    have hwf := @Finite.Preorder.wellFounded_lt (A × A) _ _ 
+    set I : Set (A × A) := {x | r.lt x.1.1 x.2.1 ∧ s.lt x.1.1 x.2.1} 
+    have hne : I.Nonempty := by 
+      rw [Set.nonempty_def]
+      simp only [Subtype.coe_lt_coe, Set.mem_setOf_eq, Prod.exists, Subtype.exists, gt_iff_lt, Finset.mem_Icc,
+        exists_and_left, Subtype.mk_lt_mk, exists_prop]
+      exists a 
+      rw [and_iff_right ⟨s.le_refl _, le_of_lt habinv.2⟩]
+      exists b
+      rw [and_iff_right habinv.1, and_iff_left habinv.2]
+      exact ⟨le_of_lt habinv.2, s.le_refl _⟩
+    set x := WellFounded.min hwf I hne 
+    have hx := WellFounded.min_mem hwf I hne 
+    match Exists_smaller_noninversion r hlins heq hx with 
+    | ⟨c, d, ⟨h, h', hmin⟩⟩ => have hx1 := x.1.2 
+                               simp only [gt_iff_lt, Subtype.coe_lt_coe, Finset.mem_Icc] at hx1 
+                               have hx2 := x.2.2 
+                               simp only [gt_iff_lt, Subtype.coe_lt_coe, Finset.mem_Icc] at hx2
+                               have hcA : c ∈ A := by 
+                                 simp only [gt_iff_lt, Finset.mem_Icc]
+                                 have h := le_of_lt hmin 
+                                 change s.le _ _ ∧ s.le _ _ at h 
+                                 constructor 
+                                 . exact s.le_trans _ _ _ hx1.1 h.1 
+                                 . exact s.le_trans _ _ _ (le_of_lt h') (s.le_trans _ _ _ h.2 hx2.2)  
+                               have hdA : d ∈ A := by 
+                                 simp only [gt_iff_lt, Finset.mem_Icc]
+                                 have h := le_of_lt hmin 
+                                 change s.le _ _ ∧ s.le _ _ at h 
+                                 constructor 
+                                 . exact s.le_trans _ _ _ (s.le_trans _ _ _ hx1.1 h.1) (le_of_lt h') 
+                                 . exact s.le_trans _ _ _  h.2 hx2.2 
+                               have hI : (⟨c, hcA⟩, ⟨d, hdA⟩) ∈ I := by 
+                                 simp only [Subtype.coe_lt_coe, Set.mem_setOf_eq, Subtype.mk_lt_mk]
+                                 exact ⟨h, h'⟩
+                               exact WellFounded.not_lt_min hwf I hne hI hmin 
 
 
 
