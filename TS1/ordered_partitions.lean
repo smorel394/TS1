@@ -179,78 +179,6 @@ We now introduce what will be the "restriction" map of the shelling, which we ca
 auxiliary linear order r on α. The idea is that, for a total preorder s, the equivalence classes of its ascent partition are
 the maximal connected (for s) sets on which s and r agree, and then these classes are ordered using s. -/
 
-/-Old code, deprecated.
-def DescentPartition_aux (r : LinearOrder α) (s : Preorder α) : α → α → Prop :=
-fun a b => s.le a b ∨ (s.le b a ∧ ∀ (c d : α), s.le b c → s.le c d → s.le d a → (r.le b c ∧ r.le c d ∧ r.le d a))
-
-lemma DescentPartition_aux_refl (r : LinearOrder α) (s : Preorder α) (a : α) : DescentPartition_aux r s a a :=
-Or.inl (s.le_refl a)
-
-
-
-lemma DescentPartition_aux_trans (r : LinearOrder α) {s : Preorder α} (htot : Total s.le) (a b c : α) (hab : DescentPartition_aux r s a b)
-(hbc : DescentPartition_aux r s b c) : DescentPartition_aux r s a c := by 
-  cases hab with
-  | inl hab => cases hbc with
-               | inl hbc => exact Or.inl (s.le_trans _ _ _ hab hbc)
-               | inr hcb => cases (htot a c) with
-                            | inl hac => exact Or.inl hac
-                            | inr hca => apply Or.inr
-                                         constructor
-                                         . exact hca
-                                         . intro d e hcd hde hea 
-                                           have h1 := hcb.2 d e hcd hde (s.le_trans _ _ _ hea hab)
-                                           have h2 := hcb.2 e a (s.le_trans _ _ _ hcd hde) hea hab
-                                           exact ⟨h1.1, h1.2.1, h2.2.1⟩                                           
-  | inr hba => cases hbc with
-               | inl hbc => cases (htot a c) with
-                            | inl hac => exact Or.inl hac 
-                            | inr hca => apply Or.inr
-                                         rw [and_iff_right hca]
-                                         intro d e hcd hde hea 
-                                         have h1 := hba.2 d e (s.le_trans _ _ _ hbc hcd) hde hea 
-                                         have h2 := hba.2 c d hbc hcd (s.le_trans _ _ _ hde hea)
-                                         exact ⟨h2.2.1, h1.2.1, h1.2.2⟩  
-
-               | inr hcb => apply Or.inr 
-                            rw [and_iff_right (s.le_trans _ _ _ hcb.1 hba.1)]
-                            intro d e hcd hde hea 
-                            have hrab := (hba.2 a a hba.1 (s.le_refl a) (s.le_refl a)).1
-                            have hrcb := (hcb.2 c c (s.le_refl c) (s.le_refl c) hcb.1).2.2
-                            cases (htot e b) with
-                            | inl heb => have h := hcb.2 d e hcd hde heb 
-                                         exact ⟨h.1, h.2.1, r.le_trans _ _ _ h.2.2 hrab⟩
-                            | inr hbe => cases (htot d b) with
-                                         | inl hdb => have h1 := hcb.2 d d hcd (s.le_refl d) hdb 
-                                                      have h2 := hba.2 e e hbe (s.le_refl e) hea 
-                                                      exact ⟨h1.1, r.le_trans _ _ _ h1.2.2 h2.1, h2.2.2⟩
-                                         | inr hbd => have h:= hba.2 d e hbd hde hea 
-                                                      exact ⟨r.le_trans _ _ _  hrcb h.1, h.2.1, h.2.2⟩
-
-lemma DescentPartition_aux_total (r: LinearOrder α) {s : Preorder α} (htot : Total s.le) (a b : α) :
-DescentPartition_aux r s a b ∨ DescentPartition_aux r s b a := by
-  cases (htot a b) with
-  | inl hab => exact Or.inl (Or.inl hab) 
-  | inr hba => exact Or.inr (Or.inl hba) 
-
-
-def DescentPartition (r: LinearOrder α) {s : Preorder α} (htot : Total s.le) : Preorder α where 
-le := DescentPartition_aux r s 
-lt := fun a b => DescentPartition_aux r s a b ∧ ¬(DescentPartition_aux r s b a)
-le_refl := DescentPartition_aux_refl r s 
-le_trans := DescentPartition_aux_trans r htot 
-lt_iff_le_not_le := fun a b => by triv 
-
-lemma DescentPartition_is_total (r: LinearOrder α) {s : Preorder α} (htot : Total s.le) :
-Total (DescentPartition r htot).le := DescentPartition_aux_total r htot 
-
-lemma DescentPartition_is_greater (r : LinearOrder α) {s: Preorder α} (htot : Total s.le) : 
-s ≤ DescentPartition r htot := by
-  intro a b hsab 
-  change DescentPartition_aux r s a b  
-  exact Or.inl hsab 
--/
-
 
 def AscentPartition_aux (r : LinearOrder α) (s : Preorder α) : α → α → Prop :=
 fun a b => s.le a b ∨ (s.le b a ∧ @StrictMonoOn α α s r.toPartialOrder.toPreorder (fun x => x) (@Set.Icc α s b a))
@@ -683,19 +611,6 @@ map will be preorders that are linear except for the last block, i.e. where all 
 /- Now we do some calculations. -/
 /- Calculation: if we take the ascent partitition of the fixed linear order r itself, then we get the trivial preorder. -/
 
-/- Deprecated.
-lemma DescentPartition_fixed_linear_order (r : LinearOrder α) : 
-@DescentPartition α r (PreorderofLinearOrder r) r.le_total = trivialPreorder α := by
-  apply Preorder.ext
-  intro a b 
-  change DescentPartition_aux r (PreorderofLinearOrder r) a b ↔ True 
-  simp only [iff_true]
-  cases (r.le_total a b) with
-  | inl hab => exact Or.inl hab 
-  | inr hba => apply Or.inr 
-               rw [and_iff_right hba]
-               exact fun c d => by tauto 
--/
 
 lemma AscentPartition_fixed_linear_order (r : LinearOrder α) : 
 @AscentPartition α r r.toPartialOrder.toPreorder r.le_total = trivialPreorder α := by
@@ -712,30 +627,6 @@ lemma AscentPartition_fixed_linear_order (r : LinearOrder α) :
 
 /- Conversely, the only linear order with trivial ascent partition is r itself.-/
 
-/- Deprecated. 
-lemma Preorder_lt_and_DescentPartition_ge_implies_LinearOrder_le (r : LinearOrder α) {s : Preorder α} (htot : Total s.le) {a b : α}
-(hlt : s.lt a b) (hge : (DescentPartition r htot).le  b a) : r.le a b := by
-  change DescentPartition_aux r s b a at hge
-  unfold DescentPartition_aux at hge
-  rw [or_iff_right (not_le_of_lt hlt)] at hge
-  exact (hge.2 a a (s.le_refl a) (s.le_refl a) (le_of_lt hlt)).2.2
-
-lemma DescentPartition_trivial_implies_fixed_linear_order (r : LinearOrder α) {s : Preorder α} (hlin : IsLinearOrder α s.le)
-(htriv : DescentPartition r hlin.toIsTotal.total = trivialPreorder α) : s = PreorderofLinearOrder r := by
-  apply Preorder.ext 
-  intro a b 
-  cases (LinearPreorder_trichotomy hlin a b) with 
-  | inl hab => simp only [le_of_lt hab, true_iff]
-               have hdba : (DescentPartition r hlin.toIsTotal.total).le b a := by rw [htriv]; triv  
-               exact Preorder_lt_and_DescentPartition_ge_implies_LinearOrder_le r hlin.toIsTotal.total hab hdba 
-  | inr hmid => cases hmid with
-                | inl hba => simp only [not_le_of_lt hba, false_iff, not_le]
-                             have hdab : (DescentPartition r hlin.toIsTotal.total).le a b := by rw [htriv]; triv  
-                             have hrba := Preorder_lt_and_DescentPartition_ge_implies_LinearOrder_le r hlin.toIsTotal.total hba hdab 
-                             rw [lt_iff_le_and_ne, and_iff_right hrba]
-                             exact ne_of_lt hba
-                | inr heq => rw [heq]; simp only [_root_.le_refl, true_iff]; exact r.le_refl _ 
--/
 
 lemma Preorder_lt_and_AscentPartition_ge_implies_LinearOrder_le (r : LinearOrder α) {s : Preorder α} (htot : Total s.le) {a b : α}
 (hlt : s.lt a b) (hge : (AscentPartition r htot).le  b a) : r.le a b := by
@@ -767,16 +658,6 @@ lemma AscentPartition_trivial_implies_fixed_linear_order (r : LinearOrder α) {s
 
 /- Second calculation: the ascent partition of the dual of the fixed linear order r is equal to r itself. -/
 
-/- Deprecated.
-lemma DescentPartition_dual_fixed_linear_order (r : LinearOrder α) : 
-@DescentPartition α r (PreorderofLinearOrder (dual r)) (dual r).le_total = PreorderofLinearOrder (dual r) := by 
-  apply Preorder.ext 
-  intro a b 
-  change DescentPartition_aux r (PreorderofLinearOrder (dual r)) a b ↔ _  
-  unfold DescentPartition_aux 
-  simp only [or_iff_left_iff_imp]
-  exact fun ⟨hba, h⟩ => (h b b ((dual r).le_refl b) ((dual r).le_refl b) hba).2.2  
--/
 
 lemma AscentPartition_dual_fixed_linear_order (r : LinearOrder α) : 
 @AscentPartition α r (dual r).toPartialOrder.toPreorder (dual r).le_total = (dual r).toPartialOrder.toPreorder := by 
