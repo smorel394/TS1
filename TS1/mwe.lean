@@ -1,22 +1,19 @@
 import Mathlib.Tactic
 import Mathlib.Init.Algebra.Order
-import Mathlib.Order.SuccPred.Basic
-
-
-open Classical 
 
 variable {α : Type _}
 
-def powersetToPreorder (E : Set (Set α)) : Preorder α  where
-le :=  fun a b => ∀ ⦃X : Set α⦄, X ∈ E → b ∈ X → a ∈ X 
-le_refl := fun _ => fun _ _ h => h
-le_trans :=  fun _ _ _ hab hbc => fun X hXE hXc => hab hXE (hbc hXE hXc)
+example (r : LinearOrder α) (s : Preorder α) (a b : α) : ¬(s.lt a b → r.lt a b) := by 
+  push_neg -- now the goal is s.lt a b ∧ s.le b a ! 
 
-
-def successeur1 (s : Preorder α) (hsucc : @SuccOrder α s) (a : α) : α := hsucc.succ a 
-
-
-def successeur2 (E : Set (Set α)) (hsucc : @SuccOrder α (powersetToPreorder E)) (a : α) : α := by
-  letI : Preorder α := powersetToPreorder E
-  exact hsucc.succ a  
-
+/- Error message:
+application type mismatch
+  id
+    (Eq.trans (Mathlib.Tactic.PushNeg.not_implies_eq (a < b) (a < b))
+      (congrArg (And (a < b)) (Mathlib.Tactic.PushNeg.not_lt_eq a b)))
+argument has type
+  (¬(a < b → a < b)) = (a < b ∧ b ≤ a)
+but function has type
+  (¬(a < b → a < b)) = (a < b ∧ b ≤ a) → (¬(a < b → a < b)) = (a < b ∧ b ≤ a)
+-/
+  

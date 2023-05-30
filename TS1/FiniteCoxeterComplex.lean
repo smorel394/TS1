@@ -3,6 +3,7 @@ import TS1.Decomposability
 
 set_option autoImplicit false
 
+open Classical 
 
 universe u
 
@@ -67,6 +68,35 @@ map_rel_iff' := by intro E F
                      exact preorderToPowerset_antitone hEF 
                    . exact powersetToPreorder_antitone 
 
+/- If s is a face of the Coxeter complex, then the cardinality of s is equal to the number of blocks of the corresponding partition minus 1.-/
+
+lemma CoxeterComplex_dimension_face (s : AFLOPowerset α) (hne : Nonempty α) : 
+Finset.card s.1 = @Fintype.card (Antisymmetrization α ((CoxeterComplextoPartitions α).toFun s).1.le)
+(@Fintype.ofFinite _ ((CoxeterComplextoPartitions α).toFun s).2.2.2) -1 := by 
+  have h : s = (CoxeterComplextoPartitions α).invFun ((CoxeterComplextoPartitions α).toFun s) := by 
+    simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm,
+    OrderIso.symm_apply_apply]
+  rw [←SetCoe.ext_iff] at h 
+  rw [h]
+  generalize (CoxeterComplextoPartitions α).toFun s = p 
+  unfold CoxeterComplextoPartitions 
+  simp only [ge_iff_le]
+  unfold preorderToPowersetFinset
+  have := Set.Finite.coeSort_toFinset (Set.finite_coe_iff.mp (AFLO_preorderToPowerset_finite p)) 
+  rw [←Fintype.card_coe]
+  haveI I : Fintype (preorderToPowerset p.1) := @Fintype.ofFinite _ (AFLO_preorderToPowerset_finite p)    
+  simp_rw [this] 
+  haveI hfin : Finite (Antisymmetrization α p.1.le) := p.2.2.2
+  haveI hfint : Fintype (Antisymmetrization α p.1.le):= @Fintype.ofFinite _ hfin   
+  haveI : Finite (Antisymmetrization_nonmaximal p.1) := inferInstance 
+  haveI : Fintype (Antisymmetrization_nonmaximal p.1) := Fintype.ofFinite _  
+  rw [←(Fintype.card_congr (@Equiv_Antisymmetrization_nonmaximal_to_PreorderToPowerset _ p.1 p.2.1 (AFLOPartition_is_ELF p)))]
+  simp_rw [@FiniteAntisymmetrization_nonmaximal _ p.1 p.2.1 inferInstance hne] 
+  simp only [Finset.coe_sort_coe, Fintype.card_coe, ge_iff_le]
+  rw [Finset.card_erase_of_mem ?_] 
+  rw [@Finset.card_univ _ (@Fintype.ofFinite _ hfin)] 
+  refine @Finset.mem_univ _ ?_ _  
+
 
 /- The restriction map: it is given by applying the order isomorphisms to ordered partitions, taking the descent partition (with respect to a fixed auxiliary
 linear order) and applying the inverse of the order isomorphism.-/
@@ -93,7 +123,7 @@ lemma AFLOPartitions_IsUpperSet : IsUpperSet (AFLOPartitions α) := by
 
 variable {α : Type u}
 
-lemma AscentPartitions_respects_AFLO (r : LinearOrder α) {s : Preorder α} (hs : s ∈ AFLOPartitions α) : 
+lemma AscentPartition_respects_AFLO (r : LinearOrder α) {s : Preorder α} (hs : s ∈ AFLOPartitions α) : 
 AscentPartition r hs.1 ∈ AFLOPartitions α := by 
   apply AFLOPartitions_IsUpperSet α (AscentPartition_is_greater r hs.1)
   exact hs 
@@ -102,7 +132,7 @@ AscentPartition r hs.1 ∈ AFLOPartitions α := by
 noncomputable def restriction (r : LinearOrder α) (E : AFLOPowerset α) : AFLOPowerset α := 
   (CoxeterComplextoPartitions α).invFun 
    ⟨@AscentPartition _ r (powersetToPreorder (E.1 :Set (Set α))) (AFLO_powersetToPreorder E).1,
-    AscentPartitions_respects_AFLO r (AFLO_powersetToPreorder E)⟩ 
+    AscentPartition_respects_AFLO r (AFLO_powersetToPreorder E)⟩ 
   
 lemma restriction_is_smaller (r : LinearOrder α) (E : AFLOPowerset α) : restriction r E ≤ E := by
   unfold restriction 
@@ -280,6 +310,7 @@ lemma CoxeterComplex_is_decomposable (r : LinearOrder α) : IsDecomposition (R r
     rw [mem_facets_iff, FacesCoxeterComplex] at hsf
     exact restriction_is_smaller r ⟨s, hsf.1.1⟩ 
   . intro ⟨s, hsf⟩ ⟨t, htf⟩ 
+    have htf' := htf 
     rw [mem_facets_iff] at htf 
     rw [FacesCoxeterComplex] at hsf htf 
     unfold R DF restriction distinguishedFacet
@@ -287,7 +318,34 @@ lemma CoxeterComplex_is_decomposable (r : LinearOrder α) : IsDecomposition (R r
     set p := (CoxeterComplextoPartitions α).toFun ⟨s, hsf.1⟩
     set q := (CoxeterComplextoPartitions α).toFun ⟨t, htf.1.1⟩
     constructor 
-    . sorry 
+    . intro hint 
+      rw [and_comm] at hint 
+      have hqp : q.1 ≤ p.1 := by 
+        change p ≤ q
+        simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, map_le_map_iff, Subtype.mk_le_mk, Finset.le_eq_subset]
+        exact hint.1 
+      have hpq : p.1 ≤ @AscentPartition _ r q.1 q.2.1 := by 
+        change ⟨@AscentPartition _ r q.1 q.2.1, AscentPartition_respects_AFLO r q.2⟩ ≤ p 
+        have h := hint.2 
+        change (CoxeterComplextoPartitions α).invFun ⟨@AscentPartition _ r q.1 q.2.1, AscentPartition_respects_AFLO r q.2⟩ ≤ 
+           (⟨s, hsf.1⟩ : AFLOPowerset α) at h
+        apply_fun (CoxeterComplextoPartitions α).toFun at h 
+        simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm,
+            OrderIso.apply_symm_apply] at h
+        exact h   
+        exact (CoxeterComplextoPartitions α).monotone 
+      have hqlin : IsLinearOrder α q.1.le := by 
+        rw [Facets_are_linear_orders (facets_subset htf')] at htf' 
+        exact htf' 
+      have halmost := @LinearOrder_of_total_preorder_and_linear_order_on_ascent_interval' _ r q.1 p.1 hqlin p.2.1 hqp hpq
+      have h' : q = ⟨LinearOrder_of_total_preorder_and_linear_order r p.1, LinearOrder_etc_respects_AFLO r p.2⟩ := by 
+        rw [←SetCoe.ext_iff]
+        exact halmost   
+      apply_fun (CoxeterComplextoPartitions α).invFun at h'
+      simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm,
+         OrderIso.symm_apply_apply] at h'
+      rw [←SetCoe.ext_iff] at h' 
+      exact h' 
     . intro heq 
       have hqp : q.1 = LinearOrder_of_total_preorder_and_linear_order r p.1 := by 
         simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv]
@@ -303,7 +361,7 @@ lemma CoxeterComplex_is_decomposable (r : LinearOrder α) : IsDecomposition (R r
         exact LinearOrder_of_total_preorder_and_linear_order_is_linear r p.2.1 
       have halmost := @LinearOrder_of_total_preorder_and_linear_order_fibers _ r q.1 p.1 hqlin p.2.1 (Eq.symm hqp)        
       rw [and_comm]
-      change p ≤ q ∧ ⟨@AscentPartition _ r q.1 q.2.1, AscentPartitions_respects_AFLO r q.2⟩ ≤ p  at halmost 
+      change p ≤ q ∧ ⟨@AscentPartition _ r q.1 q.2.1, AscentPartition_respects_AFLO r q.2⟩ ≤ p  at halmost 
       erw [(CoxeterComplextoPartitions α).map_rel_iff'] at halmost 
       erw [and_iff_right halmost.1] 
       have halmost := halmost.2 
@@ -312,6 +370,66 @@ lemma CoxeterComplex_is_decomposable (r : LinearOrder α) : IsDecomposition (R r
       simp only [Equiv.invFun_as_coe, OrderIso.toEquiv_symm, RelIso.coe_toEquiv, OrderIso.symm_apply_apply] at halmost
       exact halmost 
       exact (CoxeterComplextoPartitions α).symm.monotone 
+
+
+/- The Coxeter complex is nonempty if and only if Fintype.card α ≥ 2.-/
+
+lemma CoxeterComplex_nonempty_iff (α : Type u) [Fintype α] : (CoxeterComplex α).faces.Nonempty ↔ Fintype.card α ≥ 2 := by 
+  constructor 
+  . sorry 
+  . sorry 
+
+/- The Coxeter complex is finite.-/
+
+lemma CoxeterComplex_is_finite (α : Type u) [Fintype α] : FiniteComplex (CoxeterComplex α) := by 
+  rw [FiniteComplex]
+  have hsub : (CoxeterComplex α).faces ⊆ @Set.univ (Finset (Set α)) := by 
+    simp only [Set.subset_univ]
+  exact Finite.Set.subset _ hsub  
+
+/- Dimension of the facets of the Coxeter complex.-/
+
+lemma NonemptyType_of_face_CoxeterComplex {s : Finset (Set α)} (hs : s ∈ (CoxeterComplex α).faces) : 
+Nonempty α := by 
+  rw [←Fintype.card_pos_iff]
+  refine lt_trans Nat.zero_lt_one ?_ 
+  rw [←Nat.succ_le_iff]
+  exact (CoxeterComplex_nonempty_iff α).mp ⟨s, hs⟩ 
+
+lemma CoxeterComplex_dimension_facet (s : (CoxeterComplex α).facets) :
+Finset.card s.1 = Fintype.card α -1 := by 
+  have hsf := s.2 
+  rw [mem_facets_iff, FacesCoxeterComplex] at hsf
+  rw [CoxeterComplex_dimension_face α ⟨s.1, hsf.1.1⟩ (NonemptyType_of_face_CoxeterComplex (facets_subset s.2))]
+  set p := (CoxeterComplextoPartitions α).toFun ⟨s, hsf.1.1⟩
+  have hlinp : IsLinearOrder α p.1.le := (Facets_are_linear_orders (facets_subset s.2)).mp s.2
+  have hAR := @antisymmRel_iff_eq _ p.1.le hlinp.toIsPartialOrder.toIsPreorder.toIsRefl hlinp.toIsPartialOrder.toIsAntisymm 
+  haveI := p.2.2.2 
+  rw [@Fintype.card_of_bijective _ _ _ (Fintype.ofFinite _) (toAntisymmetrization p.1.le)] 
+  unfold Function.Bijective 
+  erw [and_iff_left (@surjective_quotient_mk _ (AntisymmRel.setoid α p.1.le))]
+  intro a b hab
+  have hab := Quotient.exact hab 
+  change AntisymmRel p.1.le a b at hab
+  exact hAR.mp hab  
+
+
+/- The Coxeter complex is pure (of dimension Fintype.card α - 2, since we know that the facets have cardinality Fintype.card α - 1).-/
+
+lemma CoxeterComplex_is_pure (α : Type u) [Fintype α] : Pure (CoxeterComplex α) := 
+Dimension_of_Noetherian_pure (Finite_implies_Noetherian (CoxeterComplex_is_finite α)) 
+(fun s t hsf htf => by rw [CoxeterComplex_dimension_facet ⟨s, hsf⟩, CoxeterComplex_dimension_facet ⟨t, htf⟩])
+
+
+/- We find the π₀ and homology facets: the unique π₀ facet is the minimal one for the weak Bruhat order (i.e. the one corresponding to r), and
+the unique homology facet is the maximal one for the weak Bruhat order (i.e. the one corresponding to the dual of r).-/
+
+lemma CoxeterComplex_Pi0Facet (r : LinearOrder α) {s : Finset (Set α)} (hsf : s ∈ (CoxeterComplex α).facets) :
+IsPi0Facet (CoxeterComplex_is_decomposable r) ⟨s, hsf⟩ ↔ powersetToPreorder (s : Set (Set α)) = r.toPartialOrder.toPreorder := sorry 
+  
+
+lemma CoxeterComplex_HomologyFacet (r : LinearOrder α) {s : Finset (Set α)} (hsf : s ∈ (CoxeterComplex α).facets) :
+IsHomologyFacet (CoxeterComplex_is_decomposable r) ⟨s, hsf⟩ ↔ powersetToPreorder (s : Set (Set α)) = (dual r).toPartialOrder.toPreorder := sorry 
 
       
 

@@ -2,6 +2,8 @@ import TS1.general_preorder_stuff
 
 set_option autoImplicit false
 
+open Classical 
+
 namespace Preorder 
 
 universe u 
@@ -316,6 +318,7 @@ def Preorder_nonmaximal (s : Preorder α) : Set α := {b : α | ∃ (c : α), s.
 def Antisymmetrization_nonmaximal (s : Preorder α) := Preorder_nonmaximal (@PartialOrder.toPreorder _
 (@instPartialOrderAntisymmetrizationLeToLEInstIsPreorderLeToLE α s)) 
 
+
 lemma Antisymmetrization_nonmaximal_prop1 {s : Preorder α} (hnonmax : ∀ (a : α), ∃ (b : α), s.lt a b) :
 Antisymmetrization_nonmaximal s = @Set.univ (@Antisymmetrization α s.le (@instIsPreorderLeToLE α s)) := by
   unfold Antisymmetrization_nonmaximal
@@ -352,7 +355,7 @@ Antisymmetrization_nonmaximal s = {x | x ≠ toAntisymmetrization s.le a} := by
     rw [lt_iff_le_and_ne]
     exact ⟨hxa, hx⟩ 
 
-lemma FiniteAntisymmetrization_exists_maximal {s : Preorder α} (hfin : Finite (Antisymmetrization α s.le)) (hne : Nonempty α) : 
+lemma FiniteAntisymmetrization_exists_maximal (s : Preorder α) (hfin : Finite (Antisymmetrization α s.le)) (hne : Nonempty α) : 
 ∃ (a : α), ∀ (b : α), ¬(s.lt a b) := by 
   letI : Preorder α := s 
   have hane : (@Set.univ (Antisymmetrization α s.le)).Nonempty := by 
@@ -362,6 +365,14 @@ lemma FiniteAntisymmetrization_exists_maximal {s : Preorder α} (hfin : Finite (
   rw [←toAntisymmetrization_lt_toAntisymmetrization_iff, toAntisymmetrization_ofAntisymmetrization]  
   exact WellFounded.not_lt_min (@Finite.Preorder.wellFounded_gt _ hfin _) _ hane (Set.mem_univ (toAntisymmetrization s.le b)) 
 
+lemma FiniteAntisymmetrization_nonmaximal {s : Preorder α} (htot : Total s.le) (hfin : Finite (Antisymmetrization α s.le)) (hne : Nonempty α) : 
+Antisymmetrization_nonmaximal s = 
+Finset.erase (@Finset.univ (Antisymmetrization α s.le) (@Fintype.ofFinite _ hfin)) 
+(toAntisymmetrization s.le (Classical.choose (FiniteAntisymmetrization_exists_maximal s hfin hne))) := by 
+  rw [Antisymmetrization_nonmaximal_prop2 htot (Classical.choose_spec (FiniteAntisymmetrization_exists_maximal s hfin hne))]
+  ext x 
+  simp only [ne_eq, Set.mem_setOf_eq, Finset.coe_erase, Finset.mem_coe, Set.mem_diff, Set.mem_singleton_iff, iff_and_self]
+  exact fun  _ => @Finset.mem_univ _ (@Fintype.ofFinite _ hfin) _  
 
 /- We define the map from the antisymmetrization (minus biggest element) to preorderToPowerset. -/
 
