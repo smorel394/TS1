@@ -12,6 +12,8 @@ import Mathlib.Order.SuccPred.LinearLocallyFinite
 import Mathlib.Data.Set.Image
 import Mathlib.Order.PFilter
 import Mathlib.Order.Zorn 
+import Mathlib.SetTheory.Ordinal.Basic
+
 
 
 
@@ -632,3 +634,54 @@ LocallyFiniteOrderTop.ofIic (Finset α) (fun s => Set.Finite.toFinset (FinsetIic
 noncomputable instance FacePosetLF : LocallyFiniteOrder (Finset α) :=
 LocallyFiniteOrder.ofIcc (Finset α) (fun s t => Set.Finite.toFinset (FinsetIcc_is_finite s t)) 
   (fun a s t => by simp only [ge_iff_le, gt_iff_lt, Set.Finite.mem_toFinset, Set.mem_Icc]) 
+
+
+/- An example of total preorder: if a is an element of α, we have a preorder that makes a smaller than all other elements, and that makes
+all other elements equivalent. This preorder is total, and it is nontrivial if α has an element b such that b ≠ a. (It's an "if and only", of
+course, as every preorder on a singleton is trivial.)-/
+
+def twoStepPreorder (a : α) : Preorder α where 
+le x y := by by_cases x = a
+             . exact True 
+             . by_cases y = a 
+               . exact False 
+               . exact True  
+le_refl x := by by_cases hx : x = a 
+                . simp only [hx, dite_eq_ite]
+                . simp only [hx, dite_eq_ite]
+le_trans x y z hxy hyz := by by_cases hx : x = a 
+                             . simp only [hx, dite_eq_ite, ite_true] at hxy |-
+                             . simp only [hx, dite_eq_ite, ite_false] at hxy|-
+                               by_cases hy : y = a 
+                               . simp only [hy, ite_true] at hxy
+                               . simp only [hy, dite_eq_ite, ite_false] at hyz
+                                 exact hyz 
+--lt := sorry 
+--lt_iff_le_not_le := sorry 
+
+lemma twoStepPreorder_IsTotal (a : α) : Total (twoStepPreorder a).le := by 
+  unfold twoStepPreorder 
+  intro x y 
+  by_cases hx : x = a 
+  . simp only [dite_eq_ite, hx, ite_true, true_or]
+  . simp only [dite_eq_ite, hx, ite_false, ite_self, or_true]
+
+
+open Preorder
+
+lemma twoStepPreorder_nontrivial {a b : α} (hab : a ≠ b) : twoStepPreorder a ≠ trivialPreorder α := by 
+  rw [nontrivial_preorder_iff_exists_not_le]
+  exists b; exists a 
+  unfold twoStepPreorder 
+  simp only [dite_eq_ite, Ne.symm hab, ite_true, ite_false, not_false_eq_true]
+
+
+/- This constructs a linear order on any type, using an embedding into cardinals (similar to the construction of the well-order in
+https://leanprover-community.github.io/mathlib4_docs/Mathlib/SetTheory/Ordinal/Basic.html#WellOrderingRel)-/
+
+
+variable (α : Type u)
+
+noncomputable def ArbitraryLinearOrder : LinearOrder α := 
+LinearOrder.lift' (embeddingToCardinal).toFun (embeddingToCardinal).inj' 
+  

@@ -309,6 +309,10 @@ def FiniteComplex (K : AbstractSimplicialComplex V) : Prop := Finite K.faces
 lemma Finite_IsLowerSet {K L : AbstractSimplicialComplex V} (hKL : K ≤ L) (hLfin : FiniteComplex L) : FiniteComplex K := 
 @Finite.Set.subset (Finset V) L.faces K.faces hLfin hKL    
 
+/- A finite simplicial complex has a finite set of facets.-/
+
+lemma FiniteComplex_has_finite_facets {K : AbstractSimplicialComplex V} (hfin : FiniteComplex K) : Finite K.facets := sorry 
+
 section Classical
 
 open Classical
@@ -454,6 +458,7 @@ lemma BoundaryFinite {K : AbstractSimplicialComplex V} (s : K.faces) : FiniteCom
   rw [SetCoe.ext_iff] at heq
   exact heq 
   
+
 
 end AbstractSimplicialComplex
 

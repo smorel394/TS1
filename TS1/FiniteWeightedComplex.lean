@@ -1,7 +1,6 @@
-import TS1.FiniteOrderedPartitions 
-import TS1.Shellability
-import TS1.WeakBruhatOrder 
-import TS1.EulerPoincareCharacteristic 
+import TS1.FiniteCoxeterComplex  
+import Mathlib.Data.Real.Basic
+
 
 
 set_option autoImplicit false
@@ -11,175 +10,202 @@ open Classical
 universe u
 
 
-variable (α : Type u) 
+variable {α : Type u} (μ : α → ℝ)
 
-namespace FiniteCoxeterComplex
+namespace FiniteWeightedComplex
 
-open AbstractSimplicialComplex Preorder LinearOrderedPartitions 
+open AbstractSimplicialComplex Preorder LinearOrderedPartitions FiniteCoxeterComplex 
 
-/- The faces are the subset AFLOPowerset of Finset (Set α) define in FiniteOrderedPartitions.-/
+/- The weighted complex is the subcomplex of the Coxeter complex whose faces are nonempty elements E of AFLOPowerset such that
+∑_X μ is nonnegative for every X ∈ E.-/
 
-lemma AFLOPowerset_down_closed : ∀ {E F : Finset (Set α)}, E ∈ AFLOPowerset α → F ⊆ E → F ∈ AFLOPowerset α := by 
+def IsPositiveSet {X : Set α} (hXfin : Finite X) : Prop := Finset.sum (Set.Finite.toFinset (Set.finite_coe_iff.mp hXfin)) μ ≥ 0 
+
+
+def AFLOPowerset_positive : Set (Finset (Set α)) := 
+{E | ∃ (hE : E ∈ AFLOPowerset α), ∀ {X : Set α} (hXE : X ∈ E), IsPositiveSet μ (hE.2 X hXE).2}
+
+instance AFLOPowerset_positive.PartialOrder : PartialOrder (AFLOPowerset_positive μ) :=
+Subtype.partialOrder _ 
+
+lemma AFLOPowerset_forget_positive : AFLOPowerset_positive μ ⊆ AFLOPowerset α := fun _ ⟨hE, _⟩ => hE  
+
+def AFLOPartitions_positive : Set (Preorder α) := {p | ∃ (hp : p ∈ AFLOPartitions α), preorderToPowersetFinset ⟨p, hp⟩ ∈ AFLOPowerset_positive μ}
+
+instance AFLOPartitions_positive.PartialOrder : PartialOrder (AFLOPartitions_positive μ) :=
+Subtype.partialOrder _ 
+
+
+lemma AFLOPartitions_forget_positive : AFLOPartitions_positive μ ⊆ AFLOPartitions α := fun _ ⟨hp, _⟩ => hp
+  
+
+lemma AFLOPowerset_positive_down_closed : ∀ {E F : Finset (Set α)}, E ∈ AFLOPowerset_positive μ → F ⊆ E → F ∈ AFLOPowerset_positive μ := by 
   intro E F hE hFE 
-  constructor
-  . intro X Y 
-    have hXE : X.1 ∈ E := hFE X.2
-    have hYE : Y.1 ∈ E := hFE Y.2
-    exact hE.1 ⟨X.1, hXE⟩ ⟨Y.1, hYE⟩
-  . exact fun X hXF => hE.2 X (hFE hXF) 
+  exists (AFLOPowerset_down_closed α (AFLOPowerset_forget_positive μ hE) hFE)
+  intro X hXF 
+  match hE with 
+  | ⟨_, hpos⟩ => exact hpos (hFE hXF)
 
-def CoxeterComplex  := of_erase (AFLOPowerset α) (AFLOPowerset_down_closed α)
 
-lemma FacesCoxeterComplex (s : Finset (Set α)) : s ∈ (CoxeterComplex α).faces ↔ s ∈ (AFLOPowerset α) ∧ s ≠ ∅ := by 
-  unfold CoxeterComplex
+def WeightedComplex  := of_erase (AFLOPowerset_positive μ) (AFLOPowerset_positive_down_closed μ)
+
+
+lemma FacesWeightedComplex (s : Finset (Set α)) : s ∈ (WeightedComplex μ).faces ↔ s ∈ (AFLOPowerset_positive μ) ∧ s ≠ ∅ := by 
+  unfold WeightedComplex
   simp only [of_erase_faces, Set.mem_diff, Set.mem_singleton_iff, ne_eq]
 
+lemma WeightedComplex_subcomplex : WeightedComplex μ ≤ CoxeterComplex α := by 
+  intro s hsf 
+  rw [FacesWeightedComplex] at hsf 
+  rw [FacesCoxeterComplex]
+  exact ⟨AFLOPowerset_forget_positive μ hsf.1, hsf.2⟩
 
-/- The set AFLOPowerset α is in order-reversing bijection with the set of inearly ordered partitions of α. (If α is not finite, we have to use
-finite linearly ordered partitions with finite proper initial intervals.)-/
+/- The set AFLOPowerset_positive μ is in order-reversing bijection with the set of positive linearly ordered partitions of α. 
+(If α is not finite, we have to use finite linearly ordered partitions with finite proper initial intervals.)-/
+
+lemma AFLO_positive_powersetToPreorder (E : AFLOPowerset_positive μ) : powersetToPreorder (E.1 : Set (Set α)) ∈ AFLOPartitions_positive μ := by 
+  have hE := E.2 
+  match hE with 
+  | ⟨hE, hpos⟩ => 
+    unfold AFLOPartitions_positive 
+    exists (AFLO_powersetToPreorder ⟨E.1, hE⟩) 
+    unfold AFLOPowerset_positive 
+    exists (AFLO_preorderToPowerset ⟨_, (AFLO_powersetToPreorder ⟨E.1, hE⟩)⟩)
+    intro X hXE 
+    unfold preorderToPowersetFinset at hXE
+    rw [Set.Finite.mem_toFinset] at hXE 
+    simp only at hXE 
+    have heq : ⟨E.1, hE⟩ = (CoxeterComplextoPartitions α).invFun ((CoxeterComplextoPartitions α).toFun ⟨E.1, hE⟩) := by 
+      simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm, OrderIso.symm_apply_apply]
+    rw [←SetCoe.ext_iff] at heq
+    unfold CoxeterComplextoPartitions preorderToPowersetFinset at heq
+    simp only at heq 
+    rw [←Finset.coe_inj, Set.Finite.coe_toFinset] at heq 
+    rw [←heq] at hXE
+    exact hpos hXE    
+
+lemma AFLO_positive_preorderToPowerset (p : AFLOPartitions_positive μ) : 
+preorderToPowersetFinset ⟨p.1, AFLOPartitions_forget_positive μ p.2⟩ ∈ AFLOPowerset_positive μ := by
+  have hp := p.2 
+  match hp  with 
+  | ⟨hp, hpos⟩ => 
+    unfold AFLOPowerset_positive 
+    exists (AFLO_preorderToPowerset ⟨p.1, hp⟩)
+    exact fun hXE => hpos.2 hXE 
 
 
-noncomputable def CoxeterComplextoPartitions : OrderIso (AFLOPowerset α) (AFLOPartitions α)ᵒᵈ where
-toFun := fun E => ⟨powersetToPreorder E.1, AFLO_powersetToPreorder E⟩
-invFun := fun p => ⟨preorderToPowersetFinset p, AFLO_preorderToPowerset p⟩ 
+
+noncomputable def WeightedComplextoPositivePartitions : OrderIso (AFLOPowerset_positive μ) (AFLOPartitions_positive μ)ᵒᵈ where
+toFun := fun E => ⟨powersetToPreorder E.1, AFLO_positive_powersetToPreorder μ E⟩
+invFun := fun p => ⟨preorderToPowersetFinset ⟨p.1, AFLOPartitions_forget_positive μ p.2⟩, AFLO_positive_preorderToPowerset μ p⟩ 
 left_inv := fun E => by simp only; rw [←SetCoe.ext_iff]
-                        apply Eq.symm; apply subset_antisymm
-                        . rw [Set.Finite.subset_toFinset] 
-                          intro X hXE 
-                          apply powersetToPreorderToPowerset (E.1 : Set (Set α)) hXE (E.2.2 X hXE).1.1 (E.2.2 X hXE).1.2   
-                        . rw [Set.Finite.toFinset_subset]
-                          apply TotalELFP_powersetToPreorderToPowerset (E : Set (Set α))
-                          . exact (AFLO_powersetToPreorder E).1  
-                          . exact AFLOPartition_is_ELF ⟨powersetToPreorder (E.1 : Set (Set α)), AFLO_powersetToPreorder E⟩    
+                        match E.2 with 
+                        | ⟨hE, _⟩ => 
+                          apply Eq.symm; apply subset_antisymm 
+                          . rw [Set.Finite.subset_toFinset] 
+                            intro X hXE 
+                            apply powersetToPreorderToPowerset (E.1 : Set (Set α)) hXE (hE.2 X hXE).1.1 (hE.2 X hXE).1.2    
+                          . rw [Set.Finite.toFinset_subset]
+                            apply TotalELFP_powersetToPreorderToPowerset (E : Set (Set α))
+                            . exact (AFLO_powersetToPreorder ⟨E.1, hE⟩).1  
+                            . exact AFLOPartition_is_ELF ⟨powersetToPreorder (E.1 : Set (Set α)), AFLO_powersetToPreorder ⟨E.1, hE⟩⟩    
 right_inv := fun p => by simp only [Set.Finite.coe_toFinset]
                          rw [←SetCoe.ext_iff]
                          exact Eq.symm (preorderToPowersetToPreorder p.1) 
-map_rel_iff' := by intro E F 
-                   simp only [Equiv.coe_fn_mk]
-                   constructor 
-                   . intro hEF 
-                     have hE : ↑E.1 ⊆ preorderToPowerset (powersetToPreorder (E.1 : Set (Set α))) := by 
-                       intro X hXE 
-                       exact powersetToPreorderToPowerset (E.1 : Set (Set α)) hXE (E.2.2 X hXE).1.1 (E.2.2 X hXE).1.2 
-                     have hF : preorderToPowerset (powersetToPreorder (F.1 : Set (Set α))) ⊆ ↑F.1 :=  
-                       TotalELFP_powersetToPreorderToPowerset (F.1 : Set (Set α)) (AFLO_powersetToPreorder F).1
-                          (AFLOPartition_is_ELF ⟨powersetToPreorder (F.1 : Set (Set α)), AFLO_powersetToPreorder F⟩)
-                     change E.1 ⊆ F.1 
-                     rw [←Finset.coe_subset]
-                     refine le_trans hE ?_
-                     refine le_trans ?_ hF 
-                     exact preorderToPowerset_antitone hEF 
-                   . exact powersetToPreorder_antitone 
+map_rel_iff' := by intro E F
+                   match E.2, F.2 with 
+                   | ⟨hE, _⟩, ⟨hF, _⟩ =>  
+                     simp only [Equiv.coe_fn_mk]
+                     constructor 
+                     . intro hEF 
+                       have hE : ↑E.1 ⊆ preorderToPowerset (powersetToPreorder (E.1 : Set (Set α))) := by 
+                         intro X hXE 
+                         exact powersetToPreorderToPowerset (E.1 : Set (Set α)) hXE (hE.2 X hXE).1.1 (hE.2 X hXE).1.2 
+                       have hF : preorderToPowerset (powersetToPreorder (F.1 : Set (Set α))) ⊆ ↑F.1 :=  
+                         TotalELFP_powersetToPreorderToPowerset (F.1 : Set (Set α)) (AFLO_powersetToPreorder ⟨F.1, hF⟩).1
+                            (AFLOPartition_is_ELF ⟨powersetToPreorder (F.1 : Set (Set α)), AFLO_powersetToPreorder ⟨F.1, hF⟩⟩)
+                       change E.1 ⊆ F.1 
+                       rw [←Finset.coe_subset]
+                       refine le_trans hE ?_
+                       refine le_trans ?_ hF 
+                       exact preorderToPowerset_antitone hEF 
+                     . exact powersetToPreorder_antitone 
 
 
-variable {α}
 
 
-/- For future use, we isolate the fact that, is s in Finset (Set α) corresponds to a face of the Coxeter complex, then we have
+
+
+/- For future use, we isolate the fact that, is s in Finset (Set α) corresponds to a face of the weighted complex, then we have
 s = preorderToPowerset (powersetToPreorder s).-/
 
-lemma Faces_powersetToPreordertoPowerset {s : Finset (Set α)} (hsf : s ∈ (CoxeterComplex α).faces) : 
-↑s = preorderToPowerset (powersetToPreorder (s : Set (Set α))) := by
-  rw [FacesCoxeterComplex] at hsf 
-  have heq : ⟨s, hsf.1⟩ = (CoxeterComplextoPartitions α).invFun ((CoxeterComplextoPartitions α).toFun ⟨s, hsf.1⟩) := by
-    simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm,
-    OrderIso.symm_apply_apply] 
-  rw [←SetCoe.ext_iff, Subtype.coe_mk] at heq 
-  unfold CoxeterComplextoPartitions preorderToPowersetFinset at heq 
-  simp only at heq 
-  rw [←Finset.coe_inj, Set.Finite.coe_toFinset] at heq 
-  exact heq 
-
-/- If s is a face of the Coxeter complex, then the cardinality of s is equal to the number of blocks of the corresponding partition minus 1.-/
-
-
-lemma CoxeterComplex_dimension_face (s : AFLOPowerset α) (hne : Nonempty α) : 
-Finset.card s.1 = @Fintype.card (Antisymmetrization α ((CoxeterComplextoPartitions α).toFun s).1.le)
-(@Fintype.ofFinite _ ((CoxeterComplextoPartitions α).toFun s).2.2.2) -1 := by 
-  have h : s = (CoxeterComplextoPartitions α).invFun ((CoxeterComplextoPartitions α).toFun s) := by 
-    simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm,
-    OrderIso.symm_apply_apply]
-  rw [←SetCoe.ext_iff] at h 
-  rw [h]
-  generalize (CoxeterComplextoPartitions α).toFun s = p 
-  unfold CoxeterComplextoPartitions 
-  simp only [ge_iff_le]
-  unfold preorderToPowersetFinset
-  have := Set.Finite.coeSort_toFinset (Set.finite_coe_iff.mp (AFLO_preorderToPowerset_finite p)) 
-  rw [←Fintype.card_coe]
-  haveI I : Fintype (preorderToPowerset p.1) := @Fintype.ofFinite _ (AFLO_preorderToPowerset_finite p)    
-  simp_rw [this] 
-  haveI hfin : Finite (Antisymmetrization α p.1.le) := p.2.2.2
-  haveI hfint : Fintype (Antisymmetrization α p.1.le):= @Fintype.ofFinite _ hfin   
-  haveI : Finite (Antisymmetrization_nonmaximal p.1) := inferInstance 
-  haveI : Fintype (Antisymmetrization_nonmaximal p.1) := Fintype.ofFinite _  
-  rw [←(Fintype.card_congr (@Equiv_Antisymmetrization_nonmaximal_to_PreorderToPowerset _ p.1 p.2.1 (AFLOPartition_is_ELF p)))]
-  simp_rw [@FiniteAntisymmetrization_nonmaximal _ p.1 p.2.1 inferInstance hne] 
-  simp only [Finset.coe_sort_coe, Fintype.card_coe, ge_iff_le]
-  rw [Finset.card_erase_of_mem ?_] 
-  rw [@Finset.card_univ _ (@Fintype.ofFinite _ hfin)] 
-  refine @Finset.mem_univ _ ?_ _  
+lemma WeightedFaces_powersetToPreordertoPowerset {s : Finset (Set α)} (hsf : s ∈ (WeightedComplex μ).faces) : 
+↑s = preorderToPowerset (powersetToPreorder (s : Set (Set α))) := 
+Faces_powersetToPreordertoPowerset (WeightedComplex_subcomplex μ hsf)
 
 
 
 /- The restriction map: it is given by applying the order isomorphisms to ordered partitions, taking the descent partition (with respect to a fixed auxiliary
 linear order) and applying the inverse of the order isomorphism.-/
 
-/- To show that the descent partition of an AFLO partition is AFLO, we show that AFLO partitions form an upper set. This is a formal consequences of the
-fact (proved above) that AFLO powerset is a lower set.-/
+/- To show that the descent partition of a positive AFLO partition is AFLO, we show that positive AFLO partitions form an upper set. 
+This is a formal consequences of the fact (proved above) that the positive AFLO powerset is a lower set.-/
 
-variable (α)
-
-lemma AFLOPartitions_IsUpperSet : IsUpperSet (AFLOPartitions α) := by 
+lemma AFLOPartitions_positive_IsUpperSet : IsUpperSet (AFLOPartitions_positive μ) := by 
   intro p q hpq hp 
-  have hfin : (preorderToPowerset q).Finite := by 
-    rw [←Set.finite_coe_iff]
-    exact @Finite.Set.subset _ _ _ (AFLO_preorderToPowerset_finite ⟨p, hp⟩) (preorderToPowerset_antitone hpq) 
-  set F := Set.Finite.toFinset hfin 
-  have hFAFLO : F ∈ AFLOPowerset α := by
-    refine AFLOPowerset_down_closed α ((CoxeterComplextoPartitions α).invFun ⟨p, hp⟩).2 ?_
-    simp only [RelIso.coe_toEquiv, Set.Finite.toFinset_subset] 
-    unfold CoxeterComplextoPartitions 
-    simp only [Set.Finite.coe_toFinset]
-    exact preorderToPowerset_antitone hpq 
-  have hq := AFLO_powersetToPreorder ⟨F, hFAFLO⟩ 
-  simp only [Set.Finite.coe_toFinset] at hq
-  rw [←preorderToPowersetToPreorder] at hq 
-  exact hq 
+  match hp with
+  | ⟨hp, hpos⟩ => 
+    exists AFLOPartitions_IsUpperSet α hpq hp  
+    match hpos with 
+    | ⟨_, hpos⟩ => 
+      unfold AFLOPowerset_positive
+      simp 
+      have hq := AFLOPartitions_IsUpperSet α hpq hp  
+      have hsub : preorderToPowersetFinset ⟨q, hq⟩ ⊆ preorderToPowersetFinset ⟨p, hp⟩ := by 
+        unfold preorderToPowersetFinset 
+        rw [Set.Finite.toFinset_subset, Set.Finite.coe_toFinset]
+        apply preorderToPowerset_antitone
+        exact hpq 
+      exists AFLOPowerset_down_closed α (AFLO_preorderToPowerset ⟨p, hp⟩) hsub     
+      intro X hXE 
+      exact hpos (hsub hXE) 
 
-variable {α}
 
-lemma AscentPartition_respects_AFLO (r : LinearOrder α) {s : Preorder α} (hs : s ∈ AFLOPartitions α) : 
-AscentPartition r hs.1 ∈ AFLOPartitions α := by 
-  apply AFLOPartitions_IsUpperSet α (AscentPartition_is_greater r hs.1)
+lemma AscentPartition_respects_AFLO_positive (r : LinearOrder α) {s : Preorder α} (hs : s ∈ AFLOPartitions_positive μ) : 
+AscentPartition r (AFLOPartitions_forget_positive μ hs).1 ∈ AFLOPartitions_positive μ := by 
+  apply AFLOPartitions_positive_IsUpperSet μ (AscentPartition_is_greater r (AFLOPartitions_forget_positive μ hs).1)
   exact hs 
 
 
-noncomputable def restriction (r : LinearOrder α) (E : AFLOPowerset α) : AFLOPowerset α := 
-  (CoxeterComplextoPartitions α).invFun 
-   ⟨@AscentPartition _ r (powersetToPreorder (E.1 :Set (Set α))) (AFLO_powersetToPreorder E).1,
-    AscentPartition_respects_AFLO r (AFLO_powersetToPreorder E)⟩ 
-  
-lemma restriction_is_smaller (r : LinearOrder α) (E : AFLOPowerset α) : restriction r E ≤ E := by
-  unfold restriction 
-  have hEeq := (CoxeterComplextoPartitions α).left_inv E 
+noncomputable def restriction_weighted (r : LinearOrder α) (E : AFLOPowerset_positive μ) : AFLOPowerset_positive μ := 
+  (WeightedComplextoPositivePartitions μ).invFun 
+   ⟨@AscentPartition _ r (powersetToPreorder (E.1 :Set (Set α))) (AFLO_powersetToPreorder ⟨E.1, AFLOPowerset_forget_positive μ E.2⟩).1,
+    AscentPartition_respects_AFLO_positive μ r (AFLO_positive_powersetToPreorder μ E)⟩ 
+
+
+lemma restriction_weighted_is_smaller (r : LinearOrder α) (E : AFLOPowerset_positive μ) : restriction_weighted μ r E ≤ E := by
+  unfold restriction_weighted 
+  have hEeq := (WeightedComplextoPositivePartitions μ).left_inv E 
   rw [←hEeq]
-  rw [←(CoxeterComplextoPartitions α).map_rel_iff']
+  rw [←(WeightedComplextoPositivePartitions μ).map_rel_iff']
   simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm,
     OrderIso.symm_apply_apply, OrderIso.apply_symm_apply]
-  unfold CoxeterComplextoPartitions
+  unfold WeightedComplextoPositivePartitions
   simp only [RelIso.coe_fn_mk, Equiv.coe_fn_mk]
-  change @AscentPartition _ r (powersetToPreorder (E.1 :Set (Set α))) (AFLO_powersetToPreorder E).1 ≥ powersetToPreorder E.1 
+  change @AscentPartition _ r (powersetToPreorder (E.1 :Set (Set α))) (AFLO_powersetToPreorder ⟨E.1, AFLOPowerset_forget_positive μ E.2⟩).1 
+    ≥ powersetToPreorder E.1 
   exact AscentPartition_is_greater r _ 
 
 
-/- Version for the Coxeter complex.-/
 
-noncomputable def R (r : LinearOrder α) : (CoxeterComplex α).facets → Finset (Set α) := by 
+/- Version for the weighted complex.-/
+
+noncomputable def R_weighted (r : LinearOrder α) : (WeightedComplex μ).facets → Finset (Set α) := by 
   intro ⟨s, hsf⟩
   rw [mem_facets_iff] at hsf 
-  rw [FacesCoxeterComplex] at hsf
-  exact (restriction r ⟨s,hsf.1.1⟩).1 
+  rw [FacesWeightedComplex] at hsf 
+  exact (restriction_weighted μ r ⟨s,hsf.1.1⟩).1 
+
 
 
 -- Finite α only.
@@ -188,34 +214,49 @@ variable [Fintype α]
 
 
 
-/- Every linearly ordered partition is AFLO, a subset of Set α is AFLO if and only if it is totally ordered by inclusion and doesn't contain
-⊥ and ⊤.-/
+/- Simpler descriptions of positive AFLO partitions and powerset.-/
 
-lemma AFLOPartitions_is_everything (p : Preorder α) : p ∈ LinearOrderedPartitions α ↔ p ∈ AFLOPartitions α := by 
+lemma AFLOPartitions_iff (p : Preorder α) : p ∈ AFLOPartitions_positive μ ↔ Total p.le ∧ ∀ (X : Set α), 
+X ∈ preorderToPowerset p → @IsPositiveSet _ μ X inferInstance := by 
+  constructor 
+  . intro hp 
+    rw [and_iff_right (AFLOPartitions_forget_positive μ hp).1]
+    match hp with 
+    | ⟨_, hpos⟩ => 
+      match hpos with 
+      | ⟨_, hpos⟩ =>
+        intro X hXp 
+        have hXp' : X ∈ preorderToPowersetFinset ⟨p, AFLOPartitions_forget_positive μ hp⟩ := by 
+          rw [Set.Finite.mem_toFinset]
+          exact hXp
+        exact hpos hXp'
+  . intro hp 
+    have hp' : p ∈ AFLOPartitions α := by
+      rw [←AFLOPartitions_is_everything]
+      exact hp.1
+    exists hp'
+    exists (AFLO_preorderToPowerset ⟨p, hp'⟩)
+    intro X hXp 
+    rw [Set.Finite.mem_toFinset] at hXp 
+    exact hp.2 X hXp 
+
+
+lemma AFLOPowerset_positive_iff (E : Finset (Set α)) : E ∈ AFLOPowerset_positive μ ↔ 
+(Total (fun (X : E) => fun (Y : E) => X.1 ⊆ Y.1) ∧ ∀ (X : Set α), X ∈ E → (X ≠ ⊥ ∧ X ≠ ⊤) ∧ @IsPositiveSet _ μ X inferInstance) := by 
   constructor 
   . intro h 
-    change _ ∧ _ 
-    erw [and_iff_right h]
-    constructor 
-    . intro _ _ 
-      rw [←Set.finite_coe_iff]
-      exact inferInstance  
-    . change Finite (Quotient _)
-      exact inferInstance  
-  . exact fun h => h.1
+    match h with 
+    | ⟨hE, hpos⟩ => exact ⟨hE.1, fun X hXE => ⟨(hE.2 X hXE).1, hpos hXE⟩⟩ 
+  . intro h 
+    have hE : E ∈ AFLOPowerset α := by 
+      rw [←AFLOPowerset_is_everything]
+      rw [and_iff_right h.1]
+      exact fun X hXE => (h.2 X hXE).1 
+    exists hE 
+    exact fun hXE => (h.2 _ hXE).2 
 
-lemma AFLOPowerset_is_everything (E : Finset (Set α)) : (Total (fun (X : E) => fun (Y : E) => X.1 ⊆ Y.1) ∧ ∀ (X : Set α), X ∈ E → (X ≠ ⊥ ∧ X ≠ ⊤)) ↔ 
-E ∈ AFLOPowerset α := by 
-  constructor 
-  . intro h 
-    change _ ∧ _ 
-    rw [and_iff_right h.1]
-    intro X hXE 
-    rw [and_iff_right (h.2 X hXE)]
-    exact inferInstance 
-  . intro h 
-    rw [and_iff_right h.1]
-    exact fun X hXE => (h.2 X hXE).1 
+#exit 
+
 
 /- The facets of the Coxeter complex correspond to linear orders on α. (If α is infinite, the Coxeter complex has no facets, and the linear orders
 will define maximal ideals of the face poset of the Coxeter complex, though we don't get all maximal ideals this way.)-/
