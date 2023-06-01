@@ -173,6 +173,22 @@ IsLinearOrder α p.1.le := by
   rw [←heq]
   exact LinearOrder_of_total_preorder_and_linear_order_is_linear r p.2 
 
+
+/- We prove some lemmas about the lower sets of LinearOrder_of_etc. They will be useful when studying the weighted complex. We need
+these lemmas in a situation where all such lower sets are principal, so we assume it from the start, as it makes the statements easier
+to write.-/
+
+
+lemma LowerSet_LinearOrder_etc_is_disjoint_union (r : LinearOrder α) {s : Preorder α} (hstot : Total s.le) {X : Set α}
+{a : α} (haX : X = @Set.Iic _ (LinearOrder_of_total_preorder_and_linear_order r s) a) : 
+∃ (Y : Set α), (Y = ∅ ∨ Y ∈ preorderToPowerset s) ∧ (X = Y ∪ {b : α | r.le b a ∧ AntisymmRel s.le a b}) ∧
+(Disjoint Y {b : α | r.le b a ∧ AntisymmRel s.le a b}) := sorry 
+
+lemma LowerSet_LinearOrder_etc_is_difference (r : LinearOrder α) {s : Preorder α} (hstot : Total s.le) {X : Set α}
+{a : α} (haX : X = @Set.Iic _ (LinearOrder_of_total_preorder_and_linear_order r s) a) : 
+∃ (Y : Set α), (Y = ⊤ ∨ Y ∈ preorderToPowerset s) ∧ (X = Y \ {b : α | r.lt a b ∧ AntisymmRel s.le a b}) ∧
+({b : α | r.lt a b ∧ AntisymmRel s.le a b} ⊆ Y) := sorry 
+
  
 /- We already introduced what will correspond to the "smallest facet" map on the abstract simplicial complex side (when α is finite).
 We now introduce what will be the "restriction" map of the shelling, which we call the "ascent partition"; as before, we need an 

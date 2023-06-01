@@ -37,6 +37,44 @@ lemma preorderToPowerset_TrivialPreorder_is_empty : preorderToPowerset (trivialP
                                   exact hβ.2.1 htop 
 
 
+/- Another important example: if s is the two-step preorder associated to a ∈ α (i.e. it makes a the smallest element and all the other elements
+equivalent), and if s is nontrivial (i.e. if there exists b in α such that b ≠ a), then preorderToPowerset s is the singleton {{a}}.-/
+
+lemma preorderToPowerset_TwoStepPreorder {a b : α} (hab : a ≠ b) :
+preorderToPowerset (twoStepPreorder a) = {{a}} := by 
+  ext X 
+  simp only [Set.mem_singleton_iff]
+  unfold preorderToPowerset 
+  simp only [Set.bot_eq_empty, Set.top_eq_univ, Set.mem_setOf_eq]
+  rw [←Set.nonempty_iff_ne_empty, Set.ne_univ_iff_exists_not_mem]
+  constructor 
+  . intro hX 
+    match hX.1 with 
+  | ⟨c, hcX⟩ => 
+    have haX := hX.2.2 (twoStepPreorder_smallest a c) hcX
+    ext b 
+    simp only [Set.mem_singleton_iff]
+    constructor 
+    . intro hbX 
+      match hX.2.1 with 
+      | ⟨d, hdX⟩ => 
+        by_contra hba 
+        have hdb : (twoStepPreorder a).le d b := by 
+          unfold twoStepPreorder 
+          simp only [dite_eq_ite, hba, ite_false, ite_self]
+        exact hdX (hX.2.2 hdb hbX) 
+    . exact fun hba => by rw [hba]; exact haX   
+  . intro hX 
+    rw [hX, and_iff_right ⟨a, Set.mem_singleton _⟩, and_iff_right ⟨b, by rw [Set.mem_singleton_iff]; exact Ne.symm hab⟩]
+    intro c d hdc 
+    simp only [Set.mem_singleton_iff]
+    intro hc 
+    rw [hc] at hdc 
+    unfold twoStepPreorder at hdc 
+    by_cases hd : d = a 
+    . exact hd  
+    . exfalso; simp only [dite_eq_ite, hd, ite_true, ite_false] at hdc
+
 
 /- If s is total, then its image is totally ordered by inclusion.-/
 
@@ -66,6 +104,7 @@ lemma preorderToPowerset_antitone {s t : Preorder α} (hst : s ≤ t) : preorder
                        . constructor
                          . exact hβ.2.1
                          . exact fun b a hab hb => hβ.2.2 (hst hab) hb
+
 
 
 

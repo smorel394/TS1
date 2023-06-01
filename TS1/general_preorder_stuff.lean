@@ -13,6 +13,7 @@ import Mathlib.Data.Set.Image
 import Mathlib.Order.PFilter
 import Mathlib.Order.Zorn 
 import Mathlib.SetTheory.Ordinal.Basic
+import Mathlib.Data.Real.Basic
 
 
 
@@ -659,13 +660,22 @@ le_trans x y z hxy hyz := by by_cases hx : x = a
 --lt := sorry 
 --lt_iff_le_not_le := sorry 
 
+lemma twoStepPreorder_smallest (a b : α) : (twoStepPreorder a).le a b := by 
+  unfold twoStepPreorder
+  simp only [dite_eq_ite, ite_true]
+
+lemma twoStepPreorder_greatest {a b : α} (hab : a ≠ b) (c : α) : (twoStepPreorder a).le c b := by 
+  unfold twoStepPreorder 
+  by_cases hc : c = a 
+  . simp only [dite_eq_ite, hc, ite_true]
+  . simp only [dite_eq_ite, hc, Ne.symm hab, ite_false, ite_self]
+
 lemma twoStepPreorder_IsTotal (a : α) : Total (twoStepPreorder a).le := by 
   unfold twoStepPreorder 
   intro x y 
   by_cases hx : x = a 
   . simp only [dite_eq_ite, hx, ite_true, true_or]
   . simp only [dite_eq_ite, hx, ite_false, ite_self, or_true]
-
 
 open Preorder
 
@@ -676,6 +686,92 @@ lemma twoStepPreorder_nontrivial {a b : α} (hab : a ≠ b) : twoStepPreorder a 
   simp only [dite_eq_ite, Ne.symm hab, ite_true, ite_false, not_false_eq_true]
 
 
+
+
+/- The antisymmetrization of the two-step preorder is a fintype, and it has cardinality 2 if α has at least two elements.-/
+
+def twoStepPreorder_singleton_toAntisymmetrization (a : α) : 
+({a} : Finset α) → Antisymmetrization α (twoStepPreorder a).le := 
+fun _ => toAntisymmetrization (twoStepPreorder a).le a 
+  
+def twoStepPreorder_nonsingleton_toAntisymmetrization (a b : α) : 
+Option ({a} : Finset α) → Antisymmetrization α (twoStepPreorder a).le :=  
+fun x => by match x with 
+            | none => exact toAntisymmetrization (twoStepPreorder a).le b 
+            | some _ => exact toAntisymmetrization (twoStepPreorder a).le a  
+
+lemma twoStepPreorder_singleton_toAntisymmetrization_surjective (a : α) (hsin : ∀ (b : α), b = a) :
+Function.Surjective (twoStepPreorder_singleton_toAntisymmetrization a) := by 
+  intro x 
+  simp only [Subtype.exists, Finset.mem_singleton]
+  exists a 
+  exists rfl 
+  rw [←(toAntisymmetrization_ofAntisymmetrization  (twoStepPreorder a).le x)]
+  unfold twoStepPreorder_singleton_toAntisymmetrization 
+  apply Quotient.sound
+  change AntisymmRel _ a _ 
+  unfold AntisymmRel 
+  rw [hsin (ofAntisymmetrization (twoStepPreorder a).le x)]
+  simp only [and_self]
+  exact (twoStepPreorder a).le_refl _ 
+
+
+lemma twoStepPreorder_nonsingleton_toAntisymmetrization_surjective {a b : α} (hab : a ≠ b) :
+Function.Surjective (twoStepPreorder_nonsingleton_toAntisymmetrization a b) := by 
+  intro x 
+  by_cases heq : AntisymmRel (twoStepPreorder a).le a (ofAntisymmetrization (twoStepPreorder a).le x)
+  . exists (some ⟨a, Finset.mem_singleton_self a⟩)
+    rw [←(toAntisymmetrization_ofAntisymmetrization  (twoStepPreorder a).le x)]
+    unfold twoStepPreorder_nonsingleton_toAntisymmetrization
+    simp only 
+    apply Quotient.sound 
+    exact heq 
+  . exists none 
+    unfold twoStepPreorder_nonsingleton_toAntisymmetrization 
+    simp only 
+    rw [←(toAntisymmetrization_ofAntisymmetrization  (twoStepPreorder a).le x)]
+    apply Quotient.sound 
+    change AntisymmRel _ b _
+    constructor 
+    . have hne : a ≠ ofAntisymmetrization (twoStepPreorder a).le x  := by 
+        by_contra habs 
+        rw [←habs] at heq 
+        exact heq (@antisymmRel_refl _ (twoStepPreorder a).le {refl := (twoStepPreorder a).le_refl} a)    
+      exact twoStepPreorder_greatest hne _   
+    . exact twoStepPreorder_greatest hab _ 
+    
+
+
+lemma twoStepPreorder_Antisymmetrization_finite (a : α) :
+Fintype (Antisymmetrization α (twoStepPreorder a).le) := by 
+  refine @Fintype.ofFinite _ ?_
+  by_cases hsin : ∀ (b : α), b = a 
+  . exact Finite.of_surjective (twoStepPreorder_singleton_toAntisymmetrization a) (twoStepPreorder_singleton_toAntisymmetrization_surjective a hsin)
+  . push_neg at hsin 
+    match hsin with 
+    | ⟨b, hb⟩ => exact Finite.of_surjective (twoStepPreorder_nonsingleton_toAntisymmetrization a b)
+                  (twoStepPreorder_nonsingleton_toAntisymmetrization_surjective (Ne.symm hb)) 
+
+
+lemma twoStepPreorder_Antisymmetrization.card {a b : α} (hab : a ≠ b) : @Fintype.card (Antisymmetrization α (twoStepPreorder a).le)
+(twoStepPreorder_Antisymmetrization_finite a) = 2 := by 
+  apply le_antisymm 
+  . refine Nat.le_trans (@Fintype.card_le_of_surjective _ _ _ (twoStepPreorder_Antisymmetrization_finite a) 
+      (twoStepPreorder_nonsingleton_toAntisymmetrization a b) (twoStepPreorder_nonsingleton_toAntisymmetrization_surjective hab)) ?_
+    rw [Fintype.card_option]
+    simp only [Finset.mem_singleton, Fintype.card_ofSubsingleton, _root_.le_refl] 
+  . rw [Nat.succ_le_iff, @Fintype.one_lt_card_iff _ (twoStepPreorder_Antisymmetrization_finite a)]
+    exists (toAntisymmetrization (twoStepPreorder a).le a)
+    exists (toAntisymmetrization (twoStepPreorder a).le b)
+    by_contra habs 
+    have habs := Quotient.exact habs 
+    change (twoStepPreorder a).le _ _ ∧ (twoStepPreorder a).le _ _  at habs 
+    unfold twoStepPreorder at habs 
+    simp only [dite_eq_ite, Ne.symm hab, ite_false, ite_self, ite_true, and_false] at habs 
+
+
+
+
 /- This constructs a linear order on any type, using an embedding into cardinals (similar to the construction of the well-order in
 https://leanprover-community.github.io/mathlib4_docs/Mathlib/SetTheory/Ordinal/Basic.html#WellOrderingRel)-/
 
@@ -684,4 +780,9 @@ variable (α : Type u)
 
 noncomputable def ArbitraryLinearOrder : LinearOrder α := 
 LinearOrder.lift' (embeddingToCardinal).toFun (embeddingToCardinal).inj' 
-  
+
+/- If μ is a function from α to ℝ, we can find a linear order on α for which μ is antitone.-/
+
+variable {α : Type u} (μ : α → ℝ) 
+
+lemma Exists_LinearOrder_antitone : ∃ (r : LinearOrder α), @Antitone α ℝ r.toPartialOrder.toPreorder _ μ := sorry 

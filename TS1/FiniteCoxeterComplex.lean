@@ -121,6 +121,44 @@ Finset.card s.1 = @Fintype.card (Antisymmetrization α ((CoxeterComplextoPartiti
   refine @Finset.mem_univ _ ?_ _  
 
 
+/- Some vertices of the Coxeter complex.-/
+
+
+lemma twoStepPreorder_AFLO (a : α) : twoStepPreorder a ∈ AFLOPartitions α := by 
+  unfold AFLOPartitions
+  simp only [Set.top_eq_univ, ne_eq, Set.mem_setOf_eq]
+  rw [and_iff_right (twoStepPreorder_IsTotal a)]
+  rw [and_iff_left (@Finite.of_fintype _ (twoStepPreorder_Antisymmetrization_finite a))]
+  intro b hb 
+  by_cases heq : b = a 
+  . have hI : @Set.Iic _ (twoStepPreorder a) b = {a} := by 
+      refine subset_antisymm ?_ (by rw [Set.singleton_subset_iff, @Set.mem_Iic _ (twoStepPreorder a)]; exact twoStepPreorder_smallest _ _) 
+      by_contra habs 
+      simp only [Set.subset_singleton_iff, not_forall, exists_prop] at habs
+      match habs with 
+      | ⟨c, hcb, hca⟩ => rw [@Set.mem_Iic _ (twoStepPreorder a), heq] at hcb
+                         unfold twoStepPreorder at hcb
+                         simp only [dite_eq_ite, hca, ite_true, ite_false] at hcb
+    rw [hI]
+    exact Set.finite_singleton _ 
+  . exfalso 
+    have hI : @Set.Iic _ (twoStepPreorder a) b = Set.univ := by 
+      ext c 
+      rw [@Set.mem_Iic _ (twoStepPreorder a)]
+      unfold twoStepPreorder 
+      simp only [dite_eq_ite, heq, ite_false, ite_self, Set.mem_univ]
+    exact hb hI 
+
+lemma twoStepPreorder_in_CoxeterComplex {a b : α} (hab : a ≠ b) : preorderToPowersetFinset ⟨twoStepPreorder a, twoStepPreorder_AFLO a⟩ ∈
+(CoxeterComplex α).faces := by 
+  rw [FacesCoxeterComplex, and_iff_right (AFLO_preorderToPowerset ⟨twoStepPreorder a, twoStepPreorder_AFLO a⟩)]
+  by_contra he 
+  unfold preorderToPowersetFinset at he 
+  rw [Set.Finite.toFinset_eq_empty] at he  
+  change preorderToPowerset (twoStepPreorder a) = ∅ at he 
+  rw [preorderToPowerset_is_empty_iff_TrivialPreorder] at he 
+  exact twoStepPreorder_nontrivial hab he
+  
 
 /- The restriction map: it is given by applying the order isomorphisms to ordered partitions, taking the descent partition (with respect to a fixed auxiliary
 linear order) and applying the inverse of the order isomorphism.-/
@@ -466,6 +504,7 @@ lemma CoxeterComplex_is_decomposable (r : LinearOrder α) : IsDecomposition (R r
 /- The Coxeter complex is nonempty if and only if Fintype.card α ≥ 2.-/
 
 
+
 variable (α)
 
 lemma CoxeterComplex_nonempty_iff : (CoxeterComplex α).faces.Nonempty ↔ Fintype.card α ≥ 2 := by 
@@ -498,25 +537,10 @@ lemma CoxeterComplex_nonempty_iff : (CoxeterComplex α).faces.Nonempty ↔ Finty
                                    exact hab ((powersetToPreorder (s : Set (Set α))).le_refl _)
                                  exact ⟨a, b, hne⟩
   . intro hcard
-    change Nat.succ 1  ≤ _ at hcard 
-    rw [Nat.succ_le_iff, Fintype.one_lt_card_iff] at hcard
+    rw [ge_iff_le, Nat.succ_le_iff, Fintype.one_lt_card_iff] at hcard
     match hcard with 
-    | ⟨a, b, hab⟩ => set p := twoStepPreorder a  
-                     have hp := (AFLOPartitions_is_everything p).mp (twoStepPreorder_IsTotal a)
-                     set s := (CoxeterComplextoPartitions α).invFun ⟨p, hp⟩ with hsdef 
-                     have hsne : s.1 ≠ ∅ := by 
-                       by_contra he 
-                       rw [hsdef] at he 
-                       unfold CoxeterComplextoPartitions at he 
-                       simp only at he 
-                       unfold preorderToPowersetFinset at he 
-                       rw [Set.Finite.toFinset_eq_empty] at he  
-                       change preorderToPowerset (twoStepPreorder a) = ∅ at he 
-                       rw [preorderToPowerset_is_empty_iff_TrivialPreorder] at he 
-                       exact twoStepPreorder_nontrivial hab he
-                     have hsf : s.1 ∈ (CoxeterComplex α).faces := by 
-                       rw [FacesCoxeterComplex]
-                       exact ⟨s.2, hsne⟩
+    | ⟨a, b, hab⟩ => set s := (CoxeterComplextoPartitions α).invFun ⟨twoStepPreorder a, twoStepPreorder_AFLO a⟩ 
+                     have hsf : s.1 ∈ (CoxeterComplex α).faces := twoStepPreorder_in_CoxeterComplex hab 
                      exact ⟨s.1, hsf⟩ 
 
                       

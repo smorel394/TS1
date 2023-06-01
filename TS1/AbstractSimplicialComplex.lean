@@ -151,10 +151,17 @@ lemma facets_subset {K : AbstractSimplicialComplex V} {s : Finset V} (hsf : s �
   rw [mem_facets_iff] at hsf 
   exact hsf.1 
 
-/- Lattice structure on the set of abstract simplicial complexes. -/
+/- Lattice structure on the set of abstract simplicial complexes: we say that K is a subcomplex of L if every face of K is also a face of L. -/
 section Lattice
 
 instance instPartialOrderFaces : PartialOrder.{u} (AbstractSimplicialComplex V) := PartialOrder.lift faces (fun _ _ heq => by ext; rw [heq])
+
+/- If K is a subcomplex of L, then every facet of L that is a face of K is also a facet of K.-/
+
+lemma Facets_subcomplex {K L : AbstractSimplicialComplex V} (hKL : K ≤ L) {s : Finset V} (hsK : s ∈ K.faces) (hsL : s ∈ L.facets) :
+s ∈ K.facets := by 
+  rw [mem_facets_iff, and_iff_right hsK] 
+  exact fun _ htK hst => hsL.2 (hKL htK) hst 
 
 instance Inf : Inf.{u} (AbstractSimplicialComplex V) :=
 ⟨fun K L =>
@@ -311,7 +318,8 @@ lemma Finite_IsLowerSet {K L : AbstractSimplicialComplex V} (hKL : K ≤ L) (hLf
 
 /- A finite simplicial complex has a finite set of facets.-/
 
-lemma FiniteComplex_has_finite_facets {K : AbstractSimplicialComplex V} (hfin : FiniteComplex K) : Finite K.facets := sorry 
+lemma FiniteComplex_has_finite_facets {K : AbstractSimplicialComplex V} (hfin : FiniteComplex K) : Finite K.facets := 
+@Finite.Set.subset _ K.faces _ hfin (fun _ hsf => facets_subset hsf)
 
 section Classical
 
@@ -340,13 +348,6 @@ section
 
 variable [DecidableEq V]
 
-/-
-lemma finset.union_nonempty_left {s t : finset V} (hs : s.nonempty) : (s ∪ t).nonempty :=
-let ⟨x, hx⟩ := hs in ⟨x, finset.mem_union.2 $ or.inl hx⟩
-
-lemma finset.union_nonempty_right {s t : finset V} (ht : t.nonempty) : (s ∪ t).nonempty :=
-let ⟨x, hx⟩ := ht in ⟨x, finset.mem_union.2 $ or.inr hx⟩
--/
 
 def link (K : AbstractSimplicialComplex V) (s : Finset V) : AbstractSimplicialComplex V :=
 { faces := {t ∈ K.faces | s ∩ t = ∅ ∧ s ∪ t ∈ K}
@@ -417,10 +418,7 @@ of_subcomplex K {s : Finset V | s ∈ K.faces ∧ ∃ (t : Finset V), t ∈ F �
     . match hs.2 with 
       | ⟨u, ⟨huF, hsu⟩⟩ => exact ⟨u, ⟨huF, subset_trans hts hsu⟩⟩)
 
-/-
-@[reducible] def SubcomplexGeneratedByFace (K : AbstractSimplicialComplex V) (s : K.faces) : AbstractSimplicialComplex V := 
-SubcomplexGenerated K {s.1}
--/
+
 
 lemma SubcomplexGenerated_mem (K : AbstractSimplicialComplex V) (F : Set (Finset V)) (s : Finset V) :
 s ∈ SubcomplexGenerated K F ↔ s ∈ K.faces ∧ ∃ (t : F), s ⊆ t := by 
