@@ -760,10 +760,7 @@ noncomputable def FacetofLinearOrder (hcard : Fintype.card α > 1) (r : LinearOr
                        trivial
                      exact hne (r.le_antisymm _ _ hab hba)  
 
-/-Maybe not necessary. 
-lemma PreorderofFacetofLinearOrder (hcard : Fintype.card α > 1) (r : LinearOrder α) : 
-powersetToPreorder ((FacetofLinearOrder hcard r).1 : Set (Set α)) = r.toPartialOrder.toPreorder := sorry 
--/
+
 
 lemma EulerPoincareCharacteristic_CoxeterComplex (hne : Nonempty α) : 
 EulerPoincareCharacteristic (CoxeterComplex_is_finite α) = 1 + (-1 : ℤ)^(Fintype.card α) := by 

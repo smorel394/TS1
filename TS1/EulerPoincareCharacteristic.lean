@@ -30,6 +30,18 @@ noncomputable def EulerPoincareCharacteristic (hfin : FiniteComplex K) : ℤ := 
 (fun s => (-1 : ℤ)^(Finset.card s - 1))  
 
 
+/- If two abstract simplicial complexes have the same set of faces, then they have the same Euler-Poincaré characteristic.-/
+
+lemma EulerPoincareCharacteristic_ext {K L : AbstractSimplicialComplex α} (hKfin : FiniteComplex K) (hLfin : FiniteComplex L)
+(heq : K.faces = L.faces) :
+EulerPoincareCharacteristic hKfin = EulerPoincareCharacteristic hLfin := by
+  have heqfin : FacesFinset hKfin = FacesFinset hLfin := by 
+    ext s 
+    unfold FacesFinset
+    rw [Set.Finite.mem_toFinset, Set.Finite.mem_toFinset, heq]
+  unfold EulerPoincareCharacteristic
+  rw [heqfin]
+
 /- We want to calculate the Euler-Poincaré characteristic of a decomposable simplicial complex. To express the result, we define the sets
 of π0 and homology facets. -/
 
