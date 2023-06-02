@@ -179,16 +179,85 @@ these lemmas in a situation where all such lower sets are principal, so we assum
 to write.-/
 
 
-lemma LowerSet_LinearOrder_etc_is_disjoint_union (r : LinearOrder α) {s : Preorder α} (hstot : Total s.le) {X : Set α}
+lemma LowerSet_LinearOrder_etc_is_disjoint_union (r : LinearOrder α) (s : Preorder α) {X : Set α}
 {a : α} (haX : X = @Set.Iic _ (LinearOrder_of_total_preorder_and_linear_order r s) a) : 
 ∃ (Y : Set α), (Y = ∅ ∨ Y ∈ preorderToPowerset s) ∧ (X = Y ∪ {b : α | r.le b a ∧ AntisymmRel s.le a b}) ∧
-(Disjoint Y {b : α | r.le b a ∧ AntisymmRel s.le a b}) := sorry 
+(Disjoint Y {b : α | r.le b a ∧ AntisymmRel s.le a b}) := by 
+  exists (@Set.Iio _ s a)
+  constructor 
+  . by_cases he : @Set.Iio _ s a = ∅ 
+    . exact Or.inl he 
+    . apply Or.inr 
+      rw [←ne_eq, ←Set.nonempty_iff_ne_empty] at he
+      match he with 
+      | ⟨b, hb⟩ => rw [Set.mem_Iio] at hb 
+                   unfold preorderToPowerset 
+                   simp only [Set.bot_eq_empty, Set.top_eq_univ, Set.mem_setOf_eq]
+                   rw [←Set.nonempty_iff_ne_empty, and_iff_right he, Set.ne_univ_iff_exists_not_mem]
+                   constructor 
+                   . exists a 
+                     rw [Set.mem_Iio]
+                     exact lt_irrefl _ 
+                   . exact isLowerSet_Iio _ 
+  . constructor 
+    . ext b 
+      simp only [Set.mem_union, Set.mem_Iio, Set.mem_setOf_eq]
+      rw [haX, @Set.mem_Iic _ (LinearOrder_of_total_preorder_and_linear_order r s), and_comm]
+      change LinearOrder_of_total_preorder_and_linear_order_aux r s b a ↔ _ 
+      unfold LinearOrder_of_total_preorder_and_linear_order_aux 
+      tauto
+    . rw [Set.disjoint_iff_forall_ne]
+      intro b hsba c hc 
+      simp only [Set.mem_Iio] at hsba
+      simp only [Set.mem_setOf_eq] at hc
+      by_contra heq 
+      rw [←heq] at hc 
+      exact lt_irrefl _ (lt_of_lt_of_le hsba hc.2.1) 
 
 lemma LowerSet_LinearOrder_etc_is_difference (r : LinearOrder α) {s : Preorder α} (hstot : Total s.le) {X : Set α}
 {a : α} (haX : X = @Set.Iic _ (LinearOrder_of_total_preorder_and_linear_order r s) a) : 
 ∃ (Y : Set α), (Y = ⊤ ∨ Y ∈ preorderToPowerset s) ∧ (X = Y \ {b : α | r.lt a b ∧ AntisymmRel s.le a b}) ∧
-({b : α | r.lt a b ∧ AntisymmRel s.le a b} ⊆ Y) := sorry 
-
+({b : α | r.lt a b ∧ AntisymmRel s.le a b} ⊆ Y) := by 
+  set Y := @Set.Iic _ s a 
+  set Z := {b : α | r.lt a b ∧ AntisymmRel s.le a b}
+  exists @Set.Iic _ s a 
+  constructor 
+  . by_cases ht : @Set.Iic _ s a = ⊤ 
+    . exact Or.inl ht 
+    . apply Or.inr 
+      unfold preorderToPowerset 
+      simp only [Set.bot_eq_empty, Set.mem_setOf_eq]
+      rw [←Set.nonempty_iff_ne_empty, and_iff_right ⟨a, by rw [Set.mem_Iic]⟩, ne_eq, and_iff_right ht]
+      exact isLowerSet_Iic _ 
+  . constructor 
+    . ext b 
+      simp only [Set.mem_diff, Set.mem_Iic, Set.mem_setOf_eq, not_and]
+      rw [haX, @Set.mem_Iic _ (LinearOrder_of_total_preorder_and_linear_order r s)]
+      change (LinearOrder_of_total_preorder_and_linear_order_aux r s b a) ↔ _ 
+      unfold LinearOrder_of_total_preorder_and_linear_order_aux 
+      constructor 
+      . intro h 
+        cases h with 
+        | inl h => rw [and_iff_right (le_of_lt h)]
+                   intro _ heq 
+                   exact lt_irrefl _ (lt_of_lt_of_le h heq.1)   
+        | inr h => rw [and_iff_right h.1.1]
+                   intro h' 
+                   exfalso 
+                   exact @lt_irrefl _ r.toPartialOrder.toPreorder _ (@lt_of_lt_of_le _ r.toPartialOrder.toPreorder _ _ _ h' h.2) 
+      . intro h 
+        cases TotalPreorder_trichotomy hstot b a with 
+        | inl hba => exact Or.inl hba 
+        | inr hmed => cases hmed with
+                      | inl hab => exfalso; exact lt_irrefl _ (lt_of_lt_of_le hab h.1)  
+                      | inr heq => apply Or.inr 
+                                   rw [and_iff_right heq]
+                                   by_contra habs 
+                                   rw [←lt_iff_not_le] at habs
+                                   exact h.2 habs (AntisymmRel.symm heq)  
+    . intro b 
+      simp only [Set.mem_setOf_eq, Set.mem_Iic, and_imp]
+      exact fun _ heq => heq.2 
  
 /- We already introduced what will correspond to the "smallest facet" map on the abstract simplicial complex side (when α is finite).
 We now introduce what will be the "restriction" map of the shelling, which we call the "ascent partition"; as before, we need an 

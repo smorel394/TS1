@@ -9,13 +9,37 @@ set_option autoImplicit false
 
 open Classical 
 
+open LinearOrderedPartitions 
+
 universe u
 
 /-The weighted complex depends on the choice of a function μ : α → ℝ. The idea is that only keep the total preoders such that
 ∑ μ is nonnegative on each lower set. We also this condition for the lower set ⊤, so we will μ to be summable and have nonnegative
 sum. (Otherwise we set the weighted complex to be empty.)-/
 
+section Infinite 
+
 variable {α : Type u} (μ : α → ℝ)
+
+/- If μ is a function from α to ℝ, we can find a linear order on α for which μ is antitone.-/
+
+lemma Exists_LinearOrder_antitone : ∃ (r : LinearOrder α), @Antitone α ℝ r.toPartialOrder.toPreorder _ μ := by 
+  set s := @OrderDual.preorder _ (Preorder.lift μ)
+  have hsmon : @Antitone α ℝ s _ μ := by 
+    apply @Monotone.dual_left _ _ (Preorder.lift μ) _ μ 
+    exact fun _ _ h => h
+  have hstot : Total s.le := by 
+    intro a b 
+    cases (le_total (μ a) (μ b)) with 
+    | inl hab => exact Or.inr hab 
+    | inr hba => exact Or.inl hba 
+  set t := LinearOrder_of_total_preorder_and_linear_order (ArbitraryLinearOrder α) s 
+  have htmon : @Antitone α ℝ t _ μ := fun _ _ hab =>  
+    hsmon (LinearOrder_of_total_preorder_and_linear_order_is_smaller (ArbitraryLinearOrder α) s hab)  
+  have htlin : IsLinearOrder α t.le := LinearOrder_of_total_preorder_and_linear_order_is_linear (ArbitraryLinearOrder α) hstot 
+  set u : PartialOrder α := {t with le_antisymm := htlin.toIsPartialOrder.toIsAntisymm.antisymm}
+  exists @AsLinearOrder.linearOrder _ u {total := LinearOrder_of_total_preorder_and_linear_order_is_total (ArbitraryLinearOrder α) hstot}
+
 
 variable {hsummable : Summable μ} {hpos : tsum μ ≥ 0}
 
@@ -224,14 +248,19 @@ noncomputable def R_weighted (r : LinearOrder α) : (WeightedComplex μ).facets 
   exact (restriction_weighted μ r ⟨s,hsf.1.1⟩).1 
 
 
+end FiniteWeightedComplex
 
-
-
+end Infinite 
 
 -- Now we suppose α finite.
 
-variable [Fintype α]
-variable (μ : α → ℝ) {hsum : Finset.sum Finset.univ μ ≥ 0}
+
+namespace FiniteWeightedComplex
+
+open AbstractSimplicialComplex Preorder LinearOrderedPartitions FiniteCoxeterComplex 
+
+variable {α : Type u} (μ : α → ℝ)
+variable [Fintype α] (hsum : Finset.sum Finset.univ μ ≥ 0)
 
 
 
@@ -395,7 +424,6 @@ lemma WeightedComplex_all_iff : (WeightedComplex μ).faces = (CoxeterComplex α)
 can define a "distinguished facet" map on the weighted complex. The existence of that map then implies that facets of the weighted
 complex are also facets of the Coxeter complex.-/
 
-#exit 
 
 lemma LinearOrder_etc_respects_AFLO_positive {r : LinearOrder α} (hmon : @Antitone α ℝ r.toPartialOrder.toPreorder _ μ) 
 {s : Preorder α} (hs : s ∈ AFLOPartitions_positive μ) : 
@@ -411,7 +439,7 @@ LinearOrder_of_total_preorder_and_linear_order r s ∈ AFLOPartitions_positive �
     (LinearOrder_of_total_preorder_and_linear_order r s) _ _ _)) X hXs with
   | ⟨a, ha⟩ => 
     by_cases hsign : μ a ≥ 0
-    . match LowerSet_LinearOrder_etc_is_disjoint_union r (AFLOPartitions_forget_positive μ hs).1 ha with 
+    . match LowerSet_LinearOrder_etc_is_disjoint_union r s ha with 
     | ⟨Y, hY, hunion, hdisj⟩ => 
       set Z := {b : α | r.le b a ∧ AntisymmRel s.le a b}
       have hufin : Set.Finite.toFinset ((@Set.finite_coe_iff _ X).mp inferInstance) = 
@@ -473,23 +501,19 @@ LinearOrder_of_total_preorder_and_linear_order r s ∈ AFLOPartitions_positive �
         simp only [Set.mem_setOf_eq] at hb
         exact le_trans (hmon (@le_of_lt _ r.toPartialOrder.toPreorder _ _ hb.1)) (le_of_lt hsign)
 
+
 /- The "distinguished facet" of the decomposition. (For this we need to choose an auxiliary linear order on α.)-/
 
 noncomputable def distinguishedFacet_weighted {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) 
  (E : AFLOPowerset_positive μ) : AFLOPowerset_positive μ := 
   (WeightedComplextoPositivePartitions μ).invFun 
    ⟨@LinearOrder_of_total_preorder_and_linear_order _ r (powersetToPreorder (E.1 :Set (Set α))),
-    LinearOrder_etc_respects_AFLO_positive μ hmon (AFLO_positive_powersetToPreorder μ E) hsum⟩ 
+    @LinearOrder_etc_respects_AFLO_positive α μ _ hsum r hmon (powersetToPreorder (E.1 : Set (Set α))) (AFLO_positive_powersetToPreorder μ E)⟩ 
 
-/-Might be useless.
-lemma distinguishedFacet_comp {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) 
-(hsum : Finset.sum Finset.univ μ ≥ 0) (E : AFLOPowerset_positive μ) :
-(distinguishedFacet_weighted μ hmon hsum E).1 = (distinguishedFacet r ⟨E.1, AFLOPowerset_forget_positive μ E.2⟩).1 := by
-trivial
--/
+
 
 lemma distinguishedFacet_weighted_is_bigger {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) 
-(hsum : Finset.sum Finset.univ μ ≥ 0) (E : AFLOPowerset_positive μ) : E ≤ distinguishedFacet_weighted μ hmon hsum E := by
+(hsum : Finset.sum Finset.univ μ ≥ 0) (E : AFLOPowerset_positive μ) : E ≤ distinguishedFacet_weighted μ hsum hmon E := by
   unfold distinguishedFacet_weighted 
   have hEeq := (WeightedComplextoPositivePartitions μ).left_inv E 
   rw [←hEeq]
@@ -504,20 +528,21 @@ lemma distinguishedFacet_weighted_is_bigger {r : LinearOrder α} (hmon : @Antito
 
 lemma distinguishedFacet_weighted_is_facet_CoxeterComplex {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) 
 (E : AFLOPowerset_positive μ) (hEf : E.1 ∈ (WeightedComplex μ).faces) : 
-(distinguishedFacet_weighted μ hmon ((WeightedComplex_nonempty_iff μ).mp ⟨E.1, hEf⟩).2 E).1 ∈ (CoxeterComplex α).facets := 
+(distinguishedFacet_weighted μ hsum hmon E).1 ∈ (CoxeterComplex α).facets := 
 distinguishedFacet_is_facet r ⟨E.1, hEf.1.1⟩ (WeightedComplex_subcomplex μ hEf) 
+
 
 lemma distinguishedFacet_weighted_is_face_WeightedComplex {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) 
 (s : AFLOPowerset_positive μ) (hsf : s.1 ∈ (WeightedComplex μ).faces) : 
-(distinguishedFacet_weighted μ hmon ((WeightedComplex_nonempty_iff μ).mp ⟨s.1, hsf⟩).2 s).1 ∈ (WeightedComplex μ).faces := by
-  have hsum := ((WeightedComplex_nonempty_iff μ).mp ⟨s.1, hsf⟩).2 
+(distinguishedFacet_weighted μ hsum hmon s).1 ∈ (WeightedComplex μ).faces := by 
   have hsf' := (FacesWeightedComplex μ s).mp hsf
   have hst := distinguishedFacet_weighted_is_bigger μ hmon hsum ⟨s.1, hsf'.1⟩
   change s.1 ⊆ _ at hst 
-  rw [FacesWeightedComplex, and_iff_right (distinguishedFacet_weighted μ hmon hsum ⟨s, hsf'.1⟩).2]
+  rw [FacesWeightedComplex, and_iff_right (distinguishedFacet_weighted μ hsum hmon ⟨s, hsf'.1⟩).2]
   by_contra hte 
   rw [hte, Finset.subset_empty, ←Finset.not_nonempty_iff_eq_empty] at hst 
   exact hst ((WeightedComplex μ).nonempty_of_mem hsf)
+
 
 /- Now we can characterize facets of the weighted complex: they are exactly the faces of the weighted complex that are also facets
 of the Coxeter complex.-/
@@ -526,19 +551,17 @@ lemma FacetWeightedComplex_iff (s : Finset (Set α)) :
 s ∈ (WeightedComplex μ).facets ↔ s ∈ (CoxeterComplex α).facets ∧ s ∈ (WeightedComplex μ).faces := by 
   constructor 
   . intro hsf 
-    have hsum := ((WeightedComplex_nonempty_iff μ).mp ⟨s, hsf.1⟩).2
     rw [mem_facets_iff] at hsf 
     rw [and_iff_left hsf.1]
     have hsf' := (FacesWeightedComplex μ s).mp hsf.1 
     match Exists_LinearOrder_antitone μ with 
     | ⟨r, hmon⟩ => 
       have hst := distinguishedFacet_weighted_is_bigger μ hmon hsum ⟨s, hsf'.1⟩
-      have htfw := distinguishedFacet_weighted_is_face_WeightedComplex μ hmon ⟨s, hsf'.1⟩ hsf.1 
+      have htfw := distinguishedFacet_weighted_is_face_WeightedComplex μ hsum hmon ⟨s, hsf'.1⟩ hsf.1 
       rw [hsf.2 htfw hst]
-      exact distinguishedFacet_weighted_is_facet_CoxeterComplex μ hmon ⟨s, hsf'.1⟩ hsf.1 
+      exact distinguishedFacet_weighted_is_facet_CoxeterComplex μ hsum hmon ⟨s, hsf'.1⟩ hsf.1 
   . exact fun ⟨hsf, hsfw⟩ => Facets_subcomplex (WeightedComplex_subcomplex μ) hsfw hsf 
     
-
 
 
 /- Version for the weighted complex.-/
@@ -547,11 +570,12 @@ noncomputable def DF_weighted {r : LinearOrder α} (hmon : @Antitone _ _ r.toPar
 (WeightedComplex μ).faces → (WeightedComplex μ).facets := by  
   intro ⟨s, hsf⟩
   have hsf' := hsf 
+
   rw [FacesWeightedComplex] at hsf'
-  refine ⟨(distinguishedFacet_weighted μ hmon ((WeightedComplex_nonempty_iff μ).mp ⟨s, hsf⟩).2 ⟨s, hsf'.1⟩).1, ?_⟩
-  rw [FacetWeightedComplex_iff]
-  refine ⟨distinguishedFacet_weighted_is_facet_CoxeterComplex μ hmon ⟨s, hsf'.1⟩ hsf, ?_⟩ 
-  exact distinguishedFacet_weighted_is_face_WeightedComplex μ hmon ⟨s, hsf'.1⟩ hsf 
+  refine ⟨(distinguishedFacet_weighted μ hsum hmon ⟨s, hsf'.1⟩).1, ?_⟩ 
+  rw [FacetWeightedComplex_iff μ hsum] 
+  refine ⟨distinguishedFacet_weighted_is_facet_CoxeterComplex μ hsum hmon ⟨s, hsf'.1⟩ hsf, ?_⟩ 
+  exact distinguishedFacet_weighted_is_face_WeightedComplex μ hsum hmon ⟨s, hsf'.1⟩ hsf 
 
 
 /- We identify the facets whose R is ∅ or the facet itself. We assume α finite for this, otherwise there are no facets and the statement is
@@ -560,7 +584,7 @@ empty.-/
 
 lemma R_weighted_eq_empty_iff (r : LinearOrder α) {s : Finset (Set α)} (hsf : s ∈ (WeightedComplex μ).facets) : 
 R_weighted μ r ⟨s, hsf⟩ = ∅ ↔ powersetToPreorder (s : Set (Set α)) = r.toPartialOrder.toPreorder := by 
-  have hsf' := ((FacetWeightedComplex_iff μ s).mp hsf).1 
+  have hsf' := ((FacetWeightedComplex_iff μ hsum s).mp hsf).1 
   have heq : R_weighted μ r ⟨s, hsf⟩ = R r ⟨s, hsf'⟩ := by tauto 
   rw [heq]
   exact R_eq_empty_iff r hsf'
@@ -569,35 +593,180 @@ R_weighted μ r ⟨s, hsf⟩ = ∅ ↔ powersetToPreorder (s : Set (Set α)) = r
 
 lemma R_weighted_eq_self_iff (r : LinearOrder α) {s : Finset (Set α)} (hsf : s ∈ (WeightedComplex μ).facets) : 
 R_weighted μ r ⟨s, hsf⟩ = s ↔ powersetToPreorder (s : Set (Set α)) = (dual r).toPartialOrder.toPreorder := by 
-  have hsf' := ((FacetWeightedComplex_iff μ s).mp hsf).1 
+  have hsf' := ((FacetWeightedComplex_iff μ hsum s).mp hsf).1 
   have heq : R_weighted μ r ⟨s, hsf⟩ = R r ⟨s, hsf'⟩ := by tauto 
   rw [heq]
   exact R_eq_self_iff r hsf'
 
 /- When are the two facets corresponding to r and its dual in the weighted complex ? If μ is antitone, then r is in the weighted complex
-if and only if ∑ μ ≥ 0, i.e. if and only the weighted complex is nonempty; as for the dual of r, it is in the weighted complex if and only
-μ takes nonnegative values, i.e. if and only if the weighted complex is equal to the Coxeter complex.-/
+if and only if Fintype.card α ≥ 2 i.e. if and only the weighted complex is nonempty (we also need ∑ μ ≥ 0 but that's always assumed
+with our current conventions).
+As for the dual of r, it is in the weighted complex if and only μ takes nonnegative values, i.e. if and only if the weighted complex is 
+equal to the Coxeter complex.-/
+
+lemma Fixed_linear_order_in_AFLO_positive {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) :
+r.toPartialOrder.toPreorder ∈ AFLOPartitions_positive μ := by 
+  exists (AFLOPartitions_is_everything r.toPartialOrder.toPreorder).mp r.le_total
+  exists (AFLO_preorderToPowerset ⟨r.toPartialOrder.toPreorder, (AFLOPartitions_is_everything r.toPartialOrder.toPreorder).mp r.le_total⟩)
+  intro X hX 
+  unfold IsPositiveSet 
+  have hX':= (AFLO_preorderToPowerset ⟨r.toPartialOrder.toPreorder, (AFLOPartitions_is_everything r.toPartialOrder.toPreorder).mp r.le_total⟩).2 X hX 
+  rw [Set.Finite.mem_toFinset] at hX 
+  unfold preorderToPowerset at hX 
+  simp only [Set.mem_setOf_eq] at hX
+  match @TotalELFP_LowerSet_is_principal _ r.toPartialOrder.toPreorder r.le_total 
+    (EssentiallyLocallyFinite_ofLocallyFinite (@Fintype.toLocallyFiniteOrder _ r.toPartialOrder.toPreorder _ _ _)) X hX  with 
+  | ⟨a, haX⟩ => 
+    by_cases hsign : μ a ≥ 0 
+    . apply Finset.sum_nonneg 
+      intro b hbX 
+      rw [Set.Finite.mem_toFinset, haX, Set.mem_Iic] at hbX 
+      exact le_trans hsign (hmon hbX) 
+    . rw [←lt_iff_not_le] at hsign
+      have hsdiff : Set.Finite.toFinset ((@Set.finite_coe_iff _ (Set.Iic a)).mp inferInstance) = Finset.univ \ 
+        Set.Finite.toFinset ((@Set.finite_coe_iff _ (Set.Ioi a)).mp inferInstance) := by 
+        ext b 
+        simp only [Set.Finite.toFinset_setOf, Finset.mem_univ, forall_true_left, Finset.mem_filter, true_and,
+          Finset.mem_sdiff, not_lt]
+      have hsub : Set.Finite.toFinset ((@Set.finite_coe_iff _ (Set.Ioi a)).mp inferInstance) ⊆ Finset.univ := by 
+        exact fun _ _ => Finset.mem_univ _ 
+      simp_rw [haX, hsdiff, Finset.sum_sdiff_eq_sub hsub, sub_nonneg]
+      refine le_trans ?_ hsum 
+      apply Finset.sum_nonpos 
+      intro b hb 
+      rw [Set.Finite.mem_toFinset, Set.mem_Ioi] at hb  
+      exact le_trans (hmon (le_of_lt hb)) (le_of_lt hsign) 
+
+
+lemma Fixed_linear_order_in_WeightedComplex {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) 
+(hcard : Fintype.card α ≥ 2) :
+preorderToPowersetFinset ⟨r.toPartialOrder.toPreorder, (AFLOPartitions_is_everything r.toPartialOrder.toPreorder).mp r.le_total⟩ 
+∈ (WeightedComplex μ).faces := by 
+  rw [FacesWeightedComplex]
+  have h := ((WeightedComplextoPositivePartitions μ).invFun ⟨r.toPartialOrder.toPreorder, Fixed_linear_order_in_AFLO_positive μ hsum hmon⟩).2 
+  unfold WeightedComplextoPositivePartitions at h 
+  simp only at h 
+  rw [and_iff_right h]
+  rw [ne_eq, Set.Finite.toFinset_eq_empty, preorderToPowerset_is_empty_iff_TrivialPreorder, ←ne_eq, nontrivial_preorder_iff_exists_not_le]
+  simp only [not_le]
+  rw [ge_iff_le, Nat.succ_le, Fintype.one_lt_card_iff] at hcard 
+  match hcard with 
+  | ⟨a, b, hab⟩ => cases lt_or_gt_of_ne hab with 
+                   | inl hab => exists b; exists a;  
+                   | inr hba => exists a; exists b 
+
+
+lemma Dual_linear_order_in_AFLO_positive {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) :
+(dual r).toPartialOrder.toPreorder ∈ AFLOPartitions_positive μ ↔ (∀ (a : α), μ a ≥ 0):= by
+  constructor 
+  . intro hr a 
+    have hne : (@Set.univ α).Nonempty := ⟨a, Set.mem_univ _⟩
+    set b := WellFounded.min (@Finite.Preorder.wellFounded_gt α _ r.toPartialOrder.toPreorder) Set.univ hne  
+    set X := ({b} : Set α) with hXdef 
+    by_cases hsin : ∀ (c : α), c = b 
+    . have huniv : Finset.univ = {a} := by
+        ext c 
+        simp only [Finset.mem_univ, Finset.mem_singleton, true_iff]
+        rw [hsin c]
+        exact Eq.symm (hsin a) 
+      rw [huniv, Finset.sum_singleton] at hsum 
+      exact hsum 
+    . push_neg at hsin 
+      match hsin with 
+    | ⟨c, hc⟩ => have hX : X ∈ preorderToPowersetFinset ⟨(dual r).toPartialOrder.toPreorder, (AFLOPartitions_is_everything 
+                   (dual r).toPartialOrder.toPreorder).mp (dual r).le_total⟩ := by 
+                   rw [Set.Finite.mem_toFinset]
+                   unfold preorderToPowerset 
+                   erw [Set.mem_setOf]
+                   simp only [Set.bot_eq_empty, Set.top_eq_univ, ←Set.nonempty_iff_ne_empty, Set.ne_univ_iff_exists_not_mem]
+                   rw [and_iff_right ⟨b, Set.mem_singleton _⟩]
+                   constructor 
+                   . exists c 
+                   . intro d e hde 
+                     simp only [gt_iff_lt, Set.mem_singleton_iff]
+                     intro hdb 
+                     rw [hdb] at hde 
+                     have h := WellFounded.not_lt_min (@Finite.Preorder.wellFounded_gt α _ r.toPartialOrder.toPreorder) Set.univ hne 
+                       (Set.mem_univ e)
+                     rw [gt_iff_lt, lt_iff_not_le, not_not] at h
+                     exact le_antisymm hde h   
+                 have hXpos := hr.2.2 hX
+                 unfold IsPositiveSet at hXpos 
+                 simp_rw [hXdef, Set.Finite.toFinset_singleton, Finset.sum_singleton] at hXpos 
+                 have hab : r.le a b := by 
+                   have h := WellFounded.not_lt_min (@Finite.Preorder.wellFounded_gt α _ r.toPartialOrder.toPreorder) Set.univ hne 
+                     (Set.mem_univ a)
+                   rw [gt_iff_lt, lt_iff_not_le, not_not] at h
+                   exact h  
+                 exact le_trans hXpos (hmon hab)     
+  . intro hpos 
+    exists (AFLOPartitions_is_everything (dual r).toPartialOrder.toPreorder).mp (dual r).le_total
+    exists (AFLO_preorderToPowerset ⟨(dual r).toPartialOrder.toPreorder, (AFLOPartitions_is_everything (dual r).toPartialOrder.toPreorder).mp 
+      (dual r).le_total⟩)
+    intro X hXs 
+    unfold IsPositiveSet 
+    apply Finset.sum_nonneg 
+    intro a _ 
+    exact hpos a 
+
+lemma Dual_linear_order_in_WeightedComplex {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) 
+(hcard : Fintype.card α ≥ 2) :
+preorderToPowersetFinset ⟨(dual r).toPartialOrder.toPreorder, (AFLOPartitions_is_everything (dual r).toPartialOrder.toPreorder).mp 
+(dual r).le_total⟩ ∈ (WeightedComplex μ).faces ↔ (∀ (a : α), μ a ≥ 0):= by 
+  rw [FacesWeightedComplex]
+  constructor 
+  . intro hr 
+    have heq : (dual r).toPartialOrder.toPreorder = ((WeightedComplextoPositivePartitions μ).toFun 
+      ⟨preorderToPowersetFinset ⟨(dual r).toPartialOrder.toPreorder, (AFLOPartitions_is_everything (dual r).toPartialOrder.toPreorder).mp 
+      (dual r).le_total⟩, hr.1⟩).1 := by 
+      unfold WeightedComplextoPositivePartitions 
+      simp only 
+      unfold preorderToPowersetFinset
+      rw [Set.Finite.coe_toFinset, ←preorderToPowersetToPreorder, Subtype.coe_mk]
+    apply (Dual_linear_order_in_AFLO_positive μ hsum hmon).mp  
+    rw [heq]
+    simp only [Set.Finite.toFinset_setOf, Set.bot_eq_empty, ne_eq, Set.top_eq_univ, Finset.mem_univ,
+      forall_true_left, Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Subtype.coe_prop]
+  . intro hpos 
+    constructor 
+    . unfold AFLOPowerset_positive 
+      rw [Set.mem_setOf] 
+      exists AFLO_preorderToPowerset ⟨(dual r).toPartialOrder.toPreorder, (AFLOPartitions_is_everything (dual r).toPartialOrder.toPreorder).mp 
+        (dual r).le_total⟩ 
+      intro X hX 
+      unfold IsPositiveSet 
+      apply Finset.sum_nonneg 
+      intro a _ 
+      exact hpos a 
+    . rw [ne_eq, Set.Finite.toFinset_eq_empty, preorderToPowerset_is_empty_iff_TrivialPreorder, ←ne_eq, nontrivial_preorder_iff_exists_not_le]
+      simp only [not_le]
+      rw [ge_iff_le, Nat.succ_le, Fintype.one_lt_card_iff] at hcard 
+      match hcard with 
+      | ⟨a, b, hab⟩ => cases lt_or_gt_of_ne hab with 
+                      | inl hab => exists a; exists b  
+                      | inr hba => exists b; exists a 
+    
 
 
 
-#exit 
+/- We prove that the weighted complex is decomposable.-/
 
-
-/- We prove that the Coxeter complex is decomposable.-/
-
-lemma CoxeterComplex_is_decomposable (r : LinearOrder α) : IsDecomposition (R r) (DF r) := by 
+lemma WeightedComplex_is_decomposable {r : LinearOrder α} (hmon : @Antitone _ _ r.toPartialOrder.toPreorder _ μ) : 
+IsDecomposition (R_weighted μ r) (DF_weighted μ hsum hmon) := by  
   constructor 
   . intro ⟨s, hsf⟩
-    rw [mem_facets_iff, FacesCoxeterComplex] at hsf
-    exact restriction_is_smaller r ⟨s, hsf.1.1⟩ 
+    rw [mem_facets_iff, FacesWeightedComplex] at hsf 
+    exact restriction_is_smaller r ⟨s, hsf.1.1.1⟩ 
   . intro ⟨s, hsf⟩ ⟨t, htf⟩ 
     have htf' := htf 
     rw [mem_facets_iff] at htf 
-    rw [FacesCoxeterComplex] at hsf htf 
-    unfold R DF restriction distinguishedFacet
-    simp only [Equiv.invFun_as_coe, OrderIso.toEquiv_symm, RelIso.coe_toEquiv, Subtype.mk.injEq]
-    set p := (CoxeterComplextoPartitions α).toFun ⟨s, hsf.1⟩
-    set q := (CoxeterComplextoPartitions α).toFun ⟨t, htf.1.1⟩
+    rw [WeightedComplex] at hsf htf  
+    unfold R_weighted DF_weighted 
+    simp only 
+    unfold restriction_weighted distinguishedFacet_weighted 
+    simp only [Equiv.invFun_as_coe, OrderIso.toEquiv_symm, RelIso.coe_toEquiv, Subtype.mk.injEq] 
+    set p := (WeightedComplextoPositivePartitions μ).toFun ⟨s, hsf.1⟩
+    set q := (WeightedComplextoPositivePartitions μ).toFun ⟨t, htf.1.1⟩
     constructor 
     . intro hint 
       rw [and_comm] at hint 
@@ -605,24 +774,25 @@ lemma CoxeterComplex_is_decomposable (r : LinearOrder α) : IsDecomposition (R r
         change p ≤ q
         simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, map_le_map_iff, Subtype.mk_le_mk, Finset.le_eq_subset]
         exact hint.1 
-      have hpq : p.1 ≤ @AscentPartition _ r q.1 q.2.1 := by 
-        change ⟨@AscentPartition _ r q.1 q.2.1, AscentPartition_respects_AFLO r q.2⟩ ≤ p 
+      have hpq : p.1 ≤ @AscentPartition _ r q.1 q.2.1.1 := by 
+        change ⟨@AscentPartition _ r q.1 q.2.1.1, AscentPartition_respects_AFLO_positive μ r q.2⟩ ≤ p 
         have h := hint.2 
-        change (CoxeterComplextoPartitions α).invFun ⟨@AscentPartition _ r q.1 q.2.1, AscentPartition_respects_AFLO r q.2⟩ ≤ 
-           (⟨s, hsf.1⟩ : AFLOPowerset α) at h
-        apply_fun (CoxeterComplextoPartitions α).toFun at h 
+        change (WeightedComplextoPositivePartitions μ).invFun ⟨@AscentPartition _ r q.1 q.2.1.1, 
+          AscentPartition_respects_AFLO_positive μ r q.2⟩ ≤ (⟨s, hsf.1⟩ : AFLOPowerset_positive μ) at h
+        apply_fun (WeightedComplextoPositivePartitions μ).toFun at h 
         simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm,
             OrderIso.apply_symm_apply] at h
         exact h   
-        exact (CoxeterComplextoPartitions α).monotone 
+        exact (WeightedComplextoPositivePartitions μ).monotone 
       have hqlin : IsLinearOrder α q.1.le := by 
-        rw [Facets_are_linear_orders (facets_subset htf')] at htf' 
-        exact htf' 
-      have halmost := @LinearOrder_of_total_preorder_and_linear_order_on_ascent_interval' _ r q.1 p.1 hqlin p.2.1 hqp hpq
-      have h' : q = ⟨LinearOrder_of_total_preorder_and_linear_order r p.1, LinearOrder_etc_respects_AFLO r p.2⟩ := by 
+        rw [FacetWeightedComplex_iff, Facets_are_linear_orders (facets_subset htf'.1)] at htf' 
+        exact htf'.1 
+        exact hsum 
+      have halmost := @LinearOrder_of_total_preorder_and_linear_order_on_ascent_interval' _ r q.1 p.1 hqlin p.2.1.1 hqp hpq
+      have h' : q = ⟨LinearOrder_of_total_preorder_and_linear_order r p.1, LinearOrder_etc_respects_AFLO_positive μ hsum hmon p.2⟩ := by 
         rw [←SetCoe.ext_iff]
         exact halmost   
-      apply_fun (CoxeterComplextoPartitions α).invFun at h'
+      apply_fun (WeightedComplextoPositivePartitions μ).invFun at h'
       simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm,
          OrderIso.symm_apply_apply] at h'
       rw [←SetCoe.ext_iff] at h' 
@@ -630,8 +800,8 @@ lemma CoxeterComplex_is_decomposable (r : LinearOrder α) : IsDecomposition (R r
     . intro heq 
       have hqp : q.1 = LinearOrder_of_total_preorder_and_linear_order r p.1 := by 
         simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv]
-        have h : q = ⟨LinearOrder_of_total_preorder_and_linear_order r p.1, LinearOrder_etc_respects_AFLO r p.2⟩ := by
-          apply Equiv.injective (CoxeterComplextoPartitions α).toEquiv.symm 
+        have h : q = ⟨LinearOrder_of_total_preorder_and_linear_order r p.1, LinearOrder_etc_respects_AFLO_positive μ hsum hmon p.2⟩ := by
+          apply Equiv.injective (WeightedComplextoPositivePartitions μ).toEquiv.symm 
           simp only [OrderIso.toEquiv_symm, Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, OrderIso.symm_apply_apply]
           rw [←SetCoe.ext_iff]
           exact heq
@@ -639,133 +809,50 @@ lemma CoxeterComplex_is_decomposable (r : LinearOrder α) : IsDecomposition (R r
         exact h 
       have hqlin : IsLinearOrder α q.1.le := by 
         rw [hqp]
-        exact LinearOrder_of_total_preorder_and_linear_order_is_linear r p.2.1 
-      have halmost := @LinearOrder_of_total_preorder_and_linear_order_fibers _ r q.1 p.1 hqlin p.2.1 (Eq.symm hqp)        
+        exact LinearOrder_of_total_preorder_and_linear_order_is_linear r p.2.1.1  
+      have halmost := @LinearOrder_of_total_preorder_and_linear_order_fibers _ r q.1 p.1 hqlin p.2.1.1 (Eq.symm hqp)        
       rw [and_comm]
-      change p ≤ q ∧ ⟨@AscentPartition _ r q.1 q.2.1, AscentPartition_respects_AFLO r q.2⟩ ≤ p  at halmost 
-      erw [(CoxeterComplextoPartitions α).map_rel_iff'] at halmost 
+      change p ≤ q ∧ ⟨@AscentPartition _ r q.1 q.2.1.1, AscentPartition_respects_AFLO_positive μ r q.2⟩ ≤ p  at halmost 
+      erw [(WeightedComplextoPositivePartitions μ).map_rel_iff'] at halmost 
       erw [and_iff_right halmost.1] 
       have halmost := halmost.2 
       simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv] at halmost
-      apply_fun (CoxeterComplextoPartitions α).invFun at halmost 
+      apply_fun (WeightedComplextoPositivePartitions μ).invFun at halmost 
       simp only [Equiv.invFun_as_coe, OrderIso.toEquiv_symm, RelIso.coe_toEquiv, OrderIso.symm_apply_apply] at halmost
       exact halmost 
-      exact (CoxeterComplextoPartitions α).symm.monotone 
+      exact (WeightedComplextoPositivePartitions μ).symm.monotone 
 
-
-/- The Coxeter complex is nonempty if and only if Fintype.card α ≥ 2.-/
-
-
-variable (α)
-
-lemma CoxeterComplex_nonempty_iff : (CoxeterComplex α).faces.Nonempty ↔ Fintype.card α ≥ 2 := by 
-  constructor 
-  . intro hne 
-    match hne with
-  | ⟨s, hsf⟩ => rw [FacesCoxeterComplex] at hsf 
-                have heq : ⟨s, hsf.1⟩ = (CoxeterComplextoPartitions α).invFun ((CoxeterComplextoPartitions α).toFun ⟨s, hsf.1⟩) := by
-                  simp only [Equiv.toFun_as_coe_apply, RelIso.coe_toEquiv, Equiv.invFun_as_coe, OrderIso.toEquiv_symm,
-                  OrderIso.symm_apply_apply]
-                unfold CoxeterComplextoPartitions at heq 
-                simp only at heq 
-                rw [←SetCoe.ext_iff] at heq 
-                unfold preorderToPowersetFinset at heq
-                simp only at heq 
-                rw [←Finset.coe_inj, Set.Finite.coe_toFinset] at heq  
-                have hnt : powersetToPreorder (s : Set (Set α)) ≠ trivialPreorder α := by 
-                  by_contra habs 
-                  rw [habs] at heq 
-                  rw [(preorderToPowerset_is_empty_iff_TrivialPreorder (trivialPreorder α)).mpr rfl] at heq 
-                  rw [Finset.coe_eq_empty] at heq 
-                  exact hsf.2 heq
-                simp_rw [nontrivial_preorder_iff_exists_not_le] at hnt 
-                change Nat.succ 1 ≤ _ 
-                rw [Nat.succ_le_iff, Fintype.one_lt_card_iff]
-                match hnt with 
-                | ⟨a, b, hab⟩ => have hne : a ≠ b := by 
-                                   by_contra heq 
-                                   rw [heq] at hab 
-                                   exact hab ((powersetToPreorder (s : Set (Set α))).le_refl _)
-                                 exact ⟨a, b, hne⟩
-  . intro hcard
-    change Nat.succ 1  ≤ _ at hcard 
-    rw [Nat.succ_le_iff, Fintype.one_lt_card_iff] at hcard
-    match hcard with 
-    | ⟨a, b, hab⟩ => set p := twoStepPreorder a  
-                     have hp := (AFLOPartitions_is_everything p).mp (twoStepPreorder_IsTotal a)
-                     set s := (CoxeterComplextoPartitions α).invFun ⟨p, hp⟩ with hsdef 
-                     have hsne : s.1 ≠ ∅ := by 
-                       by_contra he 
-                       rw [hsdef] at he 
-                       unfold CoxeterComplextoPartitions at he 
-                       simp only at he 
-                       unfold preorderToPowersetFinset at he 
-                       rw [Set.Finite.toFinset_eq_empty] at he  
-                       change preorderToPowerset (twoStepPreorder a) = ∅ at he 
-                       rw [preorderToPowerset_is_empty_iff_TrivialPreorder] at he 
-                       exact twoStepPreorder_nontrivial hab he
-                     have hsf : s.1 ∈ (CoxeterComplex α).faces := by 
-                       rw [FacesCoxeterComplex]
-                       exact ⟨s.2, hsne⟩
-                     exact ⟨s.1, hsf⟩ 
 
                       
 
-/- The Coxeter complex is finite.-/
+/- The weighted complex is finite.-/
  
+lemma WeightedComplex_is_finite : FiniteComplex (WeightedComplex μ) := 
+Finite_IsLowerSet (WeightedComplex_subcomplex μ) (CoxeterComplex_is_finite α)
 
-lemma CoxeterComplex_is_finite : FiniteComplex (CoxeterComplex α) := by 
-  rw [FiniteComplex]
-  have hsub : (CoxeterComplex α).faces ⊆ @Set.univ (Finset (Set α)) := by 
-    simp only [Set.subset_univ]
-  exact Finite.Set.subset _ hsub  
 
-variable {α}
+/- Dimension of the facets of the weighted complex.-/
 
-/- Dimension of the facets of the Coxeter complex.-/
-
-lemma NonemptyType_of_face_CoxeterComplex {s : Finset (Set α)} (hs : s ∈ (CoxeterComplex α).faces) : 
-Nonempty α := by 
-  rw [←Fintype.card_pos_iff]
-  refine lt_trans Nat.zero_lt_one ?_ 
-  rw [←Nat.succ_le_iff]
-  exact (CoxeterComplex_nonempty_iff α).mp ⟨s, hs⟩ 
-
-lemma CoxeterComplex_dimension_facet (s : (CoxeterComplex α).facets) :
+lemma WeightedComplex_dimension_facet (s : (WeightedComplex μ).facets) :
 Finset.card s.1 = Fintype.card α -1 := by 
   have hsf := s.2 
-  rw [mem_facets_iff, FacesCoxeterComplex] at hsf
-  rw [CoxeterComplex_dimension_face ⟨s.1, hsf.1.1⟩ (NonemptyType_of_face_CoxeterComplex (facets_subset s.2))]
-  set p := (CoxeterComplextoPartitions α).toFun ⟨s, hsf.1.1⟩
-  have hlinp : IsLinearOrder α p.1.le := (Facets_are_linear_orders (facets_subset s.2)).mp s.2
-  have hAR := @antisymmRel_iff_eq _ p.1.le hlinp.toIsPartialOrder.toIsPreorder.toIsRefl hlinp.toIsPartialOrder.toIsAntisymm 
-  haveI := p.2.2.2 
-  rw [@Fintype.card_of_bijective _ _ _ (Fintype.ofFinite _) (toAntisymmetrization p.1.le)] 
-  unfold Function.Bijective 
-  erw [and_iff_left (@surjective_quotient_mk _ (AntisymmRel.setoid α p.1.le))]
-  intro a b hab
-  have hab := Quotient.exact hab 
-  change AntisymmRel p.1.le a b at hab
-  exact hAR.mp hab  
+  rw [FacetWeightedComplex_iff] at hsf 
+  exact @CoxeterComplex_dimension_facet α _ ⟨s, hsf.1⟩
+  exact hsum  
 
 
-/- The Coxeter complex is pure (of dimension Fintype.card α - 2, since we know that the facets have cardinality Fintype.card α - 1).-/
+/- The weighted complex is pure (of dimension Fintype.card α - 2, since we know that the facets have cardinality Fintype.card α - 1).-/
 
-variable (α)
+lemma WeightedComplex_is_pure : Pure (WeightedComplex μ) := 
+Dimension_of_Noetherian_pure (Finite_implies_Noetherian (WeightedComplex_is_finite μ)) 
+(fun s t hsf htf => by rw [WeightedComplex_dimension_facet μ hsum ⟨s, hsf⟩, WeightedComplex_dimension_facet μ hsum ⟨t, htf⟩])
 
-lemma CoxeterComplex_is_pure : Pure (CoxeterComplex α) := 
-Dimension_of_Noetherian_pure (Finite_implies_Noetherian (CoxeterComplex_is_finite α)) 
-(fun s t hsf htf => by rw [CoxeterComplex_dimension_facet ⟨s, hsf⟩, CoxeterComplex_dimension_facet ⟨t, htf⟩])
+#exit 
 
-/- The Coxeter complex has (Fintype.card α)! facets.-/
-
-lemma FacetsCoxeterComplex.card : Finset.card (Set.Finite.toFinset (Set.finite_coe_iff.mp (FiniteComplex_has_finite_facets (CoxeterComplex_is_finite α)))) 
-= Nat.factorial (Fintype.card α) := sorry 
 
 /- We find the π₀ and homology facets: the unique π₀ facet is the minimal one for the weak Bruhat order (i.e. the one corresponding to r), and
 the unique homology facet is the maximal one for the weak Bruhat order (i.e. the one corresponding to the dual of r).-/
 
-variable {α} 
 
 lemma CoxeterComplex_Pi0Facet (r : LinearOrder α) {s : Finset (Set α)} (hsf : s ∈ (CoxeterComplex α).facets) :
 IsPi0Facet (CoxeterComplex_is_decomposable r) ⟨s, hsf⟩ ↔ powersetToPreorder (s : Set (Set α)) = r.toPartialOrder.toPreorder ∨ Fintype.card α = 2 := by 
@@ -810,7 +897,6 @@ it more convenient to state the lemmas, we first lift the weak Bruhat order to f
 
 open WeakBruhatOrder 
 
-variable (α)
 
 def CoxeterComplexFacets_to_LinearOrders (s : (CoxeterComplex α).facets) : 
 {p : Preorder α | IsLinearOrder α p.le} := by 
@@ -830,7 +916,6 @@ lemma CoxeterComplexFacets_to_LinearOrders_injective : Function.Injective (Coxet
   rw [←SetCoe.ext_iff, ←Finset.coe_inj]
   rw [heqs, heqt, hst]
 
-variable {α}
 
 
 def WeakBruhatOrder_facets (r : LinearOrder α) : PartialOrder (CoxeterComplex α).facets :=
@@ -1059,4 +1144,4 @@ EulerPoincareCharacteristic (CoxeterComplex_is_finite α) = 1 + (-1 : ℤ)^(Fint
       rw [pow_add, neg_one_pow_two, mul_one]
       
 
-end FiniteCoxeterComplex
+end FiniteWeightedComplex

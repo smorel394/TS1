@@ -780,9 +780,3 @@ variable (α : Type u)
 
 noncomputable def ArbitraryLinearOrder : LinearOrder α := 
 LinearOrder.lift' (embeddingToCardinal).toFun (embeddingToCardinal).inj' 
-
-/- If μ is a function from α to ℝ, we can find a linear order on α for which μ is antitone.-/
-
-variable {α : Type u} (μ : α → ℝ) 
-
-lemma Exists_LinearOrder_antitone : ∃ (r : LinearOrder α), @Antitone α ℝ r.toPartialOrder.toPreorder _ μ := sorry 
