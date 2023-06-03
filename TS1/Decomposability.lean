@@ -1,4 +1,3 @@
-import TS1.AbstractSimplicialComplex 
 import TS1.FacePoset
 import TS1.OrderOnFacets 
 

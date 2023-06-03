@@ -591,10 +591,7 @@ lemma CoxeterComplex_is_pure : Pure (CoxeterComplex α) :=
 Dimension_of_Noetherian_pure (Finite_implies_Noetherian (CoxeterComplex_is_finite α)) 
 (fun s t hsf htf => by rw [CoxeterComplex_dimension_facet ⟨s, hsf⟩, CoxeterComplex_dimension_facet ⟨t, htf⟩])
 
-/- The Coxeter complex has (Fintype.card α)! facets.-/
 
-lemma FacetsCoxeterComplex.card : Finset.card (Set.Finite.toFinset (Set.finite_coe_iff.mp (FiniteComplex_has_finite_facets (CoxeterComplex_is_finite α)))) 
-= Nat.factorial (Fintype.card α) := sorry 
 
 /- We find the π₀ and homology facets: the unique π₀ facet is the minimal one for the weak Bruhat order (i.e. the one corresponding to r), and
 the unique homology facet is the maximal one for the weak Bruhat order (i.e. the one corresponding to the dual of r).-/
@@ -646,15 +643,15 @@ open WeakBruhatOrder
 
 variable (α)
 
-def CoxeterComplexFacets_to_LinearOrders (s : (CoxeterComplex α).facets) : 
+def CoxeterComplexFacetstoLinearOrders (s : (CoxeterComplex α).facets) : 
 {p : Preorder α | IsLinearOrder α p.le} := by 
   have hsf := s.2 
   rw [Facets_are_linear_orders (facets_subset hsf)] at hsf
   exact ⟨powersetToPreorder s.1, hsf⟩
 
-lemma CoxeterComplexFacets_to_LinearOrders_injective : Function.Injective (CoxeterComplexFacets_to_LinearOrders α) := by 
+lemma CoxeterComplexFacetstoLinearOrders_injective : Function.Injective (CoxeterComplexFacetstoLinearOrders α) := by 
   intro s t hst 
-  unfold CoxeterComplexFacets_to_LinearOrders at hst
+  unfold CoxeterComplexFacetstoLinearOrders at hst
   simp only [Set.coe_setOf, Set.mem_setOf_eq, Subtype.mk.injEq] at hst
   have hsf := s.2 
   have htf := t.2 
@@ -664,11 +661,241 @@ lemma CoxeterComplexFacets_to_LinearOrders_injective : Function.Injective (Coxet
   rw [←SetCoe.ext_iff, ←Finset.coe_inj]
   rw [heqs, heqt, hst]
 
+
+noncomputable def LinearOrderstoCoxeterComplexFacets (hcard : Fintype.card α ≥ 2) {s : Preorder α} (hlins : IsLinearOrder α s.le) : 
+(CoxeterComplex α).facets := by 
+  have hs : s ∈ AFLOPartitions α := by 
+    rw [←AFLOPartitions_is_everything]
+    exact hlins.toIsTotal.total 
+  refine ⟨preorderToPowersetFinset ⟨s, hs⟩, ?_⟩
+  rw [Facets_are_linear_orders]
+  unfold preorderToPowersetFinset
+  rw [Set.Finite.coe_toFinset]
+  rw [←preorderToPowersetToPreorder]  
+  exact hlins 
+  rw [FacesCoxeterComplex]
+  rw [←AFLOPowerset_is_everything]
+  unfold preorderToPowersetFinset
+  constructor 
+  . constructor 
+    . intro ⟨X, hX⟩ ⟨Y, hY⟩
+      rw [Set.Finite.mem_toFinset] at hX hY 
+      exact preorderToPowerset_total_is_total hlins.toIsTotal.total ⟨X, hX⟩ ⟨Y, hY⟩ 
+    . intro X hX 
+      rw [Set.Finite.mem_toFinset] at hX 
+      exact ⟨hX.1, hX.2.1⟩ 
+  . rw [ne_eq, Set.Finite.toFinset_eq_empty, preorderToPowerset_is_empty_iff_TrivialPreorder]
+    rw [ge_iff_le, Nat.succ_le, Fintype.one_lt_card_iff] at hcard 
+    match hcard with 
+    | ⟨a, b, hne⟩ => by_contra heq 
+                     simp only at heq 
+                     have hab : s.le a b := by 
+                       rw [heq]
+                       trivial 
+                     have hba : s.le b a := by 
+                       rw [heq]
+                       trivial
+                     exact hne (hlins.toIsPartialOrder.toIsAntisymm.antisymm _ _ hab hba)  
+
+
+/- The Coxeter complex has (Fintype.card α)! facets if Fintype.card α ≥ 2. (Otherwise it has 0, because it is empty.)
+First we construct an equivalence between facets of the Coxeter complex and linear orders on α.-/
+
+noncomputable def FacetsCoxeterComplextoLinearOrders (hcard : Fintype.card α ≥ 2) : Equiv (CoxeterComplex α).facets 
+{s : Preorder α | IsLinearOrder α s.le} where
+toFun := CoxeterComplexFacetstoLinearOrders α 
+invFun := fun s => LinearOrderstoCoxeterComplexFacets α hcard s.2 
+left_inv := by 
+  intro ⟨s, hsf⟩
+  simp only 
+  unfold LinearOrderstoCoxeterComplexFacets  
+  simp only 
+  rw [←SetCoe.ext_iff, Subtype.coe_mk]
+  unfold preorderToPowersetFinset 
+  rw [←Finset.coe_inj, Set.Finite.coe_toFinset]
+  simp only [Set.mem_setOf_eq]
+  unfold CoxeterComplexFacetstoLinearOrders 
+  simp only 
+  exact Eq.symm (Faces_powersetToPreordertoPowerset (facets_subset hsf))
+right_inv := by 
+  intro ⟨s, hlins⟩ 
+  unfold CoxeterComplexFacetstoLinearOrders 
+  simp only [Set.coe_setOf, Set.mem_setOf_eq, Subtype.mk.injEq]
+  unfold LinearOrderstoCoxeterComplexFacets 
+  simp only 
+  rw [Set.Finite.coe_toFinset]
+  simp only
+  exact Eq.symm (preorderToPowersetToPreorder s)
+
+
+ 
+
+lemma FacetsCoxeterComplex.card (hcard : Fintype.card α ≥ 2) : 
+Finset.card (Set.Finite.toFinset (Set.finite_coe_iff.mp (FiniteComplex_has_finite_facets (CoxeterComplex_is_finite α)))) 
+= Nat.factorial (Fintype.card α) := by 
+  rw [@Finset.card_congr (Finset (Set α)) (CoxeterComplex α).facets (Set.Finite.toFinset (Set.finite_coe_iff.mp 
+    (FiniteComplex_has_finite_facets (CoxeterComplex_is_finite α)))) Finset.univ 
+    (fun s hsf => by rw [Set.Finite.mem_toFinset] at hsf; exact ⟨s, hsf⟩)
+    (fun s hsf => Finset.mem_univ _) 
+    (fun s t hsf htf => by simp only [Subtype.mk.injEq, imp_self])
+    (fun s hsf => by exists s.1
+                     simp only [Subtype.coe_eta, Set.Finite.toFinset_setOf, Finset.mem_univ, forall_true_left, Finset.mem_filter,
+                       true_and, exists_prop, and_true]
+                     erw [←mem_facets_iff]
+                     exact s.2)]
+  rw [Finset.card_univ]
+  rw [←(Fintype.ofEquiv_card (FacetsCoxeterComplextoLinearOrders α hcard))]
+  sorry 
+
+/- Lemmas about a set with two elements.-/
+variable {α}
+
+lemma Elements_pair (a b : α) (hall : Finset.univ = {a, b}) (c : α) : c = a ∨ c = b := by
+  have hc := Finset.mem_univ c 
+  rw [hall] at hc 
+  simp only [Finset.mem_singleton, Finset.mem_insert] at hc
+  exact hc 
+
+
+
+lemma twoStepPreorder_linear (a b : α) (hall : Finset.univ = {a,b}) :
+IsLinearOrder α (twoStepPreorder a).le := by 
+  refine {toIsPartialOrder := ?_, toIsTotal := ?_}
+  . refine {toIsAntisymm := ?_, toIsPreorder := ?_}
+    . exact @instIsPreorderLeToLE _ (twoStepPreorder a) 
+    . refine {antisymm := ?_}
+      intro c d 
+      cases Elements_pair a b hall c with
+      | inl hca => cases Elements_pair a b hall d with 
+                   | inl hda => rw [hca, hda]; simp only [implies_true]
+                   | inr hdb => rw [hca, hdb]
+                                unfold twoStepPreorder 
+                                intro _ hba 
+                                by_contra hne 
+                                simp only [dite_eq_ite, Ne.symm hne, ite_true, ite_false] at hba
+      | inr hcb => cases Elements_pair a b hall d with 
+                   | inl hda => rw [hcb, hda]
+                                unfold twoStepPreorder 
+                                intro hba _ 
+                                by_contra hne 
+                                simp only [dite_eq_ite, hne, ite_true, ite_false] at hba
+                   | inr hdb => rw [hcb, hdb]; simp only [implies_true]
+  . refine {total := ?_}
+    intro c d 
+    cases Elements_pair a b hall c with
+    | inl hca => cases Elements_pair a b hall d with 
+                 | inl hda => rw [hca, hda]; simp only [(twoStepPreorder a).le_refl, or_self]
+                 | inr hdb => rw [hca, hdb]; exact Or.inl (twoStepPreorder_smallest a b)
+    | inr hcb => cases Elements_pair a b hall d with 
+                 | inl hda => rw [hcb, hda]; exact Or.inr (twoStepPreorder_smallest a b)
+                 | inr hdb => rw [hcb, hdb]; simp only [(twoStepPreorder a).le_refl, or_self]
+
+
+/-Countring linear orders on a two-element set.-/
+
+variable (α)
+
+noncomputable instance fintypePreorder : Fintype (Preorder α) := by 
+  refine @Fintype.ofFinite _ ?_
+  apply Finite.of_injective (fun s => s.le)
+  intro s t hst 
+  simp only at hst 
+  ext a b 
+  rw [hst]
+
+
 variable {α}
 
 
+lemma CardLinearOrders_pair (hcard : Fintype.card α = 2) : 
+Fintype.card {s : Preorder α | IsLinearOrder α s.le} = 2 := by 
+  rw [←Finset.card_univ] at hcard |- 
+  rw [Finset.card_eq_two] at hcard |-
+  match hcard with 
+  | ⟨a, b, hab, hall⟩ => 
+    have ha : IsLinearOrder α (twoStepPreorder a).le := twoStepPreorder_linear a b hall  
+    have hb : IsLinearOrder α (twoStepPreorder b).le := by rw [Finset.pair_comm] at hall; exact twoStepPreorder_linear b a hall  
+    exists ⟨twoStepPreorder a, ha⟩ 
+    exists ⟨twoStepPreorder b, hb⟩
+    constructor 
+    . by_contra heq 
+      simp only [Set.coe_setOf, Set.mem_setOf_eq, Subtype.mk.injEq] at heq
+      have h1 := twoStepPreorder_greatest hab a 
+      rw [heq] at h1 
+      have h2 := twoStepPreorder_greatest (Ne.symm hab) b 
+      exact hab (hb.toIsPartialOrder.toIsAntisymm.antisymm _ _ h1 h2) 
+    . ext ⟨s, hlins⟩ 
+      simp only [Set.coe_setOf, Set.mem_setOf_eq, Finset.mem_univ, Finset.mem_singleton, Subtype.mk.injEq,
+        Finset.mem_insert, true_iff]
+      by_cases hle : s.le a b 
+      . have hnle : ¬(s.le b a) := by 
+          by_contra habs 
+          exact hab (hlins.toIsPartialOrder.toIsAntisymm.antisymm _ _ hle habs) 
+        apply Or.inl 
+        ext c d 
+        cases Elements_pair a b hall c with
+        | inl hca => cases Elements_pair a b hall d with 
+                     | inl hda => rw [hca, hda]; simp only [_root_.le_refl, (twoStepPreorder a).le_refl]
+                     | inr hdb => rw [hca, hdb]
+                                  unfold twoStepPreorder 
+                                  simp only [hle, dite_eq_ite, hab, ite_true, ite_false]
+        | inr hcb => cases Elements_pair a b hall d with 
+                     | inl hda => rw [hcb, hda]
+                                  unfold twoStepPreorder 
+                                  simp only [hnle, dite_eq_ite, Ne.symm hab, ite_true, ite_false]
+                     | inr hdb => rw [hcb, hdb]
+                                  simp only [_root_.le_refl, (twoStepPreorder a).le_refl]
+      . have hnle : s.le b a := by 
+          have htot := hlins.toIsTotal.total a b 
+          rw [or_iff_right hle] at htot
+          exact htot
+        apply Or.inr 
+        ext c d 
+        cases Elements_pair a b hall c with
+        | inl hca => cases Elements_pair a b hall d with 
+                     | inl hda => rw [hca, hda]; simp only [_root_.le_refl, (twoStepPreorder b).le_refl]
+                     | inr hdb => rw [hca, hdb]
+                                  unfold twoStepPreorder 
+                                  simp only [hle, dite_eq_ite, hab, ite_true, ite_false]
+        | inr hcb => cases Elements_pair a b hall d with 
+                     | inl hda => rw [hcb, hda]
+                                  unfold twoStepPreorder
+                                  simp only [hnle, dite_eq_ite, ite_true]
+                     | inr hdb => rw [hcb, hdb]
+                                  simp only [_root_.le_refl, (twoStepPreorder b).le_refl]
+
+
+
+lemma FacetsCoxeterComplex.card_pair  (hcard : Fintype.card α = 2) : 
+Finset.card (Set.Finite.toFinset (Set.finite_coe_iff.mp (FiniteComplex_has_finite_facets (CoxeterComplex_is_finite α)))) = 2 := by 
+  rw [@Finset.card_congr (Finset (Set α)) (CoxeterComplex α).facets (Set.Finite.toFinset (Set.finite_coe_iff.mp 
+    (FiniteComplex_has_finite_facets (CoxeterComplex_is_finite α)))) Finset.univ 
+    (fun s hsf => by rw [Set.Finite.mem_toFinset] at hsf; exact ⟨s, hsf⟩)
+    (fun s hsf => Finset.mem_univ _) 
+    (fun s t hsf htf => by simp only [Subtype.mk.injEq, imp_self])
+    (fun s _ => by exists s.1
+                   simp only [Subtype.coe_eta, Set.Finite.toFinset_setOf, Finset.mem_univ, forall_true_left, Finset.mem_filter,
+                       true_and, exists_prop, and_true]
+                   erw [←mem_facets_iff]
+                   exact s.2)]
+  rw [Finset.card_univ]
+  rw [←(Fintype.ofEquiv_card (FacetsCoxeterComplextoLinearOrders α (by rw [hcard])))]
+  have heq : @Fintype.card (↑{ s : Preorder α| IsLinearOrder α s.le }) (Subtype.fintype fun x => x ∈ { s : Preorder α | IsLinearOrder α s.le }) = 
+  @Fintype.card (↑{ s : Preorder α | IsLinearOrder α s.le })
+      (Fintype.ofEquiv (↑(facets (CoxeterComplex α))) (FacetsCoxeterComplextoLinearOrders α (by rw [hcard]))) := 
+      @Fintype.card_congr' {s : Preorder α | IsLinearOrder α s.le} {s : Preorder α | IsLinearOrder α s.le} 
+      (Subtype.fintype fun x => x ∈ { s : Preorder α | IsLinearOrder α s.le }) 
+      (Fintype.ofEquiv (↑(facets (CoxeterComplex α))) (FacetsCoxeterComplextoLinearOrders α (by rw [hcard]))) 
+       rfl   
+  rw [←heq] 
+  exact CardLinearOrders_pair hcard 
+
+  
+
+
+
 def WeakBruhatOrder_facets (r : LinearOrder α) : PartialOrder (CoxeterComplex α).facets :=
-@PartialOrder.lift _ _ (WeakBruhatOrder r) (CoxeterComplexFacets_to_LinearOrders α) (CoxeterComplexFacets_to_LinearOrders_injective α)
+@PartialOrder.lift _ _ (WeakBruhatOrder r) (CoxeterComplexFacetstoLinearOrders α) (CoxeterComplexFacetstoLinearOrders_injective α)
 
 lemma WeakBruhat_compatible_with_DF (r : LinearOrder α) : CompatibleOrder (DF r) (WeakBruhatOrder_facets r) := by 
   intro s t hst 
@@ -688,9 +915,9 @@ lemma WeakBruhat_compatible_with_DF (r : LinearOrder α) : CompatibleOrder (DF r
       simp only 
     rw [←heq]
     exact ((CoxeterComplextoPartitions α).toFun ⟨t, htf.1⟩).2.1  
-  change Inversions r.lt (CoxeterComplexFacets_to_LinearOrders α (DF r s)).1.lt ⊆ Inversions r.lt (CoxeterComplexFacets_to_LinearOrders α t).1.lt 
-  have hsimp1 : (CoxeterComplexFacets_to_LinearOrders α (DF r s)).1 = LinearOrder_of_total_preorder_and_linear_order r (powersetToPreorder s) := by 
-    unfold CoxeterComplexFacets_to_LinearOrders 
+  change Inversions r.lt (CoxeterComplexFacetstoLinearOrders α (DF r s)).1.lt ⊆ Inversions r.lt (CoxeterComplexFacetstoLinearOrders α t).1.lt 
+  have hsimp1 : (CoxeterComplexFacetstoLinearOrders α (DF r s)).1 = LinearOrder_of_total_preorder_and_linear_order r (powersetToPreorder s) := by 
+    unfold CoxeterComplexFacetstoLinearOrders 
     simp only 
     unfold DF distinguishedFacet 
     simp only [Equiv.invFun_as_coe, OrderIso.toEquiv_symm, RelIso.coe_toEquiv] 
@@ -698,8 +925,8 @@ lemma WeakBruhat_compatible_with_DF (r : LinearOrder α) : CompatibleOrder (DF r
     unfold CoxeterComplextoPartitions preorderToPowersetFinset 
     simp only 
     rw [Set.Finite.coe_toFinset, ←preorderToPowersetToPreorder]
-  have hsimp2 : (CoxeterComplexFacets_to_LinearOrders α t).1 = powersetToPreorder t.1 := by 
-    unfold CoxeterComplexFacets_to_LinearOrders 
+  have hsimp2 : (CoxeterComplexFacetstoLinearOrders α t).1 = powersetToPreorder t.1 := by 
+    unfold CoxeterComplexFacetstoLinearOrders 
     simp only 
   rw [hsimp1, hsimp2, ←Inversions_of_associated_linear_order]
   have hst := powersetToPreorder_antitone hst
@@ -726,39 +953,9 @@ lemma CoxeterComplexShelling (r : LinearOrder α) {so : LinearOrder (CoxeterComp
 then the Coxeter complex is empty so its EP characteristic is 0.)-/
 
 
-noncomputable def FacetofLinearOrder (hcard : Fintype.card α > 1) (r : LinearOrder α): (CoxeterComplex α).facets := by 
-  have hr : r.toPartialOrder.toPreorder ∈ AFLOPartitions α := by 
-    rw [←AFLOPartitions_is_everything]
-    exact r.le_total 
-  refine ⟨preorderToPowersetFinset ⟨r.toPartialOrder.toPreorder, hr⟩, ?_⟩
-  rw [Facets_are_linear_orders]
-  unfold preorderToPowersetFinset
-  rw [Set.Finite.coe_toFinset]
-  rw [←preorderToPowersetToPreorder]  
-  exact @instIsLinearOrderLeToLEToPreorderToPartialOrder _ r 
-  rw [FacesCoxeterComplex]
-  rw [←AFLOPowerset_is_everything]
-  unfold preorderToPowersetFinset
-  constructor 
-  . constructor 
-    . intro ⟨X, hX⟩ ⟨Y, hY⟩
-      rw [Set.Finite.mem_toFinset] at hX hY 
-      exact preorderToPowerset_total_is_total r.le_total ⟨X, hX⟩ ⟨Y, hY⟩ 
-    . intro X hX 
-      rw [Set.Finite.mem_toFinset] at hX 
-      exact ⟨hX.1, hX.2.1⟩ 
-  . rw [ne_eq, Set.Finite.toFinset_eq_empty, preorderToPowerset_is_empty_iff_TrivialPreorder]
-    rw [gt_iff_lt, Fintype.one_lt_card_iff] at hcard 
-    match hcard with 
-    | ⟨a, b, hne⟩ => by_contra heq 
-                     simp only at heq 
-                     have hab : r.le a b := by 
-                       rw [heq]
-                       trivial 
-                     have hba : r.le b a := by 
-                       rw [heq]
-                       trivial
-                     exact hne (r.le_antisymm _ _ hab hba)  
+noncomputable def FacetofLinearOrder (hcard : Fintype.card α > 1) (r : LinearOrder α): (CoxeterComplex α).facets := by
+  rw [gt_iff_lt, ←Nat.succ_le] at hcard
+  exact LinearOrderstoCoxeterComplexFacets α hcard (@instIsLinearOrderLeToLEToPreorderToPartialOrder _ r ) 
 
 
 
@@ -808,7 +1005,7 @@ EulerPoincareCharacteristic (CoxeterComplex_is_finite α) = 1 + (-1 : ℤ)^(Fint
         rw [IsHomologyFacet_iff, CoxeterComplex_dimension_facet, hcard', not_and_or]
         apply Or.inr 
         linarith 
-      rw [hpi, hhom, Finset.sum_empty, add_zero, FacetsCoxeterComplex.card, hcard']
+      rw [hpi, hhom, Finset.sum_empty, add_zero, FacetsCoxeterComplex.card_pair hcard']
       simp only 
     . rw [←lt_iff_not_le] at hcard 
       have hcard' : Fintype.card α > 2 := by 
@@ -833,8 +1030,8 @@ EulerPoincareCharacteristic (CoxeterComplex_is_finite α) = 1 + (-1 : ℤ)^(Fint
                            rw [Nat.pred_le_iff] at h
                            rw [gt_iff_lt, lt_iff_not_le] at hcard'
                            exact hcard' h   
-                         rw [or_iff_left hright, R_eq_empty_iff] at hs
-                         unfold FacetofLinearOrder preorderToPowersetFinset 
+                         rw [or_iff_left hright, R_eq_empty_iff] at hs 
+                         unfold FacetofLinearOrder LinearOrderstoCoxeterComplexFacets preorderToPowersetFinset 
                          simp only 
                          rw [←Finset.coe_inj, Set.Finite.coe_toFinset]
                          rw [Faces_powersetToPreordertoPowerset (facets_subset hsf)]
@@ -846,7 +1043,7 @@ EulerPoincareCharacteristic (CoxeterComplex_is_finite α) = 1 + (-1 : ℤ)^(Fint
           rw [IsPi0Facet_iff]
           apply Or.inl 
           rw [R_eq_empty_iff]
-          unfold FacetofLinearOrder preorderToPowersetFinset
+          unfold FacetofLinearOrder LinearOrderstoCoxeterComplexFacets preorderToPowersetFinset
           simp only 
           rw [Set.Finite.coe_toFinset]
           rw [←preorderToPowersetToPreorder]
@@ -860,7 +1057,7 @@ EulerPoincareCharacteristic (CoxeterComplex_is_finite α) = 1 + (-1 : ℤ)^(Fint
         . intro h 
           match h with 
           | ⟨hsf, hs⟩ => rw [IsHomologyFacet_iff, R_eq_self_iff] at hs 
-                         unfold FacetofLinearOrder preorderToPowersetFinset 
+                         unfold FacetofLinearOrder LinearOrderstoCoxeterComplexFacets preorderToPowersetFinset 
                          simp only 
                          rw [←Finset.coe_inj, Set.Finite.coe_toFinset]
                          rw [Faces_powersetToPreordertoPowerset (facets_subset hsf)]
@@ -871,7 +1068,7 @@ EulerPoincareCharacteristic (CoxeterComplex_is_finite α) = 1 + (-1 : ℤ)^(Fint
           exists (FacetofLinearOrder hcard (dual (ArbitraryLinearOrder α))).2
           rw [IsHomologyFacet_iff, R_eq_self_iff]
           constructor 
-          . unfold FacetofLinearOrder preorderToPowersetFinset 
+          . unfold FacetofLinearOrder LinearOrderstoCoxeterComplexFacets preorderToPowersetFinset 
             simp only 
             rw [Set.Finite.coe_toFinset, ←preorderToPowersetToPreorder]
           . rw [CoxeterComplex_dimension_facet]

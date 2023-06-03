@@ -958,6 +958,144 @@ noncomputable def FacetWeightedComplexofLinearOrder (hcard : Fintype.card α ≥
   exact (FacetofLinearOrder hcard r).2
   exact hsum  
 
+lemma WeightedComplex_of_pair {a b : α} (hab : a ≠ b) (hall : Finset.univ = {a,b}) (ha : μ a ≥ 0) (hb : μ b < 0) 
+(s : Finset (Set α)) :  s ∈ (WeightedComplex μ).faces ↔ s = {{a}} := by 
+  constructor 
+  . intro hsw 
+    erw [FacesWeightedComplex, AFLOPowerset_positive_iff] at hsw
+    have h : ∀ (X : Set α), X ∈ s → X = {a} := by
+      intro X hX 
+      by_cases hbX : b ∈ X 
+      . exfalso 
+        have haX : a ∉ X := by 
+          by_contra habs 
+          have hXtop : X = ⊤ := by 
+            rw [Set.top_eq_univ]
+            ext c 
+            simp only [Set.mem_univ, iff_true]
+            cases Elements_pair a b hall c with 
+            | inl hca => rw [hca]; exact habs 
+            | inr hcb => rw [hcb]; exact hbX 
+          exact (hsw.1.2 X hX).1.2 hXtop   
+        have hXsin : X = {b} := by 
+          ext c 
+          simp only [Set.mem_singleton_iff]
+          constructor 
+          . intro hcX 
+            by_contra hcb 
+            have hc := Elements_pair a b hall c 
+            rw [or_iff_left hcb] at hc
+            rw [hc] at hcX 
+            exact haX hcX  
+          . exact fun hcb => by rw [hcb]; exact hbX
+        have hpos := (hsw.1.2 X hX).2 
+        unfold IsPositiveSet at hpos 
+        rw [hXsin, Set.Finite.toFinset_singleton, Finset.sum_singleton] at hpos
+        rw [lt_iff_not_le] at hb 
+        exact hb hpos 
+      . have haX : a ∈ X := by 
+          by_contra habs 
+          have hXbot : X = ⊥ := by 
+            rw [Set.bot_eq_empty, Set.eq_empty_iff_forall_not_mem]
+            intro c 
+            cases Elements_pair a b hall c with 
+            | inl hca => rw [hca]; exact habs 
+            | inr hcb => rw [hcb]; exact hbX 
+          exact (hsw.1.2 X hX).1.1 hXbot
+        ext c 
+        simp only [Set.mem_singleton_iff]
+        constructor 
+        . intro hcX 
+          cases Elements_pair a b hall c with 
+          | inl hca => exact hca 
+          | inr hcb => exfalso; rw [hcb] at hcX; exact hbX hcX
+        . exact fun hca => by rw [hca]; exact haX 
+    ext X 
+    simp only [Finset.mem_singleton]
+    constructor 
+    . exact fun hXs => h X hXs 
+    . intro hXa 
+      by_contra habs 
+      have hse : s = ∅ := by 
+        rw [Finset.eq_empty_iff_forall_not_mem]
+        intro Y hYs 
+        have hYa := h Y hYs 
+        rw [hYa, ←hXa] at hYs
+        exact habs hYs 
+      exact hsw.2 hse  
+  . intro hsa 
+    rw [FacesWeightedComplex, AFLOPowerset_positive_iff, hsa]
+    constructor 
+    . constructor 
+      . intro ⟨X, hX⟩ ⟨Y, hY⟩
+        simp only [Finset.mem_singleton] at hX hY
+        simp only 
+        rw [hX, hY]
+        exact Or.inl (subset_refl _)
+      . intro X hX 
+        rw [Finset.mem_singleton] at hX
+        rw [hX]  
+        rw [Set.bot_eq_empty, Set.top_eq_univ, ←Set.nonempty_iff_ne_empty, Set.ne_univ_iff_exists_not_mem]
+        constructor 
+        . rw [and_iff_right ⟨a, Set.mem_singleton _⟩]
+          exists b 
+          simp only [Set.mem_singleton_iff]
+          exact Ne.symm hab 
+        . unfold IsPositiveSet 
+          rw [Set.Finite.toFinset_singleton, Finset.sum_singleton]
+          exact ha 
+    . rw [←Finset.nonempty_iff_ne_empty]
+      exists {a}
+      exact Finset.mem_singleton_self _ 
+
+lemma preorderToPowerset_of_pair (r : LinearOrder α) {a b : α} (hab : r.lt a b) (hall : Finset.univ = {a,b}) :
+preorderToPowerset r.toPartialOrder.toPreorder = {{a}} := by 
+  unfold preorderToPowerset 
+  ext X 
+  simp only [Set.bot_eq_empty, Set.top_eq_univ, Set.mem_setOf_eq, Set.mem_singleton_iff]
+  rw [←Set.nonempty_iff_ne_empty, Set.ne_univ_iff_exists_not_mem]
+  have hall' : Finset.univ = @insert α (Finset α) (@Finset.instInsertFinset α fun a b => propDecidable (a = b)) a {b} := by 
+    ext c 
+    rw [hall]
+    rw [Finset.mem_insert, @Finset.mem_insert _ (fun a b => propDecidable (a = b))]
+  constructor 
+  . intro hX 
+    by_cases hbX : b ∈ X 
+    . exfalso 
+      have haX : a ∈ X := hX.2.2 (le_of_lt hab) hbX 
+      match hX.2.1 with 
+      | ⟨c, hcX⟩ => 
+        cases Elements_pair a b hall' c with 
+        | inl hca => rw [hca] at hcX; exact hcX haX 
+        | inr hcb => rw [hcb] at hcX; exact hcX hbX 
+    . have haX : a ∈ X := by 
+        match hX.1 with 
+      | ⟨c, hcX⟩ => 
+        cases Elements_pair a b hall' c with 
+        | inl hca => rw [hca] at hcX; exact hcX 
+        | inr hcb => exfalso; rw [hcb] at hcX; exact hbX hcX 
+      ext c 
+      simp only [Set.mem_singleton_iff]
+      constructor 
+      . intro hcX 
+        cases Elements_pair a b hall' c with 
+        | inl hca => exact hca  
+        | inr hcb => exfalso; rw [hcb] at hcX; exact hbX hcX 
+      . exact fun hca => by rw [hca]; exact haX 
+  . intro hXa 
+    rw [hXa]
+    rw [and_iff_right ⟨a, Set.mem_singleton _⟩]
+    constructor 
+    . exists b 
+      simp only [Set.mem_singleton_iff]
+      exact Ne.symm (ne_of_lt hab)
+    . intro c d hcd 
+      simp only [Set.mem_singleton_iff]
+      intro hca 
+      rw [hca] at hcd 
+      cases Elements_pair a b hall' d with 
+      | inl hda => exact hda 
+      | inr hdb => exfalso; rw [hdb] at hcd; rw [lt_iff_not_le] at hab; exact hab hcd 
 
 lemma EulerPoincareCharacteristic_WeightedComplex (hne : Nonempty α) : 
 EulerPoincareCharacteristic (WeightedComplex_is_finite μ) = if (∀  (a : α), μ a ≥ 0) then 1 + (-1 : ℤ)^(Fintype.card α) else 1 := by 
@@ -1000,28 +1138,64 @@ EulerPoincareCharacteristic (WeightedComplex_is_finite μ) = if (∀  (a : α), 
                            apply Faces_powersetToPreordertoPowerset
                            rw [mem_facets_iff] at hsf 
                            exact WeightedComplex_subcomplex μ hsf.1 
-              | inr hscard => rw [←Finset.card_univ, Finset.card_eq_two] at hscard
-                              rw [mem_facets_iff, FacesWeightedComplex] at hsf
-                              unfold AFLOPowerset_positive at hsf 
-                              simp only [Set.mem_setOf_eq, ne_eq, Finset.le_eq_subset] at hsf
+              | inr hscard => rw [←Finset.card_univ, @Finset.card_eq_two _ _ inferInstance] at hscard
+                              unfold FacetWeightedComplexofLinearOrder 
+                              simp only 
+                              rw [←Finset.coe_inj, Set.Finite.coe_toFinset, Subtype.coe_mk]
+                              rw [mem_facets_iff] at hsf
                               match hscard with 
                               | ⟨a, b, hab, hall⟩ => 
+                                have hall' :  Finset.univ = @insert α (Finset α) 
+                                    (@Finset.instInsertFinset α fun a b => propDecidable (a = b)) a {b}  := by 
+                                    ext c 
+                                    rw [hall]
+                                    rw [Finset.mem_insert, @Finset.mem_insert _ (fun a b => propDecidable (a = b))]
                                 by_cases ha : μ a ≥ 0 
                                 . have hb : μ b < 0 := by 
                                     by_contra habs 
                                     have h : ∀ (x : α), μ x ≥ 0 := by
                                       intro x 
-                                      have hx := Finset.mem_univ x 
-                                      rw [hall] at hx 
-                                      simp only [Finset.mem_singleton, Finset.mem_insert] at hx
-                                      cases hx with 
+                                      cases Elements_pair a b hall' x with 
                                       | inl hxa => rw [hxa]; exact ha 
                                       | inr hxb => rw [hxb]; rw [lt_iff_not_le, not_not] at habs; exact habs 
                                     exact hpos h 
-                                  have hseq : s ={{a}} := by 
-                                    sorry
-                                  sorry   
-                                . sorry 
+                                  have hseq : s ={{a}} := (WeightedComplex_of_pair μ hab hall' ha hb s).mp hsf.1 
+                                  have hab' : r.lt a b := by 
+                                    by_contra hba 
+                                    rw [lt_iff_not_le, not_not] at hba
+                                    rw [lt_iff_not_le] at hb 
+                                    exact hb (le_trans ha (hmon hba))     
+                                  rw [hseq, Finset.coe_singleton]
+                                  exact Eq.symm (preorderToPowerset_of_pair r hab' hall)   
+                                . rw [←lt_iff_not_le] at ha 
+                                  have hb : μ b ≥ 0 := by 
+                                    by_contra habs 
+                                    rw [←lt_iff_not_le] at habs 
+                                    have hneg : Finset.sum Finset.univ μ < 0 := by 
+                                      apply Finset.sum_neg 
+                                      . intro c hc 
+                                        rw [hall] at hc 
+                                        simp only [Finset.mem_singleton, Finset.mem_insert] at hc
+                                        cases hc with 
+                                        | inl hca => rw [hca]; exact ha 
+                                        | inr hcb => rw [hcb]; exact habs 
+                                      . exists a; exact Finset.mem_univ _ 
+                                    rw [lt_iff_not_le] at hneg 
+                                    exact hneg hsum 
+                                  rw [Finset.pair_comm] at hall
+                                  have hall' :  Finset.univ = @insert α (Finset α) 
+                                    (@Finset.instInsertFinset α fun a b => propDecidable (a = b)) b {a}  := by 
+                                    ext c 
+                                    rw [hall]
+                                    rw [Finset.mem_insert, @Finset.mem_insert _ (fun a b => propDecidable (a = b))]
+                                  have hseq : s ={{b}} := (WeightedComplex_of_pair μ (Ne.symm hab) hall' hb ha s).mp hsf.1
+                                  have hab' : r.lt b a := by 
+                                    by_contra hab 
+                                    rw [lt_iff_not_le, not_not] at hab 
+                                    rw [lt_iff_not_le] at ha 
+                                    exact ha (le_trans hb (hmon hab)) 
+                                  rw [hseq, Finset.coe_singleton]
+                                  exact Eq.symm (preorderToPowerset_of_pair r hab' hall)         
           . intro hsr 
             set t := FacetWeightedComplexofLinearOrder μ hsum hcard hmon with htdef 
             rw [hsr]
