@@ -1,0 +1,287 @@
+\section{General preorder stuff}
+
+\subsection{General stuff}
+
+This contains general lemmas about preorder on a type $\alpha$. If $s$ is a preorder on $\alpha$, we write $\simeq_s$ for the antisymmetrization relation of $s$
+(i.e. $a\simeq_s b$ if and only if $a\le_s b$ and $b\le_s a$). This is an equivalence relation, and the quotient of $\alpha$ by this equivalence relation is
+called the antisymmetrization; it carries a partial order induced by $s$.
+
+\begin{sublemma}[TotalPreorder\_trichotomy]
+If $s$ is a total preorder on $\alpha$, then, for all $a,b\in\alpha$, we have $a <_s b$, $b<_s a$ or $a\simeq_s b$.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearPreorder\_trichotomy]
+If $s$ is a linear preorder on $\alpha$ (i.e. a preorder that happens to be a linear order), then, for all $a,b\in\alpha$, we have $a <_s b$, $b<_s a$ or $a=b$.
+    
+\end{sublemma}
+
+\begin{sublemma}[TotalPreorder\_lt\_iff\_not\_le]
+If $s$ is a total preorder on $\alpha$ and $a,b\in\alpha$, then $\neg(a \le_s b)$ if and onlyb if $b<_s a$.
+
+\end{sublemma}
+
+
+\subsection{SuccOrders and antisymmetrization}
+
+A SuccOrder structure on $s$ is the data of a "reasonable" successor function.
+
+\begin{subdefi}[SuccOrdertoAntisymmetrization]
+If hsucc is a SuccOrder on $\alpha$ for the preorder $s$, then we get a SuccOrder on the antisymmetrization of $\alpha$ (relative to $s$) by
+taking as successor function the function sending $x$ to the image of the successor of a lift of $x$.
+
+\end{subdefi}
+
+\begin{subdefi}[SuccOrderofAntisymmetrization]
+If $s$ is a preorder on $\alpha$ and hsucc is a SuccOrder on the antisymmetrization of $\alpha$ (for the canonical partial order), then we get
+a SuccOrder on $\alpha$ for $s$ by sending $a$ to any lift of the successor of the image of $a$ in the antisymmetrization.
+
+\end{subdefi}
+
+
+\subsection{Essentially locally finite preorders}
+
+\begin{subdefi}[EssentiallyLocallyFinitePreorder]
+We say that a preorder is \emph{essentially locally finite} if its antisymmetrization partial order is locally finite (i.e. closed intervals are finite).
+
+\end{subdefi}
+
+\begin{subdefi}[EssentiallyLocallyFinite\_ofLocallyFinite]
+Any structure of locally finite preorder on $s$ defines a structure of essentially locally finite preorder.
+
+\end{subdefi}
+
+\begin{subdefi}[TotalELFP\_SuccOrder]
+Any structure of essentially locally finite preorder on a total preorder $s$ defines a SuccOrder structure.
+
+\end{subdefi}
+
+\begin{sublemma}[ELFP\_is\_locally\_WellFounded]
+If $s$ is an essentially locally finite preorder, then it is well-founded on any closed interval.
+
+\end{sublemma}
+
+\subsection{Partial order on preorders}
+
+\begin{subdefi}[instPreorder.le \& Preorder.PartialOrder]
+We define a partial order on preorders by saying that $s \le t$ if only, for all $a,b\in\alpha$, $a \le_s b$ implies $a\le_t b$.
+
+\end{subdefi}
+
+
+\subsection{The trivial preorder}
+
+\begin{subdefi}[trivialPreorder]
+The trivial preorder on $\alpha$ is the preorder with graph $\alpha\times\alpha$.
+
+\end{subdefi}
+
+\begin{subdefi}[trivialPreorder\_is\_total]
+The trivial preorder on $\alpha$ is total.
+
+\end{subdefi}
+
+\begin{sublemma}[trivialPreorder\_is\_greatest]
+Every preorder is smaller than or equal to the trivial preorder.
+
+\end{sublemma}
+
+\begin{sublemma}[nontrivial\_preorder\_iff\_exists\_not\_le]
+A preorder $s$ is different from the trivial preorder if and only if there exist $a,b\in\alpha$ such that $\neg(a \le_s b)$.
+
+\end{sublemma}
+
+\subsection{Partial order on preorders and antisymmetrization}
+
+\begin{sublemma}[AntisymmRel\_monotone]
+If $s,t$ are preorders on $\alpha$ such that $s \le t$, then the graph of $\simeq_s$ is contained in the graph of $\simeq_t$.
+
+\end{sublemma}
+
+\begin{subdefi}[AntisymmetrizationtoAntisymmetrization]
+Let $s,t$ be preorders such that $s\le t$. We have a map from the antisymmetrization of $s$ to that of $t$ sending $x$ to the image 
+in the antisymmetrization of $t$ of any lift of $x$.
+
+\end{subdefi}
+
+\begin{sublemma}[AntisymmetrizationtoAntisymmetrization\_lift]
+If $s,t$ are preorders on $\alpha$ such that $s \le t$ and $a\in\alpha$, then the class of $a$ in the antisymmetrization of $t$ is the
+image of its class in the antisymmetrization of $s$.
+
+\end{sublemma}
+
+\begin{sublemma}[AntisymmetrizationtoAntisymmetrization\_monotone]
+If $s,t$ are preorders on $\alpha$ such that $s \le t$, then the map from the antisymmetrization of $s$ to the antisymmetrization
+of $t$ is monotone.
+
+\end{sublemma}
+
+\begin{sublemma}[AntisymmetrizationtoAntisymmetrization\_image\_interval]
+If $r,s$ are preorders on $\alpha$ such that $r\le s$ and $r$ is total, and if $a,b\in\alpha$ are such that $a\le_r b$, the the image
+of the interval $[\overline{a},\overline{b}]$ in the antisymmetrization of $r$ is the corresponding interval in the
+antisymmetrization of $s$.
+
+\end{sublemma}
+
+
+\subsection{Upper sets for the partial order on preorders}
+
+\begin{sublemma}[Total\_IsUpperSet]
+Total preorders form on upper set.
+
+\end{sublemma}
+
+\begin{subdefi}[TotalELPF\_IsUpperSet]
+If $r$ is a total essentially locally finite preorder, then it defines a structure of essentially locally finite preorder on any $s$ such that
+$r \le s$.
+
+\end{subdefi}
+
+
+\subsection{Noetherian preordered sets}
+
+\begin{subdefi}[IsNoetherianPoset]
+A preorder $s$ on $\alpha$ is called \emph{Noetherian} if the relation $>_s$ is well-founded.
+
+\end{subdefi}
+
+\subsection{Maximal nonproper order ideals}
+
+We fix a preorder on $\alpha$.
+
+\begin{subdefi}[Order.Ideal.IsMaximalNonProper]
+An order ideal is called \emph{maximal nonproper} if it is maximal among all order ideals of $\alpha$.
+
+\end{subdefi}
+
+This definition is only interesting if $\alpha$ itself is not an order ideal, i.e. if the preorder on $\alpha$ is not directed.
+
+\begin{sublemma}[OrderIdeals\_inductive\_set]
+Order ideals of $\alpha$ form an inductive set (i.e. any nonempty chain has an upper bound).
+
+\end{sublemma}
+
+\begin{sublemma}[Order.Ideal.contained\_in\_maximal\_nonproper]
+Any order ideal of $\alpha$ is contained in a maximal nonproper order ideal.
+
+\end{sublemma}
+
+\begin{sublemma}[Order.Ideal.generated\_by\_maximal\_element]
+If $I$ is an order ideal of $\alpha$ and if $a$ is a maximal element of $I$, then $I$ is generated by $a$.
+
+\end{sublemma}
+
+\begin{sublemma}[Order.PFilter.generated\_by\_minimal\_element]
+If $F$ is an order filter of $\alpha$ and if $a$ is a minimal element of $F$, then $F$ is generated by $a$.
+
+\end{sublemma}
+
+\begin{sublemma}[Noetherian\_iff\_every\_ideal\_is\_principal\_aux \& Noetherian\_iff\_every\_ideal\_is\_principal]
+The preorder on $\alpha$ is Noetherian if and only every order ideal is principal (= generated by one element).
+
+\end{sublemma}
+
+
+\subsection{Map from $\alpha$ to its order ideals}
+
+We fix a partial order on $\alpha$.
+
+\begin{subdefi}[Elements\_to\_Ideal]
+We have an order embedding from $\alpha$ to the set of its order ideals (ordered by inclusion) sending $a$ to the
+ideal generated by $a$.
+
+\end{subdefi}
+
+\subsection{Locally finite partial order on finsets of $\alpha$}
+
+\begin{sublemma}[FinsetIic\_is\_finite]
+If $s$ is a finset of $\alpha$, then the half-infinite interval $]\leftarrow,s]$ is finite.
+
+\end{sublemma}
+
+\begin{sublemma}[FinsetIcc\_is\_finite]
+If $s$ and $t$ are finsets of $\alpha$, then the closed interval $[s,t]$ is finite.
+
+\end{sublemma}
+
+\begin{subdefi}[FinsetLFB]
+A structure of locally finite order with smallest element on the set of finsets of $\alpha$.
+
+\end{subdefi}
+
+\begin{subdefi}[FacePosetLF]
+A structure of locally finite order with smallest element on the set of finsets of $\alpha$.
+
+\end{subdefi}
+
+\subsection{Two-step preorders}
+
+\begin{subdefi}[twoStepPreorder]
+If $a$ is an element of $\alpha$, we define a preorder twoStepPreorder(a) that makes $a$ strictly smaller than every other element
+and all other elements of $\alpha$ equal.
+
+\end{subdefi}
+
+\begin{sublemma}[twoStepPreorder\_smallest]
+If $a$ is an element of $\alpha$, then it is the smallest element for twoStepPreorder(a).
+
+\end{sublemma}
+
+\begin{sublemma}[twoStepPreorder\_greatest]
+If $a,b$ are elements of $\alpha$ such that $a\ne b$, then any element of $\alpha$ is smaller than or equal to
+$b$ for twoStepPreorder(a).
+
+\end{sublemma}
+
+\begin{sublemma}[twoStepPreorder\_IsTotal]
+If $a$ is an element of $\alpha$, then twoStepPreorder(a) is a total preorder.
+
+\end{sublemma}
+
+\begin{sublemma}[twoStepPreorder\_nontrivial]
+If $a,b$ are elements of $\alpha$ such that $a\ne b$, then twoStepPreorder(a) is nontrivial.
+
+\end{sublemma}
+
+\begin{subdefi}[twoStepPreorder\_singleton\_toAntisymmetrization]
+For $a$ an element of $\alpha$, a map from $\{a\}$ to the antisymmetrization of $\alpha$ for twoStepPreorder(a).
+
+\end{subdefi}
+
+\begin{subdefi}[twoStepPreorder\_nonsingleton\_toAntisymmetrization]
+If $a,b$ are elements of $\alpha$, a map from $\{a\}\cup\ast$ to the antisymmetrization of $\alpha$ for twoStepPreorder(a).
+
+\end{subdefi}
+
+\begin{sublemma}[twoStepPreorder\_singleton\_toAntisymmetrization\_surjective]
+If $a$ is an element of $\alpha$ such that every element of $\alpha$ is equal to $a$, then the map from
+$\{a\}$ to the antisymmetrization of $\alpha$ for twoStepPreorder(a) is surjective.
+
+\end{sublemma}
+
+\begin{sublemma}[twoStepPreorder\_nonsingleton\_toAntisymmetrization\_surjective]
+If $a,b$ are elements of $\alpha$ such that $a \ne b$, then the 
+map from $\{a\}\cup\ast$ to the antisymmetrization of $\alpha$ for twoStepPreorder(a) is surjective.
+
+\end{sublemma}
+
+\begin{sublemma}[twoStepPreorder\_Antisymmetrization\_finite]
+If $a$ is an element of $\alpha$, then the antisymmetrization of $\alpha$ for twoStepPreorder(a) is finite.
+
+\end{sublemma}
+
+\begin{sublemma}[twoStepPreorder\_Antisymmetrization.card]
+If $a,b$ are elements of $\alpha$ such that $a \ne b$, then the 
+antisymmetrization of $\alpha$ for twoStepPreorder(a) has cardinality $2$.
+
+\end{sublemma}
+
+\subsection{A linear order on any type}
+
+\begin{subdefi}[ArbitraryLinearOrder]
+A definition of a linear order on $\alpha$ (by embedding $\alpha$ into the class of cardinals and lifting the linear order
+on cardinals).
+
+\end{subdefi}
+
+

@@ -90,7 +90,6 @@ lemma AFLOPowerset_positive_down_closed : ∀ {E F : Finset (Set α)}, E ∈ AFL
 
 def WeightedComplex  := of_erase (AFLOPowerset_positive μ) (AFLOPowerset_positive_down_closed μ)
 
-
 lemma FacesWeightedComplex (s : Finset (Set α)) : s ∈ (WeightedComplex μ).faces ↔ s ∈ (AFLOPowerset_positive μ) ∧ s ≠ ∅ := by 
   unfold WeightedComplex
   simp only [of_erase_faces, Set.mem_diff, Set.mem_singleton_iff, ne_eq]
@@ -1227,5 +1226,7 @@ EulerPoincareCharacteristic (WeightedComplex_is_finite μ) = if (∀  (a : α), 
         rw [hpi, hhom, Finset.sum_empty, add_zero]
         simp only [Finset.card_singleton, Nat.cast_one]
 
- 
+
+
+
 end FiniteWeightedComplex       

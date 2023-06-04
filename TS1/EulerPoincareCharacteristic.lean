@@ -30,6 +30,7 @@ noncomputable def EulerPoincareCharacteristic (hfin : FiniteComplex K) : ℤ := 
 (fun s => (-1 : ℤ)^(Finset.card s - 1))  
 
 
+
 /- If two abstract simplicial complexes have the same set of faces, then they have the same Euler-Poincaré characteristic.-/
 
 lemma EulerPoincareCharacteristic_ext {K L : AbstractSimplicialComplex α} (hKfin : FiniteComplex K) (hLfin : FiniteComplex L)

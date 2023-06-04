@@ -220,12 +220,17 @@ namespace Preorder
 /- We give a name to the biggest element of this partial order, which is the trivial preorder on α (i.e. any
 two elements are comparable).-/
 
-def trivialPreorder (α : Type _): Preorder α where
+def trivialPreorder (α : Type u) : Preorder α where
 le := fun _ _ => True
 lt := fun _ _ => False
 le_refl := fun _ => trivial 
 le_trans := fun _ _ _ _ _ => trivial 
 lt_iff_le_not_le := fun _ _ => by simp
+
+lemma trivialPreorder_is_total (α : Type u) : Total (trivialPreorder α).le := by 
+  intro a b 
+  unfold trivialPreorder 
+  simp only [or_self]
 
 lemma trivialPreorder_is_greatest (s : Preorder α) : s ≤ trivialPreorder α := by
   intro a b 
