@@ -1,0 +1,262 @@
+\section{Linearly ordered partitions}
+
+We fix a set $\alpha$.
+
+\begin{subdefi}[dual]
+If $r$ is a linear order on $\alpha$, then $dual(r)$ is the dual linear order.
+
+\end{subdefi}
+
+
+\subsection{The partial order on linearly ordered partitions}
+
+\begin{subdefi}[LinearOrderedPartitions]
+A linearly ordered partitions on $\alpha$ is a total preorder on $\alpha$.
+
+\end{subdefi}
+
+\begin{subdefi}[LinearOrderedPartitions.PartialOrder]
+We restrict the partial order on preorders to a partial order on linearly ordered partitions.
+
+\end{subdefi}
+
+\begin{sublemma}[trivialPreorder\_is\_greatest\_partition]
+The trivial preorder is the greatest element of the set of linearly ordered partitions.
+
+\end{sublemma}
+
+\begin{sublemma}[linearOrder\_is\_minimal\_partition]
+A linear order is minimal in the set of linearly ordered partitions.
+
+\end{sublemma}
+
+
+\subsection{Cooking up a linear order from a total preorder}
+
+\begin{subdefi}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_aux]
+Let $r$ be a linear order on $\alpha$ and $s$ be a preorder on $\alpha$. We define a relation
+$LO(r,s)$ on $\alpha$ by saying that $a\le_{LO(r,s)}b$ if and only if $a<_s b$, or $a\simeq_s b$ and
+$a\le_r b$. 
+
+\end{subdefi}
+
+The idea is that we want to define a linear order smaller than or equal to $s$, and we use $r$ to order the elements
+of $\alpha$ that are equivalent for $s$.
+
+\begin{sublemma}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_aux \& LinearOrder\_of\_total\_preorder\_and\_linear\_order\_refl \& LinearOrder\_of\_total\_preorder\_and\_linear\_order\_trans
+\& LinearOrder\_of\_total\_preorder\_and\_linear\_order\_antisymm \& LinearOrder\_of\_total\_preorder\_and\_linear\_order\_total]
+Let $r$ be a linear order on $\alpha$ and $s$ be a total preorder on $\alpha$. Then $LO(r,s)$ is a linear order on $\alpha$.
+
+\end{sublemma}
+
+\begin{subdefi}[LinearOrder\_of\_total\_preorder\_and\_linear\_order]
+The relation $LO(r,s)$ as a preorder.
+
+\end{subdefi}
+
+\begin{sublemma}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_is\_total]
+The preorder $LO(r,s)$ is total if $s$ is total.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_is\_linear]
+The preorder $LO(r,s)$ is a linear order if $s$ is total.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_is\_smaller]
+The preorder $LO(r,s)$ is smaller than or equal to $s$.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrder\_vs\_fixed\_LinearOrder]
+If $s$ is total and $a,b$ are elements of $\alpha$ such that $a\simeq_s b$, then
+$a\le_r b$ if and only if $a\le_{LO(r,s)}b$.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_lt]
+Suppose that $s$ is total, and let $a,b$ be elements of $\alpha$. If $a<_{LO(r,s)}b$, then $a<_s b$.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrder\_of\_linear\_order\_and\_linear\_order\_is\_self]
+If $s$ is a linear order, then $LO(r,s)=s$.
+
+\end{sublemma}
+
+\begin{sublemma}[minimal\_partition\_is\_linear\_order]
+A minimal linearly ordered partition is a linear order.
+
+\end{sublemma}
+
+We finish this subsection with some lemmas about the principal lower sets of $LO(r,s)$.
+
+\begin{sublemma}[LowerSet\_LinearOrder\_etc\_is\_disjoint\_union]
+Let $a$ be an element of $\alpha$ and $X$ be the half-infinite interval $]\leftarrow,a]$ for the preorder $LO(r,s)$. Then
+$X$ is the disjoint union of the half-infinite interval $]\leftarrow,a[$ for the preorder $s$ and of the set
+$\{b| b\le_r a\mbox{ and }a\simeq_s b\}$.
+
+\end{sublemma}
+
+\begin{sublemma}[LowerSet\_LinearOrder\_etc\_is\_difference]
+Let $a$ be an element of $\alpha$ and $X$ be the half-infinite interval $]\leftarrow,a]$ for the preorder $LO(r,s)$. Then
+$X$ is the difference of the half-infinite interval $]\leftarrow,a]$ for the preorder $s$ and of the set
+$\{b| a<_r b\mbox{ and }a\simeq_s b\}$, and the second of these sets is contained in the first.
+
+\end{sublemma}
+
+
+\subsection{The ascent partition of a preorder}
+
+\begin{subdefi}[AscentPartition\_aux]
+If $r$ is a linear order on $\alpha$ and $s$ is a preorder on $\alpha$, the \emph{ascent partition} of $s$ (with respect to $r$)
+is the relation $AP(r,s)$ defined by $a\le_{AP(r,s)}b$ if $a\le_s b$, or $b\le_s a$ and the identity on the interval $[b,a]$ for $s$
+is striclty monotone for the preorders $s$ and $r$.
+(The last condition means that, if $c,d$ are elements of $\alpha$ such that $a\le_s c <_s d \le_s b$, then $c<_r d$.)
+
+\end{subdefi}
+
+\begin{sublemma}[AscentPartition\_aux\_refl \& AscentPartition\_aux\_trans \& AscentPartition\_aux\_total]
+If $s$ is a total preorder, then $AP(r,s)$ is a total preorder.
+
+\end{sublemma}
+
+\begin{subdefi}[AscentPartition]
+The relation $AP(r,s)$ as a preorder (for $s$ a total preorder).
+
+\end{subdefi}
+
+\begin{sublemma}[AscentPartition\_is\_total]
+If $s$ is a total preorder, then the preorder $AP(r,s)$ is total.
+
+\end{sublemma}
+
+\begin{sublemma}[AscentPartition\_is\_greater]
+If $s$ is a total preorder, then $AP(r,s)$ is greater than or equal to $s$.
+
+\end{sublemma}
+
+
+\subsection{Interactions between these two constructions}
+
+\begin{sublemma}[AscentPartition\_comp]
+If $r$ is a linear order and $s$ is a total preorder, then $AP(r,s)=AP(r,LO(r,s))$.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrder\_of\_AscentPartition]
+If $r$ is a linear order and $s$ is a total preorder, then $LO(r,s)=LO(r,AP(r,s))$.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_is\_constant\_on\_interval\_aux \& LinearOrder\_of\_total\_preorder\_and\_linear\_order\_is\_constant\_on\_interval]
+Let $r$ be a linear order on $\alpha$ and $s,t,u$ be total preorders on $\alpha$ such that $s\le t\le u$ and $LO(r,s)=LO(r,u)$. Then $LO(r,s)=LO(r,t)$.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_on\_ascent\_interval]
+Let $r$ be a linear order on $\alpha$ and $s,t$ be total preorders on $\alpha$ such that $s\le t\le AP(r,s)$. Then $LO(r,s)=LO(r,t)$.  
+
+\end{sublemma}
+
+
+\begin{sublemma}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_on\_ascent\_interval']
+Let $r$ be a linear order on $\alpha$ and $s,t$ be total preorders on $\alpha$ such that $s\le t\le AP(r,s)$ and $s$ is a linear order. Then $s=LO(r,t)$.  
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrder\_of\_total\_preorder\_and\_linear\_order\_fibers]
+Let $r$ be a linear order on $\alpha$ and $s,t$ be preorder on $\alpha$ such that $s$ is a linear order, $t$ is total and $LO(r,t)=s$. Then we have
+$s\le t\le AP(r,s)$.
+
+\end{sublemma}
+
+\begin{sublemma}[AscentPartition\_fibers]
+Let $r$ be a linear order on $\alpha$ and $s,t$ be preorder on $\alpha$ such that $s$ is a linear order and $t$ is total.
+Then $AP(r,s)=AP(r,t)$ if and only if $s\le t\le AP(r,s)$.
+
+\end{sublemma}
+
+\begin{sublemma}[AscentPartition\_fibers']
+Let $r$ be a linear order on $\alpha$ and $s,t$ be preorder on $\alpha$ such that $s$ is a linear order and $t$ is total.
+Then $AP(r,s)=AP(r,t)$ if and only if $s=LO(r,t)$.
+
+\end{sublemma}
+
+
+\subsection{Eventually trivial partitions}
+
+This part does not seem to be useful anymore.
+
+\begin{subdefi}[EventuallyTrivialLinearOrderedPartitions]
+Let $s$ be a linear order on $\alpha$. A linearly ordered partitions $s$ is called \emph{essentially trivial} if there exists
+$a$ in $\alpha$ such that, for all $b,c$ in $\alpha$, if $b,c\ge_r a$, we have $b\le_s c$.
+
+\end{subdefi}
+
+\begin{sublemma}[EventuallyTrivial\_is\_finite]
+Let $r$ be a linear order on $\alpha$ that is locally finite with a smallest element, and let $s$ be an essentially trivial linearly
+ordered partition. Then the antisymmetrization of $s$ is finite.
+
+\end{sublemma}
+
+\begin{sublemma}[EventuallyTrivial\_IsUpperSet]
+Let $r$ be a linear order on $\alpha$. Then eventually trivial linearly ordered partitions form an upper set.
+
+\end{sublemma}
+
+\begin{sublemma}[Finite\_is\_EventuallyTrivial]
+If $\alpha$ is finite nonempty, then every linearly ordered partition is eventually trivial (for any choice of linear order $r$).
+
+\end{sublemma}
+
+
+\subsection{Some calculations}
+
+\begin{sublemma}[AscentPartition\_fixed\_linear\_order]
+Let $r$ be a linear order on $\alpha$. Then $AP(r,r)$ is the trivial preorder on $\alpha$.
+
+\end{sublemma}
+
+\begin{sublemma}[Preorder\_lt\_and\_AscentPartition\_ge\_implies\_LinearOrder\_le]
+Let $r$ be a linear order and $s$ be a total preorder. For all $a,b$ in $\alpha$ such that
+$a<_s b$ and $b\le_{AP(r,s)} a$, we have $a\le_r b$.
+
+\end{sublemma}
+
+\begin{sublemma}[AscentPartition\_trivial\_implies\_fixed\_linear\_order]
+Let $r$ be a linear order and $s$ be a preorder. If $s$ is a linear order and $AP(r,s)$ is the trivial preorder, then $s=r$. 
+
+\end{sublemma}
+
+\begin{sublemma}[AscentPartition\_dual\_fixed\_linear\_order]
+Let $r$ be a linear order on $\alpha$. Then $AP(r, dual(r))$ is equal to $dual(r)$.
+
+\end{sublemma}
+
+We want to prove the converse of the last lemma under some conditions on $s$. This requires some preparation.
+
+\begin{subdefi}[ReverseProductOrder]
+If $s$ is a preorder on $\alpha$, then this is the preorder on $\alpha\times\alpha$ that is the product of the dual of $\alpha$ and of $\alpha$.
+
+\end{subdefi}
+
+\begin{sublemma}[ReverseProductOrder\_lt1 \& ReverseProductOrder\_lt2]
+Let $s$ be a preorder on $\alpha$ and $a,b,c$ be elements of $\alpha$. If $a<_s b$, then $(b,c)<(a,c)$ for the reverse product order, and if
+$b<_s c$, then $(a,b)<(a,c)$ for the reverse product order.
+
+\end{sublemma}
+
+\begin{sublemma}[Exists\_smaller\_noninversion]
+Let $r$ be a linear order and $s$ be a preorder. We suppose that $s$ is a linear order and that $AP(r,s)=s$. If $a,b$ are elements of $\alpha$
+such that $a<_r b$ and $a<_s b$, then there exist $c,d$ in $\alpha$ such that $c<_r d$, $c<_s d$ and $(c,d)$ is strictly smaller than $(a,b)$ for
+the reverse product preorder defined by $s$.
+
+\end{sublemma}
+
+\begin{sublemma}[AscentPartition\_linear\_implies\_dual\_linear\_order]
+Let $r$ be a linear order and $s$ be a preorder. We suppose that $s$ is a linear order, that $AP(r,s)=s$ and that $s$ is locally finite.
+Then is equal to the dual of $r$.
+
+\end{sublemma}

@@ -429,7 +429,7 @@ s ∈ SubcomplexGenerated K F ↔ s ∈ K.faces ∧ ∃ (t : F), s ⊆ t := by
 
 /- The boundary of a simplex of K is the set of subspaces of s that are different from s. -/
 
-def Boundary {K : AbstractSimplicialComplex V} (s : K.faces) : AbstractSimplicialComplex V :=
+def Boundary {K : AbstractSimplicialComplex V} (s : K.faces) : AbstractSimplicialComplex V := --note that K is not needed, any nonempty subset of s is a face
 of_subcomplex K {t : Finset V | t ∈ K.faces ∧ t ⊂ s} (by simp only [Set.sep_subset])
 (by intro t u ht hut hune 
     constructor

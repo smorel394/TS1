@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.1)  3 JUN 2023 17:30
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.1)  4 JUN 2023 19:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**TS1.tex
+**TS1
 (./TS1.tex
 LaTeX2e <2021-11-15> patch level 1
 L3 programming layer <2022-01-21> (./preambule.tex
@@ -543,7 +543,10 @@ File: l3backend-pdftex.def 2022-01-12 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count296
 \l__pdf_internal_box=\box58
 )
-(./TS1.aux (./TS1.general_preorder_stuff.aux))
+(./TS1.aux (./TS1.general_preorder_stuff.aux)
+(./TS1.AbstractSimplicialComplex.aux) (./TS1.FacePoset.aux)
+(./TS1.OrderOnFacets.aux) (./TS1.preorder_to_powerset.aux)
+(./TS1.ordered_partitions.aux))
 \openout1 = `TS1.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 3.
@@ -639,73 +642,207 @@ Underfull \hbox (badness 1748) in paragraph at lines 50--51
 [2
 
 ]
-Underfull \hbox (badness 2591) in paragraph at lines 115--118
+Underfull \hbox (badness 2591) in paragraph at lines 120--123
 []\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 r; s$ \OT1/ptm/m/it/12 are pre-
  []
 
 [3]
-Overfull \hbox (56.03668pt too wide) in paragraph at lines 175--176
+Overfull \hbox (56.03668pt too wide) in paragraph at lines 180--181
 []
  []
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 180.
+(hyperref)                removing `math shift' on input line 185.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\alpha' on input line 180.
+(hyperref)                removing `\alpha' on input line 185.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 180.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 190.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\alpha' on input line 190.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 190.
+(hyperref)                removing `math shift' on input line 185.
 
 [4]
-Underfull \hbox (badness 4954) in paragraph at lines 247--248
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 195.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\alpha' on input line 195.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 195.
+
+
+Underfull \hbox (badness 4954) in paragraph at lines 252--253
 []\OT1/ptm/m/n/12 If $\OML/cmm/m/it/12 a; b$ \OT1/ptm/m/n/12 are el-e-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 258--260
+Underfull \hbox (badness 10000) in paragraph at lines 263--265
 []\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 a; b$
  []
 
-[5]) [6] (./TS1.aux (./TS1.general_preorder_stuff.aux))
+[5]) [6]
+\openout2 = `TS1.AbstractSimplicialComplex.aux'.
+
+ (./TS1.AbstractSimplicialComplex.tex [7
+
+
+
+] [8]
+Underfull \hbox (badness 1472) in paragraph at lines 199--200
+[]\OT1/ptm/m/n/12 Given a sim-pli-cial map $\OML/cmm/m/it/12 f$ \OT1/ptm/m/n/12
+ from $\OML/cmm/m/it/12 K$ \OT1/ptm/m/n/12 to $\OML/cmm/m/it/12 L$\OT1/ptm/m/n/
+12 , we get a map
+ []
+
+[9]) [10]
+\openout2 = `TS1.FacePoset.aux'.
+
+ (./TS1.FacePoset.tex [11
+
+
+
+]
+Underfull \hbox (badness 3557) in paragraph at lines 118--120
+[]\OT1/ptm/m/it/12 Let $\OML/cmm/m/it/12 S$
+ []
+
+
+Underfull \hbox (badness 5288) in paragraph at lines 134--135
+[]\OT1/ptm/m/it/12 The fol-low-
+ []
+
+[12]) [13]
+\openout2 = `TS1.OrderOnFacets.aux'.
+
+ (./TS1.OrderOnFacets.tex) [14
+
+
+
+]
+\openout2 = `TS1.preorder_to_powerset.aux'.
+
+ (./TS1.preorder_to_powerset.tex
+Underfull \hbox (badness 10000) in paragraph at lines 25--26
+[]\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 is a to-tal pre-ord
+er, then
+ []
+
+
+Underfull \hbox (badness 1215) in paragraph at lines 44--45
+[]\OT1/ptm/m/it/12 The func-tion $\OML/cmm/m/it/12 powersetToPreorder$ \OT1/ptm
+/m/it/12 is an-ti-
+ []
+
+
+Underfull \hbox (badness 3792) in paragraph at lines 57--58
+[]\OT1/ptm/m/it/12 For ev-ery pre-order $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 o
+n $\OML/cmm/m/it/12 $\OT1/ptm/m/it/12 , we have
+ []
+
+[15
+
+
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 113--115
+[]\OT1/ptm/m/it/12 Let $\OML/cmm/m/it/12 E$ \OT1/ptm/m/it/12 be a set of sub-
+ []
+
+
+Underfull \hbox (badness 3088) in paragraph at lines 113--115
+\OT1/ptm/m/it/12 sets of $\OML/cmm/m/it/12 $\OT1/ptm/m/it/12 . If $\OML/cmm/m/
+it/12 powersetToPreorder\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 E\OT1/cmr/m/n/12 )$ \
+OT1/ptm/m/it/12 is to-tal and es-sen-tially lo-cally fi-nite, then
+ []
+
+[16] [17]
+Underfull \hbox (badness 2913) in paragraph at lines 196--198
+[]\OT1/ptm/m/n/12 Let $\OML/cmm/m/it/12 s$
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 202--203
+[]
+ []
+
+) [18]
+\openout2 = `TS1.ordered_partitions.aux'.
+
+ (./TS1.ordered_partitions.tex
+Overfull \hbox (1092.8397pt too wide) in paragraph at lines 48--49
+[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 58--59
+[]\OT1/ptm/m/it/12 The pre-order
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 63--64
+[]\OT1/ptm/m/it/12 The pre-order
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--69
+[]\OT1/ptm/m/it/12 The pre-order
+ []
+
+[19
+
+
+
+]
+Overfull \hbox (45.09364pt too wide) in paragraph at lines 121--122
+[]
+ []
+
+[20]
+Overfull \hbox (402.8819pt too wide) in paragraph at lines 154--155
+[]
+ []
+
+
+Underfull \hbox (badness 4752) in paragraph at lines 159--160
+[]\OT1/ptm/m/it/12 Let $\OML/cmm/m/it/12 r$
+ []
+
+[21]) [22] (./TS1.aux (./TS1.general_preorder_stuff.aux)
+(./TS1.AbstractSimplicialComplex.aux) (./TS1.FacePoset.aux)
+(./TS1.OrderOnFacets.aux) (./TS1.preorder_to_powerset.aux)
+(./TS1.ordered_partitions.aux))
 Package rerunfilecheck Info: File `TS1.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 15125 strings out of 478287
- 252084 string characters out of 5849290
- 715157 words of memory out of 5000000
- 33014 multiletter control sequences out of 15000+600000
- 488245 words of font info for 84 fonts, out of 8000000 for 9000
+ 15516 strings out of 478287
+ 261415 string characters out of 5849290
+ 718157 words of memory out of 5000000
+ 33163 multiletter control sequences out of 15000+600000
+ 493809 words of font info for 94 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 113i,7n,109p,10616b,437s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 113i,8n,109p,10612b,443s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/t
-ype1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/u
-rw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utm
-b8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/s
-hare/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on TS1.pdf (6 pages, 110543 bytes).
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
+/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhv
+b8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/s
+hare/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on TS1.pdf (22 pages, 191584 bytes).
 PDF statistics:
- 189 PDF objects out of 1000 (max. 8388607)
- 163 compressed objects within 2 object streams
- 65 named destinations out of 1000 (max. 500000)
- 113 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 598 PDF objects out of 1000 (max. 8388607)
+ 546 compressed objects within 6 object streams
+ 267 named destinations out of 1000 (max. 500000)
+ 361 words of extra memory for PDF output out of 10000 (max. 10000000)
 

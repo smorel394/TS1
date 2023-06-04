@@ -7,12 +7,15 @@ set_option autoImplicit false
 
 open Classical Preorder 
 
+universe u 
 
-variable {α : Type _}
+variable {α : Type u}
+
+open Preorder 
 
 /- Sending a linear order to a preorder in one step. -/
 
-def PreorderofLinearOrder (r : LinearOrder α) : Preorder α := r.toPartialOrder.toPreorder
+def PreorderofLinearOrder (r : LinearOrder α) : Preorder α := r.toPartialOrder.toPreorder --should get rid of this
 
 /- Dual of a linear order. -/
 
@@ -22,7 +25,7 @@ def dual (r : LinearOrder α) := @OrderDual.linearOrder α r
 /- The set of linearly ordered partitions on α is the set of total preorders on α. (We get the corresponding partition by looking at
 the equivalence classes of the antisymmetrization.) They are partially ordered by the partial order on preorders. -/
 
-def LinearOrderedPartitions (α : Type _) := {s : Preorder α | Total s.le}
+def LinearOrderedPartitions (α : Type u) := {s : Preorder α | Total s.le}
 
 instance LinearOrderedPartitions.PartialOrder : PartialOrder (LinearOrderedPartitions α) :=
 Subtype.partialOrder (fun (s : Preorder α) => Total s.le) 
@@ -33,10 +36,7 @@ namespace LinearOrderedPartitions
 /- LinearOrderedPartitions has a greatest element, which is given by the trivial preorder. -/
 
 
-lemma trivialPreorder_is_total : Total (trivialPreorder α).le := 
-fun _ _ => by change True ∨ True; simp only
-
-lemma trivialPreorder_is_greatest_partition (p : LinearOrderedPartitions α) : p ≤ ⟨trivialPreorder α, trivialPreorder_is_total⟩ := by
+lemma trivialPreorder_is_greatest_partition (p : LinearOrderedPartitions α) : p ≤ ⟨trivialPreorder α, trivialPreorder_is_total α⟩ := by
   change ↑p ≤ trivialPreorder α  
   exact trivialPreorder_is_greatest _ 
 

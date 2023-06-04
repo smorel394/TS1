@@ -1,0 +1,204 @@
+\section{Going between total preorders and their sets of of lower sets}
+
+We fix a set $\alpha$.
+
+\subsection{From a preorder to the powerset}
+
+\begin{subdefi}[preorderToPowerset]
+If $s$ is a preorder on $\alpha$, then $preorderToPowerset(s)$ is the set of lower sets of $s$ that are nonempty and
+not equal $\alpha$ itsself.
+
+\end{subdefi}
+
+\begin{sublemma}[preorderToPowerset\_TrivialPreorder\_is\_empty]
+If $s$ is the trivial preorder on $\alpha$, then $preorderToPowerset(s)$ is empty.
+
+\end{sublemma}
+
+\begin{sublemma}[preorderToPowerset\_TwoStepPreorder]
+If $s$ is the two-step preorder associated to $a$ and if $\alpha$ has an element different from $a$, then
+$preorderToPowerset(s)$ is equal to $\{\{a\}\}$.
+
+\end{sublemma}
+
+\begin{sublemma}[preorderToPowerset\_total\_is\_total]
+If $s$ is a total preorder, then $preorderToPowerset(s)$ is totally ordered by inclusion.
+
+\end{sublemma}
+
+\begin{sublemma}[preorderToPowerset\_antitone]
+The function $preorderToPowerset$ is antitone.
+
+\end{sublemma}
+
+
+\subsection{From a set of subsets to a preorder}
+
+\begin{subdefi}[powersetToPreorder]
+If $E$ is a set of subsets of $\alpha$, we define a preorder $s=powersetToPreorder(E)$ on $\alpha$ by
+setting $a\le_s b$ if and only every element of $E$ that contains $b$ also contains $a$.
+
+\end{subdefi}
+
+\begin{sublemma}[powersetToPreorder\_antitone]
+The function $powersetToPreorder$ is antitone.
+
+\end{sublemma}
+
+\begin{sublemma}[powersetToPreorder\_total\_is\_total]
+Let $E$ be a set of subsets of $\alpha$. If $E$ is totally ordered by inclusion, then $powersetToPreorder(E)$ is a
+total preorder.
+
+\end{sublemma}
+
+\subsection{Going in both directions}
+
+\begin{sublemma}[preorderToPowersetToPreorder]
+For every preorder $s$ on $\alpha$, we have $s=powersetToPreorder(preorderToPowerset(s))$.
+
+\end{sublemma}
+
+\begin{sublemma}[preorderToPowerset\_injective]
+The function $preorderToPowerset$ is injective.
+
+\end{sublemma}
+
+\begin{sublemma}[preorderToPowerset\_is\_empty\_iff\_TrivialPreorder]
+Let $s$ be a preorder on $\alpha$. Then $preorderToPowerset(s)$ is empty if and only if $s$ is the trivial preorder on $\alpha$.
+
+\end{sublemma}
+
+\begin{sublemma}[powersetToPreorderToPowerset]
+Let $E$ be a set of subsets of $\alpha$. Every element of $E$ that is a proper subset of $\alpha$ is in
+$preorderToPowerset(powersetToPreorder(E))$.
+
+\end{sublemma}
+
+
+\subsection{The case of essentially locally finite preorders}
+
+Under some conditions we have $E=preorderToPowerset(powersetToPreorder(E))$ in the last lemma (up to $\varnothing$ and $\alpha$). 
+The condition I first wanted to use is "$s$ is total, locally (i.e. in each closed interval) the relation $>_s$ is well-founded 
+and there is a successor function for $s$." But this is actually equivalent to the fact that, in every closed interval, the relations
+$<_s$ and $>_s$ are well-founded. Indeed:
+\begin{itemize}
+\item[(1)]If the latter condition is true, then we get a successor function in the following way: Let $a$ be an element of $\alpha$. 
+If $a$ is maximal, we set $succ(a) = a$. If not, then there exists $b$ such that $a <_s b$. We set $succ(a)$ to be a minimal element 
+of the set $\{c | a <_s c \mbox{ and } c \le_s b\}$, which is a nonempty subset of the closed interval $[a,b]$. 
+\item[(2)] In the other direction, let $a$ and $b$ be elements of $\alpha$ such that $a \le_s b$. We want to show that $<_s$ is 
+well-founded on the closed interval $[a,b]$, so let $S$ be a nonempty subset of $[a,b]$. If there exists $c$ in $S$ such that $c \le_s a$, 
+then this $c$ is minimal. Otherwise, the set $M$ of elements of $[a,b]$ that are stricly smaller than every element of $S$ is nonempty 
+(because is contains $a$). Let $b$ be a maximal element of $M$, and let $c = succ(b)$. We have $b <_s c$ because $b$ is not maximal in
+$\alpha$, so $c \not\in  M$, so there exists $d$ in $S$ such that $d \le_s c$. I claim that $d$ is a minimal element of $S$. Indeed, let 
+$e$ be an element of $S$. If $e <_s d$, then $e <_s c$, so $e \le_s b$ (by the properties of the successor function), and this is a 
+contradiction; so $\neg(e <_s d)$.
+\end{itemize}
+
+On the other hand, if $s$ is a total preorder such that $<_s$ and $>_s$ are well-founded, then the antisymmetrization of $s$ is finite. 
+Indeed, going to the antisymmetrization, we may assume that $s$ is a partial order, hence a linear order, hence a well-order whose dual
+is also a well-order. As every well-order is isomorphic to an ordinal, we may assume that $\alpha$ is an ordinal (and $s$ is its canonical
+order). Then if $\alpha$ were infinite, it would contain the ordinal $\omega$ as an initial segment, and $\omega$ has no greatest element, 
+so the dual of $s$ would not be a well-order.
+  
+So in conclusion, the conclusion I wanted to impose is equivalent to the fact that the antisymmetrization partial order of $s$ is
+locally finite, which is the "essentially locally finite" condition.
+
+\begin{sublemma}[TotalELFP\_LowerSet\_is\_principal]
+If $s$ is total and essentially locally finite, then every element of $preorderToPowerset(s)$ is a half-infinite ideal
+$]\leftarrow,a]$.
+
+\end{sublemma}
+
+\begin{sublemma}[TotalELFP\_powersetToPreorderToPowerset]
+Let $E$ be a set of subsets of $\alpha$. If $powersetToPreorder(E)$ is total and essentially locally finite, then
+$preorderToPowerset(powersetToPreorder(E))$ is included in $E$.
+
+\end{sublemma}
+
+\begin{sublemma}[preorderToPowersets\_down\_closed]
+Let $s$ be a preorder on $\alpha$. If $s$ is total and essentially locally finite, then, for every subset $E$ of $preorderToPowerset(s)$,
+we have $E=preorderToPowerset(powersetToPreorder(E))$.
+
+\end{sublemma}
+
+
+\subsection{Relation between the set of lower sets and the antisymmetrization}
+
+\begin{subdefi}[Preorder\_nonmaximal]
+We define the set of nonmaximal elements of a preorder $s$.
+
+\end{subdefi}
+
+\begin{subdefi}[Antisymmetrization\_nonmaximal]
+We define the set of nonmaximal elements of the antisymmetrization partial order.
+
+\end{subdefi}
+
+\begin{sublemma}[Antisymmetrization\_nonmaximal\_prop1]
+Let $s$ be a preorder on $\alpha$. If $s$ has no maximal element, then the set of nonmaximal elements of its antisymmetrization
+partial order is equal to its antisymmetrization.
+
+\end{sublemma}
+
+\begin{sublemma}[Antisymmetrization\_nonmaximal\_prop2]
+Let $s$ be a preorder on $\alpha$. If $s$ has a maximal element $s$, then the set of nonmaximal elements of its antisymmetrization
+partial order is equal to the set of elements of its antisymmetrization that are not equal to the image of $a$.
+
+\end{sublemma}
+
+\begin{sublemma}[FiniteAntisymmetrization\_exists\_maximal]
+Let $s$ be a preorder on $\alpha$. If the antisymmetrization of $s$ is finite and $\alpha$ is nonempty, then $s$ has a maximal element.
+
+\end{sublemma}
+
+\begin{sublemma}[FiniteAntisymmetrization\_nonmaximal]
+Let $s$ be a preorder on $\alpha$. If the antisymmetrization of $s$ is finite and $\alpha$ is nonempty, then the set of nonmaximal elements of 
+the antisymmetrization partial order of $s$ is equal to the set of elements of its antisymmetrization that are not equal to the image of a
+an arbitrarily chosen maximal element of $s$.
+
+\end{sublemma}
+
+\begin{sublemma}[Antisymmetrization\_to\_powerset]
+Let $s$ be a preorder on $\alpha$. We have a map from the antisymmetrization of $s$ to the powerset of $\alpha$ sending $x$ to the set
+of $a$ in $\alpha$ whose image is $\le x$.
+
+\end{sublemma}
+
+\begin{sublemma}[Antisymmetrization\_to\_powerset\_in\_PreorderToPowerset]
+Let $s$ be a total preorder on $\alpha$ and $x$ be a nonmaximal element of the antisymmetrization of $s$. Then the subset of $\alpha$
+defined by $x$ is in $preorderToPowerset(s)$.
+
+\end{sublemma}
+
+\begin{sublemma}[Antisymmetrization\_to\_powerset\_preserves\_order]
+Let $s$ be a total preorder on $\alpha$ and $x,y$ be a elements of the antisymmetrization of $s$. Then $x\le y$ if and only if
+the set defined by $x$ is contained in the set defined by $y$.
+
+\end{sublemma}
+
+\begin{sublemma}[Antisymmetrization\_to\_powerset\_injective]
+Let $s$ be preorder on $\alpha$. The map from the antisymmetrization of $s$ to the powerset of $\alpha$ is injective.
+
+\end{sublemma}
+
+\begin{sublemma}[Nonempty\_of\_mem\_PreorderToPowerset]
+Let $s$ be a preorder on $\alpha$. If $preorderToPowerset(s)$ has an element, then $\alpha$ is nonempty.
+
+\end{sublemma}
+
+\begin{sublemma}[Antisymmetrization\_to\_powerset\_surjective]
+Let $s$ be a total essentially locally finite preorder on $\alpha$. For every element $X$ of $preorderToPowerset(s)$, there exists
+a nonmaximal element of the antisymmetrization of $s$ defining $X$.
+
+\end{sublemma}
+
+\begin{subdefi}[Equiv\_Antisymmetrization\_nonmaximal\_to\_PreorderToPowerset]
+Let $s$ be a total essentially locally finite preorder on $\alpha$. We define an equivalence between the set of nonmaximal elements
+of the antisymmetrization of $s$ and $preorderToPowerset(s)$.
+
+\end{subdefi}
+
+\begin{subdefi}[OrderIso\_Antisymmetrization\_minus\_greatest\_to\_PreorderToPowerset]
+Under the same hypotheses, we upgrade the previous equivalence to an order isomorphism.
+
+\end{subdefi}

@@ -1,0 +1,253 @@
+\section{Abstract simplicial complexes}
+
+Let $\alpha$ be a set.
+
+\subsection{Generalities}
+
+\begin{subdefi}[AbstractSimplicialComplex]
+An \emph{abstract simplicial complex} $K$ on $\alpha$ is a set of nonempty finite subsets of $\alpha$ (called \emph{faces} of $K$) such that, if
+$s$ is face of $K$ and $t$ is a nonempty subset of $s$, then $t$ is a face of $K$.
+\end{subdefi}
+
+\begin{subdefi}[of\_erase]
+If we have a set $S$ of finite subsets of $\alpha$ that is a lower set for inclusion, then we get an abstract simplicial complex whose faces
+are the nonempty elements of $S$.
+
+\end{subdefi}
+
+\begin{subdefi}[of\_subcomplex]
+If $K$ is an abstract simplicial complex and $S$ is a set of faces of $K$ that is a lower set for inclusion, then we get an abstract simplicial with
+set of faces $S$.
+
+\end{subdefi}
+
+\begin{sublemma}[face\_card\_nonzero]
+If $K$ is an abstract simplicial complex and $s$ is a face of $K$, then the cardinality of $s$ is a nonzero natural number.
+
+\end{sublemma}
+
+\subsection{Vertices}
+
+\begin{subdefi}[vertices]
+Let $K$ be an abstract simplicial complex. Vertices of $K$ are elements $a$ of $\alpha$ such that $\{a\}$ is a face of $K$.
+
+\end{subdefi}
+
+\begin{sublemma}[mem\_vertices]
+An element $a$ of $\alpha$ is a vertex of $K$ if and only if $\{a\}$ is a face of $K$.
+
+\end{sublemma}
+
+\begin{sublemma}[vertices\_eq]
+The set of vertices of $K$ is the union of the faces of $K$.
+
+\end{sublemma}
+
+\begin{sublemma}[mem\_vertices\_iff]
+An element $a$ of $\alpha$ is a vertex of $K$ if and only if there exists a face $s$ of $K$ such that $a\in s$.
+
+\end{sublemma}
+
+\begin{sublemma}[face\_subset\_vertices]
+Every face of $K$ is contained in the set of vertices of $K$.
+
+\end{sublemma}
+
+
+\subsection{Facets}
+
+\begin{subdefi}[facets]
+A \emph{facet} of $K$ is a maximal face.
+
+\end{subdefi}
+
+\begin{sublemma}[mem\_facets\_iff]
+A finite set of $\alpha$ is a facet of $K$ if and only if it is a face of $K$ and it is maximal among faces of $K$.
+
+\end{sublemma}
+
+\begin{sublemma}[facets\_subset]
+Every facet of $K$ is a face of $K$.
+
+\end{sublemma}
+
+
+\subsection{Partial order on abstract simplicial complexes}
+
+\begin{subdefi}
+We define a partial order on the set of abstract simplicial complexes on $\alpha$ by saying that $K$ is less than or equal to $L$
+if and only if the set of faces of $K$ is contained in the set of faces of $L$.
+
+\end{subdefi}
+
+\begin{subdefi}[Inf]
+If $K$ and $L$ are two abstract simplicial complexes, then $Inf(K,L)$ is the abstract simplicial complexes whose set of faces is
+the intersection of the set of faces of $K$ and the set of faces of $L$.
+
+\end{subdefi}
+
+\begin{subdefi}[Sup]
+If $K$ and $L$ are two abstract simplicial complexes, then $Sup(K,L)$ is the abstract simplicial complexes whose set of faces is
+the union of the set of faces of $K$ and the set of faces of $L$.
+
+\end{subdefi}
+
+\begin{subdefi}[DistribLattice]
+A structure of distributive lattice on the set of abstract simplicial complexes on $\alpha$, whose max and min are given by $Sup$ and $Inf$.
+
+\end{subdefi}
+
+\begin{subdefi}[Top]
+We define an abstract simplicial complex $Top$ such that every finite subset of $\alpha$ is a face of $Top$.
+
+\end{subdefi}
+
+\begin{subdefi}[Bot]
+We define an abstract simplicial complex $Bot$ whose set of faces of empty.
+
+\end{subdefi}
+
+\begin{subdefi}[OrderBot]
+A smallest element of the set of abstract simplicial complexes on $\alpha$ given by $Bot$.
+
+\end{subdefi}
+
+\begin{subdefi}[OrderTop]
+A biggest element of the set of abstract simplicial complexes on $\alpha$ given by $Top$.
+
+\end{subdefi}
+
+\begin{subdefi}[SupSet]
+If $s$ is a set of abstract simplicial complexes on $\alpha$, an abstract simplicial complex $SupSet(s)$ whose set of faces is the union
+of the sets of faces of the elements of $s$.
+
+\end{subdefi}
+
+\begin{subdefi}[InfSet]
+If $s$ is a set of abstract simplicial complexes on $\alpha$, an abstract simplicial complex $InfSet(s)$ whose set of faces is the intersection
+of the sets of faces of the elements of $s$.
+
+\end{subdefi}
+
+\begin{subdefi}[CompleteLattice]
+A structure of complete lattice on the set of abstract simplicial complexes on $\alpha$, with supremum and infimum functions given by $SupSet$ and $InfSet$.
+
+\end{subdefi}
+
+\begin{subdefi}[CompleteDistribLattice]
+A structure of complete distributive lattice on the set of abstract simplicial complexes on $\alpha$.
+
+\end{subdefi}
+
+
+\subsection{Finite complexes}
+
+\begin{subdefi}[FiniteComplex]
+An abstract simplicial complex is called \emph{finite} if its set of faces is finite.
+
+\end{subdefi}
+
+\begin{sublemma}[Finite\_IsLowerSet]
+Every complex smaller than or equal to a finite complex is also finite.
+
+\end{sublemma}
+
+\begin{sublemma}[FiniteComplex\_has\_finite\_facets]
+If $K$ is a finite abstract simplicial complex, then its set of facets is finite.
+
+\end{sublemma}
+
+
+\subsection{Pure complexes and dimension}
+
+\begin{subdefi}[dimension]
+Let $K$ be an abstract simplicial complex. The \emph{dimension} of $K$ is the supremum (taken in $\Nat\cup\{\infty\}$) of on the set of faces of $K$ of the function
+$s\mapsto card(s)-1$.
+
+\end{subdefi}
+
+\begin{subdefi}[Pure]
+Let $K$ be an abstract simplicial complex. We say that $K$ is \emph{pure} if, for every facet $s$ of $K$, the dimension of $K$ is equal to $card(s) -1$.
+
+\end{subdefi}
+
+
+\subsection{Skeleton and link}
+
+\begin{subdefi}[skeleton]
+Let $K$ be an abstract simplicial complex and $d\in\Nat$. The \emph{$d$-skeleton} of $K$ is the abstract simplicial complexes whose faces are
+all faces of $K$ of cardinality $\leq d+1$.
+
+\end{subdefi}
+
+\begin{subdefi}[link]
+Let $K$ be an abstract simplicial complex and $s$ be a finite subset of $\alpha$. The \emph{link} of $s$ in $K$ is the abstract simplicial complex
+whose faces are all the faces $t$ of $K$ that are disjoint from $s$ and such that $s\cup t$ is a face of $K$.
+
+\end{subdefi}
+
+
+\subsection{Simplicial maps}
+
+\begin{subdefi}[SimplicialMap]
+Let $K$ and $L$ be abstract simplicial complexes on the sets $\alpha$ and $\beta$ respectively. A \emph{simplicial map} from $K$ to $L$ is a map
+$f$ from $\alpha$ to $\beta$ such that, for every face $s$ of $K$, the finite set $f(s)$ is a face of $L$.
+
+\end{subdefi}
+
+\begin{subdefi}[toFaceMap]
+Given a simplicial map $f$ from $K$ to $L$, we get a map $f.toFaceMap$ from the set of faces of $K$ to the set of faces of $L$.
+
+\end{subdefi}
+
+\begin{subdefi}[comp]
+Definition of the composition of simplicial maps: it is given by composing the maps on the underlying sets.
+
+\end{subdefi}
+
+\begin{subdefi}[id]
+If $K$ is an abstract simplicial complex on $\alpha$, the identity of $K$ is the simplicial map given by the identity of $\alpha$.
+
+\end{subdefi}
+
+\begin{subdefi}[AbstractSimplicialComplexEquiv]
+Let $K$ and $L$ be abstract simplicial complexes on the sets $\alpha$ and $\beta$ respectively. A \emph{simplicial equivalence} from $K$ to $L$
+is the data of a simplicial map $f:\alpha\to\beta$ from $K$ to $L$ and a simplicial map $g:\beta\to\alpha$ from $L$ to $K$ such that, for
+every face $s$ of $K$, we have $g(f(s))=s$ and, for every face $t$ of $L$, we have $f(g(t))=t$.
+
+\end{subdefi}
+
+
+\subsection{Subcomplex generated}
+
+\begin{subdefi}[SubcomplexGenerated]
+Let $K$ be a abstract simplicial complex and $F$ be a set of finite sets of $\alpha$. The \emph{subcomplex of $K$ generated by $F$} is the abstract
+simplicial complex whose faces are the faces of $K$ that are contained in an element of $F$.
+
+\end{subdefi}
+
+\begin{sublemma}[SubcomplexGenerated\_mem]
+Let $K$ be a abstract simplicial complex and $F$ be a set of finite sets of $\alpha$.
+A finite subset $s$ of $\alpha$ is a face of the subcomplex of $K$ generated by $F$ if and only if $s$ is a face of $K$ and there exists $t\in F$ such that
+$s \subset t$.
+
+\end{sublemma}
+
+\subsection{Boundary of a simplex}
+
+\begin{subdefi}[Boundary]
+Let $K$ be an abstract simplicial complex and $s$ be a face of $K$. The \emph{boundary} of $s$ is the abstract simplicial complex whose faces
+are nonempty proper subsets of $s$.\footnote{Hey, we don't need $K$ here !}
+
+\end{subdefi}
+
+\begin{sublemma}[Boundary\_mem]
+Let $K$ be an abstract simplicial complex and $s$ be a face of $K$. A finite subset $t$ of $\alpha$ is a face of the boundary of $s$ if and only
+if $t$ is a face of $K$, $t$ is included in $s$ and $t \ne s$.
+
+\end{sublemma}
+
+\begin{sublemma}[BoundaryFinite]
+Let $K$ be an abstract simplicial complex and $s$ be a face of $K$. Then the boundary of $s$ is a finite complex.
+
+\end{sublemma}

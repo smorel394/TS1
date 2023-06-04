@@ -2,10 +2,21 @@
 
 \begin{document}
 
-This is an explanation of what happens in the Lean files leading up to FiniteWeightedComplex.lean. The goal is to define the "weighted complex" (a subcomplex of the Coxeter complex of the
-symmetric group), to prove that it is shellable and to calculate its Euler-Poincaré characteristic. The sections correspond to separate Lean files, the subsectino to the
+This is an explanation of what happens in the Lean files leading up to TS1.lean. The goal is to define the "weighted complex" (a subcomplex of the Coxeter complex of the
+symmetric group), to prove that it is shellable and to calculate its Euler-Poincaré characteristic, and then to deduce a formula for the alternating sum on totally partitions
+of a finite set $\alpha$ satisfying a certain positivity condition. (The final formula is easy enough to prove by induction on the cardinality of $\alpha$, so it is mainly
+an excuse to play with some interesting abstract simplicial complexes.)
+
+
+The sections correspond to separate Lean files, the subsections to the
 internal organizations of these files.
 
 \include{TS1.general_preorder_stuff}
+\include{TS1.AbstractSimplicialComplex}
+\include{TS1.FacePoset}
+\include{TS1.OrderOnFacets}
+\include{TS1.preorder_to_powerset}
+\include{TS1.ordered_partitions}
+\include{TS1.WeakBruhatOrder}
 
 \end{document}
