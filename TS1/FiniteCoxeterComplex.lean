@@ -957,7 +957,7 @@ then the Coxeter complex is empty so its EP characteristic is 0.)-/
 noncomputable def FacetofLinearOrder (hcard : Fintype.card α > 1) (r : LinearOrder α): (CoxeterComplex α).facets := by
   rw [gt_iff_lt, ←Nat.succ_le] at hcard
   exact LinearOrderstoCoxeterComplexFacets α hcard (@instIsLinearOrderLeToLEToPreorderToPartialOrder _ r ) 
-
+-- Do we really need to rewrite this definition ?
 
 
 lemma EulerPoincareCharacteristic_CoxeterComplex (hne : Nonempty α) : 

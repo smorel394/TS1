@@ -1,1 +1,351 @@
 \section{Finite weighted complex}
+
+We fix a set $\alpha$ and a function $\mu:\alpha\to\R$.
+
+\subsection{Generalities about $\mu$}
+
+\begin{sublemma}[Exists\_LinearOrder\_antitone]
+There exists a linear order on $\alpha$ that makes the function $\mu$ antitone. 
+
+\end{sublemma}
+
+
+\begin{sublemma}[Positivity\_condition]
+If $\alpha$ is finite, then $\mu$ is summable and the sum of $\mu$ is nonnegative if and only if it is
+nonnegative as a finite sum.
+
+\end{sublemma}
+
+From now on, we assume that $\mu$ is summable and the sum of $\mu$ is nonnegative.
+
+\subsection{Positive sets}
+
+\begin{subdefi}[IsPositiveSet]
+Let $X$ be a finite subset of $\alpha$. We say that $X$ is a \emph{positive set} if $\sum_{a\in X}\mu(a)\geq 0$.
+
+\end{subdefi}
+
+\begin{subdefi}[AFLOPowerset\_positive]
+Definition of the set of positive elements of AFLOPowerset: these are the $E$ such that every element of $E$ is a positive set.
+
+\end{subdefi}
+
+\begin{subdefi}[AFLOPowerset\_positive.PartialOrder]
+Definition of the partial order on the set of positive elements of AFLOPowerset, by lifting the partial order given by inclusion.
+
+\end{subdefi}
+
+\begin{sublemma}[AFLOPartitions\_forget\_positive]
+The set of positive elements of AFLOPowerset is included in AFLOPowerset.
+
+\end{sublemma}
+
+
+
+\begin{subdefi}[AFLOPartitions\_positive]
+The set of positive AFLO partitions: these are AFLO partitions whose image by powersetToPreorder is a positive element of AFLOPowerset.
+
+\end{subdefi}
+
+\begin{subdefi}[AFLOPartitions\_positive.PartialOrder]
+The partial order on positive AFLO partitions obtained by lifting the partial order on preorders.
+
+\end{subdefi}
+
+\begin{sublemma}[AFLOPartitions\_forget\_positive]
+The set of positive AFLO partitions is a subset of the set of AFLO partitions.
+
+\end{sublemma}
+
+\begin{sublemma}[AFLOPowerset\_positive\_down\_closed]
+The set of positive elements of AFLOPowerset is down-closed (in the set of all finite sets of subsets of $\alpha$).
+
+\end{sublemma}
+
+
+\subsection{The weighted complex}
+
+\begin{subdefi}[WeightedComplex]
+The weighted complex is the abstract simplicial complex on the powerset of $\alpha$ whose faces are nonempty positive elements of AFLOPowerset.
+
+\end{subdefi}
+
+\begin{sublemma}[FacesWeightedComplex]
+Let $s$ be a finite set of subsets of $\alpha$. Then $s$ is a face of the weighted complex if and only it is a nonempty positive element of AFLOPowerset.
+    
+\end{sublemma}
+
+\begin{sublemma}[WeightedComplex\_subcomplex]
+The weighted complex is a subcomplex of the Coxeter complex.    
+
+\end{sublemma}
+
+\begin{sublemma}[AFLO\_positive\_powersetToPreorder]
+If $E$ is a positive element of AFLOPowerset, then $powersetToPreorder(E)$ is a positive AFLO partition.
+
+\end{sublemma}
+
+\begin{sublemma}[AFLO\_positive\_preorderToPowerset]
+If $s$ is a positive AFLO partition, then $preorderToPowerset(s)$ is a positive element of AFLOPowerset.
+
+\end{sublemma}
+
+\begin{subdefi}[WeightedComplextoPositivePartitions]
+The isomorphism of ordered sets between the set of positive elements of AFLOPowerset and the dual of the set of positive AFLO partitions,
+given by the maps $powersetToPreorder$ and $preorderToPowerset$.
+
+\end{subdefi}
+
+\begin{sublemma}[WeightedFaces\_powersetToPreordertoPower]
+If $s$ is a face of the weighted complex, then
+$s=preorderToPowerset(powersetToPreorder(s))$.
+
+\end{sublemma}
+
+\begin{sublemma}[AFLOPartitions\_positive\_IsUpperSet]
+Positive AFLO partial form an upper set (in the set of all preorders on $\alpha$).
+
+\end{sublemma}
+
+
+\subsection{The restriction map}
+
+\begin{sublemma}[AscentPartition\_respects\_AFLO\_positive]
+If $r$ is a linear order on $\alpha$ and $s$ is a positive AFLO partition, then the ascent partition $AP(r,s)$ is a positive AFLO partition.
+
+\end{sublemma}
+
+\begin{subdefi}[restriction\_weighted]
+If $r$ is a linear order on $\alpha$, we define the restriction map from the set of positive elements of AFLOPowerset to itself: it sends
+$E$ to $preorderToPowerset(AP(r,powersetToPreorder(E)))$.
+    
+\end{subdefi}
+
+\begin{sublemma}[restriction\_weighted\_is\_smaller]
+If $r$ is a linear order on $\alpha$ and $E$ is a positive element of AFLOPowerset, then the image of $E$ by the restriction map is included
+in $E$.
+
+\end{sublemma}
+
+\begin{subdefi}[R\_weighted]
+The restriction map as a map from the set of facets of the weighted complex to the set of finite sets of subsets of $\alpha$.
+
+\end{subdefi}
+
+\subsection{The case of a finite set}
+
+From now, we suppose that $\alpha$ is finite.
+
+\begin{sublemma}[AFLOPartitions\_iff]
+Let $p$ be a preorder on $\alpha$. Then $p$ is a positive AFLO partition if and only if it is total and every element of $preorderToPowerset(p)$ is
+a positive set.
+
+\end{sublemma}
+
+\begin{sublemma}[AFLOPowerset\_positive\_iff]
+Let $E$ be a finite set of subsets of $\alpha$. Then $E$ is a positive element of AFLOPowerset if and only if it is totally ordered by inclusion,
+doesn't contain $\varnothing$ and $\alpha$ and all its elements are positive sets.
+
+\end{sublemma}
+
+\begin{sublemma}[WeightedComplex\_nonempty\_iff]
+The weighted complex is nonempty if and only if $card(\alpha)\geq 2$.
+
+\end{sublemma}
+
+\begin{sublemma}[WeightedComplex\_all\_iff]
+The weighted complex is equal to the Coxeter complex if and only if $card(\alpha)<2$ or $\mu(a)\geq 0$ for every element $a$ of $\alpha$.
+\footnote{This should also be true for infinite $\alpha$.}
+
+\end{sublemma}
+
+
+\subsection{The distinguished facet map}
+
+\begin{sublemma}[LinearOrder\_etc\_respects\_AFLO\_positive]
+Let $r$ be a linear order on $\alpha$ such that $\mu$ is antitone, and let $s$ be a positive AFLO partition. Then the associated linear order
+$LO(r,s)$ is a positive AFLO partition.
+
+\end{sublemma}
+
+\begin{subdefi}[distinguishedFacet\_weighted]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone, we define the distinguished facet map from the set of positive elements of 
+AFLOPowerset to itself: it sends $E$ to $preorderToPowerset(LO(r,powersetToPreorder(E)))$.
+    
+\end{subdefi}
+
+\begin{sublemma}[distinguishedFacet\_weighted\_is\_smaller]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone and $E$ is a positive element of AFLOPowerset, then the image of $E$ by the 
+distinguished facet map contains $E$.
+
+\end{sublemma}
+
+\begin{sublemma}[distinguishedFacet\_weighted\_is\_facet\_CoxeterComplex]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone and $E$ is a facet of the weighted complex, then the image of $E$ by
+the distinguished facet map is a facet of the Coxeter complex.
+
+\end{sublemma}
+
+\begin{sublemma}[distinguishedFacet\_weighted\_is\_face\_WeightedComplex]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone and $E$ is a facet of the weighted complex, then the image of $E$ by
+the distinguished facet map is a face of the weighted complex.
+
+\end{sublemma}
+
+\begin{sublemma}[FacetWeightedComplex\_iff]
+Let $s$ be a finite set of subsets of $\alpha$. Then $s$ is a facet of the weighed complex if and only if it is a facet of the Coxeter complex
+and a face of the weighted complex.
+
+\end{sublemma}
+
+\begin{sublemma}[R\_comparison]
+If $r$ is a linear order on $\alpha$ and $s$ is a facet of the weighted complex, then its image by the maps $R$ for the Coxeter complex and
+the weighted complex are equal.
+
+\end{sublemma}
+
+
+\begin{subdefi}[DF\_weighted]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone,
+the distinguished facet map as a map from the set of faces of the weighted complex to the set of facets of the weighted complex.
+
+\end{subdefi}
+
+
+\begin{sublemma}[DF\_comparison]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone and $s$ is a face of the weighted complex, then its image by the distinguished
+facet maps for the Coxeter complex and the weighted complex are equal.
+
+\end{sublemma}
+
+\begin{sublemma}[R\_weighted\_eq\_empty\_iff]
+Let $r$ be a linear order on $\alpha$ and $s$ be a facet of the weighed complex. Then $R(s)=\varnothing$ if and only if $powersetToPreorder(s)=r$.
+
+\end{sublemma}
+
+\begin{sublemma}[R\_weighted\_eq\_self\_iff]
+Let $r$ be a linear order on $\alpha$ such that $\mu$ is antitone and $s$ be a facet of the weighed complex. Then $R(s)=s$ if and only if $powersetToPreorder(s)$ is 
+the dual of $r$.
+
+\end{sublemma}
+
+
+\subsection{Facets of the weighted complex}
+
+\begin{sublemma}[Fixed\_linear\_order\_in\_AFLO\_positive]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone, then $r$ is a positive AFLO partition.
+
+\end{sublemma}
+
+\begin{sublemma}[Fixed\_linear\_order\_in\_WeightedComplex]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone and if $card(\alpha)\geq 2$, then $preorderToPowerset(r)$ is a face of the weighted complex.
+
+\end{sublemma}
+
+\begin{sublemma}[Dual\_linear\_order\_in\_AFLO\_positive]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone, then the dual $r$ is a positive AFLO partition if and only $\mu(a)\geq 0$ for every element
+$a$ of $\alpha$.
+
+\end{sublemma}
+
+\begin{sublemma}[Dual\_linear\_order\_in\_WeightedComplex]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone and if $card(\alpha)\geq 2$, then the image of the dual $r$ by $preorderToPowerset$ is a 
+face of the weighted complex if and only $\mu(a)\geq 0$ for every element
+
+\end{sublemma}
+
+
+\subsection{Decomposability of the weighted complex}
+
+\begin{sublemma}[WeightedComplex\_is\_decomposable]
+If $r$ is a linear order on $\alpha$ such that $\mu$ is antitone, then the pair $(R,DF)$ is a decomposition of the weighted complex.
+
+\end{sublemma}
+
+\subsection{Some properties of the weighted complex}
+
+\begin{sublemma}[WeightedComplex\_is\_finite]
+The weighted complex is finite.
+
+\end{sublemma}
+
+\begin{sublemma}[WeightedComplex\_dimension\_facet]
+If $s$ is a facet of the weighted complex, then $card(s)=card(\alpha)-1$.
+
+\end{sublemma}
+
+\begin{sublemma}[WeightedComplex\_is\_pure]
+The weighted complex is pure.
+
+\end{sublemma}
+
+\begin{sublemma}[WeightedComplex\_Pi0Facet]
+Let $r$ be a linear order on $\alpha$ such that $\mu$ is antitone and let $s$ be a facet of the weighted complex. Then $s$ is a $\pi_0$ facet if
+and only if $powersetToPreorder(s)=r$ or $card(\alpha)=2$.
+
+\end{sublemma}
+
+\begin{sublemma}[WeightedComplex\_HomologyFacet]
+Let $r$ be a linear order on $\alpha$ such that $\mu$ is antitone and let $s$ be a facet of the weighted complex. Then $s$ is a homology facet if
+and only if $powersetToPreorder(s)$ is equal to the dual of $r$ and $card(\alpha)>2$.
+
+\end{sublemma}
+
+
+\subsection{Shellability of the weighted complex}
+
+\begin{subdefi}[WeightedComplexFacets\_to\_LinearOrders]
+A map from the set of facets of the weighted complex to the set of linear orders on $\alpha$ (given by $powersetToPreorder$).
+
+\end{subdefi}
+
+\begin{sublemma}[WeightedComplexFacets\_to\_LinearOrders\_injective]
+The map of the previous definition is injective.
+
+\end{sublemma}
+
+\begin{subdefi}[WeakBruhatOrder\_facets\_WeightedComplex]
+Let $r$ be a linear order on $\alpha$. We define the weak Bruhat order (relative to $r$) on the set of facets of the weighted complex by
+lifting the weak Bruhat on the set of linear orders on $\alpha$.
+
+\end{subdefi}
+
+\begin{sublemma}[WeakBruhat\_compatible\_with\_DF\_weighted]
+Let $r$ be a linear order on $\alpha$ such that $\mu$ is antitone. Then the weak Bruhat order on the set of facets of the weighted complex
+is compatible with the map $DF$.
+
+\end{sublemma}
+
+\begin{sublemma}[WeightedComplexShelling]
+Let $r$ be a linear order on $\alpha$ such that $\mu$ is antitone. Then every linear order on the set of facets of the weighted complex refining
+the weak Bruhat order is a shelling order.
+
+\end{sublemma}
+
+
+\subsection{Euler-Poincaré characteristic of the weighted complex}
+
+\begin{subdefi}[FacetWeightedComplexofLinearOrder]
+Let $r$ be a linear order on $\alpha$ such that $\mu$ is antitone. If $card(\alpha)\geq 2$, this defines the facet of the weighted complex
+corresponding to $preorderToPowerset(r)$.
+
+\end{subdefi}
+
+\begin{sublemma}[WeightedComplex\_of\_pair]
+Let $a,b$ be elements of $\alpha$ such that $a\ne b$ and $\alpha$ is equal to $\{a,b\}$.  If $\mu(a)\geq 0$ and $\mu(b)<0$, then a finite set
+of subsets of $\alpha$ is a face of the weighted complex if and only it is equal to $\{\{a\}\}$.
+
+\end{sublemma}
+
+\begin{sublemma}[preorderToPowerset\_of\_pair]
+Let $r$ be a linear order on $\alpha$ and $a,b$ be elements of $\alpha$ such that $a<_r b$ and $\alpha$ is equal to $\{a,b\}$.  Then 
+$preorderToPowerset(r)$ is equal to $\{\{a\}\}$.
+
+\end{sublemma}
+
+\begin{sublemma}[EulerPoincareCharacteristic\_WeightedComplex]
+Suppose that $\alpha$ is nonempty. Then the Euler-Poincaré characteristic of the weighted complex is equal to $1+(-1)^{card(\alpha)}$ if
+$\mu(a)\geq 0$ for every element $a$ of $\alpha$, and to $1$ otherwise. 
+
+\end{sublemma}
+

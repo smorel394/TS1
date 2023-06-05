@@ -41,7 +41,6 @@ lemma Exists_LinearOrder_antitone : ∃ (r : LinearOrder α), @Antitone α ℝ r
   exists @AsLinearOrder.linearOrder _ u {total := LinearOrder_of_total_preorder_and_linear_order_is_total (ArbitraryLinearOrder α) hstot}
 
 
-variable {hsummable : Summable μ} {hpos : tsum μ ≥ 0}
 
 /- A sanity check: if α is finite, then the summability condition on μ is automatic, and the positivity condition reduces to 
 Finset.sum Finset.univ μ ≥ 0.-/
@@ -51,6 +50,8 @@ lemma Positivity_condition [Fintype α] (μ : α → ℝ) : Summable μ ∧ (tsu
   constructor 
   . exact h.summable 
   . rw [h.tsum_eq] 
+
+variable {hsummable : Summable μ} {hpos : tsum μ ≥ 0}
 
 
 namespace FiniteWeightedComplex

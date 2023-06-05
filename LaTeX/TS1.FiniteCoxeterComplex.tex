@@ -120,3 +120,167 @@ $preorderToPowerset(s)$ is the dual of $r$.
 
 \subsection{The distinguished facet map}
 
+\begin{sublemma}[LinearOrder\_etc\_respects\_AFLO]
+Let $r$ be a linear order on $\alpha$ and $s$ be an AFLO partition. Then the associated linear order $LO(r,s)$ is an AFLO partition.
+
+\end{sublemma}
+
+\begin{subdefi}[distinguishedFacet]
+If $r$ is a linear order on $\alpha$ and $E$ is in $AFLOPowerset$, we define the image of $E$ by the distinguished facet map as an element
+of $AFLOPowerset$: we take $powersetToPreorder(E)$, apply the function $LO(r,\cdot)$ and then apply $preorderToPowerset$.
+
+\end{subdefi}
+
+\begin{sublemma}[distinguishedFacet\_is\_bigger]
+If $r$ is a linear order on $\alpha$ and $E$ is in $AFLOPowerset$, the image of $E$ by the distinguished facet map contains in $E$.
+
+\end{sublemma}
+
+\begin{sublemma}[distinguishedFacet\_is\_facet]
+If $r$ is a linear order on $\alpha$ and $E$ is a face of the Coxeter complex, the image of $E$ by the distinguished facet map is a facet
+of the Coxeter complex.
+
+\end{sublemma}
+
+\begin{subdefi}[DF]
+The map $DF$ is the distinguished facet map, seen as a map from the set of faces of the Coxeter complex to the set of facets of
+the Coxeter complex.
+
+\end{subdefi}
+
+
+
+\subsection{Decomposability of the Coxeter complex}
+
+\begin{sublemma}[CoxeterComplex\_is\_decomposable]
+The pair $(R,DF)$ is a decomposition of the Coxeter complex.
+
+\end{sublemma}
+
+
+\subsection{Some properties of the Coxeter complex}
+
+\begin{sublemma}[CoxeterComplex\_nonempty\_iff]
+The Coxeter complex is nonempty if and only of $card(\alpha)$ is at least $2$.
+
+\end{sublemma}
+
+\begin{sublemma}[CoxeterComplex\_is\_finite]
+The Coxeter complex is finite.
+
+\end{sublemma}
+
+\begin{sublemma}[NonemptyType\_of\_face\_CoxeterComplex]
+If $s$ is a face of the Coxeter complex, then $\alpha$ is nonempty.
+\footnote{Well duh... This is here for convenience.}
+
+\end{sublemma}
+
+\begin{sublemma}[CoxeterComplex\_dimension\_facet]
+Let $s$ be a facet of the Coxeter complex. Then $card(s)=card(\alpha)-1$.
+
+\end{sublemma}
+
+\begin{sublemma}[CoxeterComplex\_is\_pure]
+The Coxeter complex is pure.
+
+\end{sublemma}
+
+\begin{sublemma}[CoxeterComplex\_Pi0Facet]
+Let $r$ be a linear order on $\alpha$ and $s$ be a face of the Coxeter complex. Then $s$ is a $\pi_0$ facet if and only if
+$powersetToPreorder(s)=r$ or $card(\alpha)=2$.
+
+\end{sublemma}
+
+\begin{sublemma}[CoxeterComplex\_HomologyFacet]
+Let $r$ be a linear order on $\alpha$ and $s$ be a face of the Coxeter complex. Then $s$ is a homology facet if and only if
+$powersetToPreorder(s)$ is the dual of $r$ and $card(\alpha)>2$.
+
+\end{sublemma}
+
+
+\subsection{Shellability of the Coxeter complex}
+
+\begin{subdefi}[CoxeterComplexFacetstoLinearOrders]
+A map from the set of facets of the Coxeter complex to the set of linear orders on $\alpha$ (given by $powersetToPreorder$).
+
+\end{subdefi}
+
+\begin{sublemma}[CoxeterComplexFacetstoLinearOrders\_injective]
+The map from the previous definition is injective.
+
+\end{sublemma}
+
+\begin{subdefi}[LinearOrderstoCoxeterComplexFacets]
+If $card(\alpha)\geq 2$, a map from linear orders on $\alpha$ to facets of the Coxeter complex (given by $preorderToPowerset$).
+
+\end{subdefi}
+
+\begin{subdefi}[FacetsCoxeterComplextoLinearOrders]
+If $card(\alpha)\geq 2$, an equivalence between facets of the Coxeter complex and linear orders on $\alpha$ (given by $powersetToPreorder$ and
+$preorderToPowerset$).
+
+\end{subdefi}
+
+\begin{sublemma}[FacetsCoxeterComplex.card]
+If $card(\alpha)\geq 2$, then the cardinality of the set of facets of the Coxeter complex is $(card \alpha)!$.
+
+\end{sublemma}
+
+This lemma is the only one that does not have a Lean proof, so we provide a proof in the case $card(\alpha)=2$ (which is the only one we need).
+
+\begin{sublemma}[Elements\_pair]
+If $a,b,c$ are elements of $\alpha$ such that $\alpha$ is equal to $\{a,b\}$, then $c=a$ or $c=b$.
+
+\end{sublemma}
+
+\begin{sublemma}[twoStepPreorder\_linear]
+If $a,b$ are elements of $\alpha$ such that $\alpha$ is equal to $\{a,b\}$, then the two-step preorder associated to $a$ is a linear order.
+
+\end{sublemma}
+
+\begin{sublemma}[fintypePreorder]
+The set of preorders on $\alpha$ is finite.
+
+\end{sublemma}
+
+\begin{sublemma}[CardLinearOrders\_pair]
+If $card(\alpha)=2$, then the set of linear orders on $\alpha$ has cardinality $2$.
+
+\end{sublemma}
+
+\begin{sublemma}[FacetsCoxeterComplex.card\_pair]
+If $card(\alpha)=2$, then the set of facets of the Coxeter complex has cardinality $2$.
+
+\end{sublemma}
+
+\begin{subdefi}[WeakBruhatOrder\_facets]
+If $r$ is a linear order on $\alpha$, this defines the weak Bruhat order relative to $r$ on the set of facets of the Coxeter complex, by lifting the
+weak Bruhat on linear orders.
+
+\end{subdefi}
+
+\begin{sublemma}[WeakBruhat\_compatible\_with\_DF]
+Let $r$ be a linear order on $\alpha$. Then the weak Bruhat order on the facets of the Coxeter complex is compatible with the map $DF$.
+
+\end{sublemma}
+
+\begin{sublemma}
+Let $r$ be a linear order on $\alpha$. Then any linear order on the set of facets of the Coxeter complex refining the weak Bruhat is a shelling order.
+
+\end{sublemma}
+
+
+\subsection{Euler-Poincaré characteristic of the Coxeter complex}
+
+\begin{subdefi}[FacetofLinearOrder]
+If $card(\alpha)>1$, the facet of the Coxeter complex associated to a linear order $r$ on $\alpha$.
+\footnote{Didn't we already have this definition before ? Why repeat it ?}
+
+\end{subdefi}
+
+\begin{sublemma}[EulerPoincareCharacteristic\_CoxeterComplex]
+If $\alpha$ is nonempty, then the Euler-Poincaré characteristic of the Coxeter complex is equal to $1+(-1)^{card(\alpha)}$.
+
+\end{sublemma}
+

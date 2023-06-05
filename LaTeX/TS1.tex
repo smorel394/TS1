@@ -25,4 +25,86 @@ internal organizations of these files.
 \include{TS1.FiniteCoxeterComplex}
 \include{TS1.FiniteWeightedComplex}
 
+\section{Application}
+
+We fix a finite set $\alpha$.
+
+\subsection{Some lemmas}
+
+\begin{subdefi}[fintypeLinearOrderedPartitions]
+The set of linearly ordered partitions of $\alpha$ is finite.
+
+\end{subdefi}
+
+\begin{subdefi}[fintypeAntisymmetrization]
+For every preorder $s$ on $\alpha$, the antisymmetrization of $s$ is finite.
+
+\end{subdefi}
+
+\begin{subdefi}[CardBlocksPartition]
+For $s$ a preorder on $\alpha$, the cardinality of the set of blocks of $s$ is the cardinality of the antisymmetrization of $s$.
+
+\end{subdefi}
+
+\begin{sublemma}[CardBlocksTrivialPreorder\_nonempty]
+If $\alpha$ is nonempty, then the cardinality of the set of blocks of the trivial preorder is equal to $1$.
+
+\end{sublemma}
+
+\begin{sublemma}[CardBlocksTrivialPreorder\_empty]
+If $\alpha$ is empty, then the cardinality of the set of blocks of the trivial preorder is equal to $0$.
+
+\end{sublemma}
+
+\begin{sublemma}[CardBlocksPartition\_vs\_card\_preorderToPowerset]
+If $\alpha$ is nonempty, then, for every preorder $s$ on $\alpha$, the cardinality of the set of blocks of $s$ is equal to 
+$card(preorderToPowerset(s))+1$.
+
+\end{sublemma}
+
+\begin{sublemma}[CardBlocksTwoStepPreorder]
+If $a,b$ are elements of $\alpha$ such that $a\ne b$, then cardinality of the set of blocks of the two-step preorder defined by $a$
+is equal to $2$.
+
+\end{sublemma}
+
+
+\subsection{Alternating sum on positive linearly ordered partitions}
+
+We fix a function $\mu:\alpha\to\R$ such that $\sum_{\alpha}\mu\geq 0$.
+
+\begin{sublemma}[AFLOPartitions\_positive\_eq]
+The set of positive AFLO partitions is equal to the set of total preorders $s$ such that, for every element $a$ of $\alpha$,
+the half-infinite interval $]\leftarrow,a]$ for $s$ is a positive set. 
+
+\end{sublemma}
+
+\begin{sublemma}[trivialPreorder\_in\_AFLOPartitions\_positive]
+The trivial preorder is a positive AFLO partition.
+
+\end{sublemma}
+
+\begin{sublemma}[AFLOPartitions\_positive\_of\_empty]
+If $\alpha$ is empty, then the set of positive AFLO partitions is the singleton consisting of the trivial preorder.
+
+\end{sublemma}
+
+\begin{sublemma}[AFLOPartitions\_positive\_of\_singleton]
+If there exists an element $a$ of $\alpha$ such that all elements of $\alpha$ are equal to $a$.
+then the set of positive AFLO partitions is the singleton consisting of the trivial preorder.
+
+\end{sublemma}
+
+\begin{subdefi}[Sum\_of\_signs\_over\_AFLOPartitions\_positive]
+We define the sum that we want to calculate: this is the sum over positive AFLO partitions of $-1$ to
+the cardinality of the set of blocks of $s$.
+
+\end{subdefi}
+
+\begin{sublemma}[Sum\_of\_signs\_eq]
+We calculate the sum of the previous definition: it is equal to $(-1)^{card(\alpha)}$ if $\mu(a)\geq 0$ for every element $a$ of $\alpha$,
+and to $0$ otherwise.
+
+\end{sublemma}
+
 \end{document}
