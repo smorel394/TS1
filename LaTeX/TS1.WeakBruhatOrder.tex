@@ -1,2 +1,163 @@
 \section{The weak Bruhat order on linear orders}
 
+We fix a set $\alpha$.
+
+\subsection{Inversions}
+
+\begin{subdefi}[Inversions]
+Let $r$ and $s$ be relations on $\alpha$. The set $Inv(r,s)$ of inversions of $s$ relative to $r$ is the set of pair $(a,b)$ of
+elements of $\alpha$ such that $r(a,b)$ and $s(b,a)$ hold. 
+
+\end{subdefi}
+
+If $r$ (resp. $s$) is a preorder, we write $Inv(r,s)$ for $Inv(<_r,s)$ (resp. $Inv(r,<_s))$).
+
+\begin{sublemma}[Inversions\_antitone]
+Let $r$ be a relation on $\alpha$ and $s,t$ be preorders on $\alpha$ such that $s\le t$ and $s$ is total. Then
+$Inv(r,s)\subset Inv(r,t)$.
+
+\end{sublemma}
+
+\begin{sublemma}[LinearOrders\_eq\_iff\_no\_inversions]
+Let $r,r'$ be linear orders on $\alpha$. Then $r=r'$ if and only $Inv(r,r')$ is empty.
+
+\end{sublemma}
+
+\begin{sublemma}[Inversions\_of\_associated\_linear\_order]
+Let $r$ be a linear order on $\alpha$ and $s$ be a total preorder on $\alpha$. Then $Inv(r,s)=Inv(r,LO(r,s))$.
+
+\end{sublemma}
+
+\begin{sublemma}[Inversions\_of\_AscentPartition]
+Let $r$ be a linear order on $\alpha$ and $s$ be a total preorder on $\alpha$. Then $Inv(r,s)=Inv(r,AP(r,s))$.
+
+\end{sublemma}
+
+\begin{sublemma}[Inversions\_dual\_order]
+Let $r$ be a linear order on $\alpha$ and $a,b$ be elements of $\alpha$. Then $(a,b)\in Inv(r,dual(r))$ if and only
+if $a<_r b$.
+
+\end{sublemma}
+
+\begin{sublemma}[Inversions\_determine\_linear\_order\_aux \& Inversions\_determine\_linear\_order]
+Let $r,s_1,s_2$ be linear orders on $\alpha$. If $Inv(r,s_1)=Inv(r,s_2)$, then $s_1=s_2$.
+
+\end{sublemma}
+
+
+\subsection{Weak Bruhat order}
+
+\begin{subdefi}[WeakBruhatOrder]
+Let $r$ be a linear order on $\alpha$. We define the weak Bruhat order (relative to $r$) on linear orders by
+setting $s<_{wB}t$ if $Inv(r,s)\subset Inv(r,t)$.
+
+\end{subdefi}
+
+\begin{sublemma}[WeakBruhatOrder\_iff]
+Let $r,s_1,s_2$ be linear orders on $\alpha$. Then $s_1\le s_2$ for the weak Bruhat order realtive to $r$ if and only
+$Inv(s_1,s_2)=Inv(r,s_2) \setminus Inv(r,s_1)$.
+
+\end{sublemma}
+
+\begin{sublemma}[WeakBruhatOrder\_iff']
+Let $r,s_1,s_2$ be linear orders on $\alpha$. Then $s_1\le s_2$ for the weak Bruhat order realtive to $r$ if and only
+$Inv(r,s_2)=Inv(r,s_1) \cup Inv(s_1,s_2)$.
+
+\end{sublemma}
+
+\begin{sublemma}[WeakBruhatOrder\_smallest]
+Let $r,s$ be linear orders on $\alpha$. Then $r\le s$ for the weak Bruhat order relative to $r$.
+
+\end{sublemma}
+
+\begin{sublemma}[WeakBruhatOrder\_greatest]
+Let $r,s$ be linear orders on $\alpha$. Then $s\le dual(r)$ for the weak Bruhat order relative to $r$.
+
+\end{sublemma}
+
+
+\subsection{Finite chains for the weak Bruhat order}
+
+\begin{sublemma}[Finite\_inversions\_finite\_inversion\_interval]
+If $s,t$ are linear orders on $\alpha$ such that $Inv(s,t)$ is finite and $a,b$ are elements of $\alpha$ such that
+$(a,b)\in Inv(s,t)$, then the closed interval $[a.b]$ for $s$ is finite.
+
+\end{sublemma}
+
+\begin{sublemma}[Finite\_inversions\_exists\_elementary\_inversion\_rec \& Finite\_inversions\_exists\_elementary\_inversion]
+If $s,t$ are linear orders on $\alpha$ such that $Inv(s,t)$ is finite and nonempty, then there exist $a,b$ in $\alpha$ such that
+$(a,b)\in Inv(s,t)$ and $b$ covers $a$ for $s$.
+
+\end{sublemma}
+
+\begin{subdefi}[Transposition]
+If $a,b$ are elements of $\alpha$, we define the transposition $\tau_{a,b}$: it is the map from $\alpha$ to $\alpha$ that exchanges
+$a$ and $b$ and leaves all other elements fixed.
+
+\end{subdefi}
+
+\begin{sublemma}[Transposition\_is\_involutive]
+Let $a,b,x$ be elements of $\alpha$. Then $\tau_{a,b}(\tau_{a,b}(x))=x$.
+
+\end{sublemma}
+
+\begin{sublemma}[Transposition\_is\_injective]
+Let $a,b$ be elements of $\alpha$. Then $\tau_{a,b}$ is injective.
+
+\end{sublemma}
+
+\begin{subdefi}[TransposedPreorder]
+If $a,b$ are elements of $\alpha$ and $s$ is a preorder on $\alpha$, then the transposed preorder $\tau_{a,b}(s)$ is the lift of
+$s$ via $\tau_{a,b}$.
+
+\end{subdefi}
+
+\begin{subdefi}[Transposed\_of\_linear\_is\_linear]
+If $a,b$ are elements of $\alpha$ and $s$ is a preorder on $\alpha$ that is a linear order, then $\tau_{a,b}(s)$ is a linear order.
+
+\end{subdefi}
+
+\begin{subdefi}[CoveringElementBruhatOrder]
+Let $s,t$ be linear orders on $\alpha$ such that $Inv(s,t)$ is finite and nonempty. We define a linear order $cov(s,t)$ on $\alpha$ by taking the
+transposed preorder of $s$ by an arbitrary $(a,b)\in Inv(s,t)$ such that $b$ covers $a$ for $s$.
+
+\end{subdefi}
+
+\begin{sublemma}[CoveringElementBruhatOrder\_Inversions1]
+Let $s,t$ be linear orders on $\alpha$ such that $Inv(s,t)$ is finite and nonempty. Then
+$Inv(s,cov(s,t))$ is equal to $\{(a,b)\}$, where $(a,b)$ is the element of $Inv(s,t)$ that was used to define $cov(s,t)$. 
+
+\end{sublemma}
+
+\begin{sublemma}[CoveringElementBruhatOrder\_Inversions2]
+Let $s,t$ be linear orders on $\alpha$ such that $Inv(s,t)$ is finite and nonempty. Then
+$Inv(cov(s,t),t)$ is equal to $Inv(s,t)\setminus\{(a,b)\}$, where $(a,b)$ is the element of $Inv(s,t)$ that was used to define $cov(s,t)$. 
+
+\end{sublemma}
+
+\begin{sublemma}[CoveringElementBruhatOrder\_Inversions3]
+Let $s,t$ be linear orders on $\alpha$ such that $Inv(s,t)$ is finite and nonempty. Then
+$Inv(cov(s,t),t)\subset Inv(s,t)$.
+
+\end{sublemma}
+
+\begin{sublemma}[CoveringElementBruhatOrder\_Inversions4]
+Let $r,s,t$ be linear orders on $\alpha$ such that $Inv(s,t)$ is finite and nonempty and $s\le t$ for the weak Bruhat relative to $r$.
+Then $Inv(r,cov(s,t))$ is equal $Inv(r,s)\cup\{(a,b)\}$, where $(a,b)$ is the element of $Inv(s,t)$ that was used to define $cov(s,t)$. 
+
+\end{sublemma}
+
+\begin{sublemma}[CoveringElementBruhatOrder\_covering]
+Let $r,s,t$ be linear orders on $\alpha$ such that $Inv(s,t)$ is finite and nonempty and $s\le t$ for the weak Bruhat relative to $r$.
+Then $cov(s,t)$ covers $s$ for the weak Bruhat order relative to $r$
+
+\end{sublemma}
+
+\begin{sublemma}[CoveringElementBruhatOrder\_smaller]
+Let $r,s,t$ be linear orders on $\alpha$ such that $Inv(s,t)$ is finite and nonempty and $s\le t$ for the weak Bruhat relative to $r$.
+Then $cov(s,t)\le t$ for the weak Bruhat order relative to $r$
+
+\end{sublemma}
+
+
+

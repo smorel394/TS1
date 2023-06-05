@@ -77,6 +77,7 @@ variable {α}
 
 /- For future use, we isolate the fact that, is s in Finset (Set α) corresponds to a face of the Coxeter complex, then we have
 s = preorderToPowerset (powersetToPreorder s).-/
+-- It might be better to have a version for AFLOPowerset too.
 
 lemma Faces_powersetToPreordertoPowerset {s : Finset (Set α)} (hsf : s ∈ (CoxeterComplex α).faces) : 
 ↑s = preorderToPowerset (powersetToPreorder (s : Set (Set α))) := by
@@ -256,7 +257,7 @@ E ∈ AFLOPowerset α := by
     exact fun X hXE => (h.2 X hXE).1 
 
 /- The facets of the Coxeter complex correspond to linear orders on α. (If α is infinite, the Coxeter complex has no facets, and the linear orders
-will define maximal ideals of the face poset of the Coxeter complex, though we don't get all maximal ideals this way.)-/
+will define maximal ideals of the face poset of the Coxeter complex. Do we get all maximal ideals this way ? I think so.)-/
 
 lemma Facets_are_linear_orders {s : Finset (Set α)} (hsF : s ∈ (CoxeterComplex α).faces) : 
 s ∈ (CoxeterComplex α).facets ↔ IsLinearOrder α (powersetToPreorder ↑s).le := by 

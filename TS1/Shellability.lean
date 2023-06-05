@@ -208,11 +208,14 @@ IsShellingOrder r := by
   . rw [←ne_eq, ←Set.nonempty_iff_ne_empty] at hof
     exact Or.inr ⟨OldFacesDecompositionIsPure hdec hcomp s, OldFacesDecompositionDimension hdec hcomp s hof⟩
 
+lemma ExistsFacetofDecomposable {R : K.facets → Finset α}  {DF : K.faces → K.facets} (hdec : IsDecomposition R DF) :
+ExistsFacet K := fun s => by exists (DF s); exact Decomposition_DF_bigger_than_source hdec s 
+
 lemma ShellableofDecomposable_smallestfacet {R : K.facets → Finset α}  {DF : K.faces → K.facets} (hdec : IsDecomposition R DF)
-{r : LinearOrder K.facets} (hcomp : CompatibleOrder DF r.toPartialOrder) (hwf : WellFounded r.lt) (hef : ExistsFacet K) :
-ShellingOrderSmallestFacet r hwf hef = DF := by 
+{r : LinearOrder K.facets} (hcomp : CompatibleOrder DF r.toPartialOrder) (hwf : WellFounded r.lt) : 
+ShellingOrderSmallestFacet r hwf (ExistsFacetofDecomposable hdec) = DF := by  
   funext s 
-  have h1 := ShellingOrderSmallestFacet_smallest r hwf hef s (DF s) (Decomposition_DF_bigger_than_source hdec s)
+  have h1 := ShellingOrderSmallestFacet_smallest r hwf (ExistsFacetofDecomposable hdec) s (DF s) (Decomposition_DF_bigger_than_source hdec s)
   have h2 : s.1 ∉ OldFaces r.toPartialOrder (DF s) := by 
     rw [OldFacesCompatibleOrder hcomp]
     exact Decomposition_DF_bigger_than_source hdec s 
@@ -221,15 +224,16 @@ ShellingOrderSmallestFacet r hwf hef = DF := by
   push_neg at h2 
   apply @eq_of_le_of_not_lt _ r.toPartialOrder _ _ h1 
   by_contra habs 
-  exact h2 s.2 (Decomposition_DF_bigger_than_source hdec s) (ShellingOrderSmallestFacet r hwf hef s) habs (ShellingOrderSmallestFacet_bigger r hwf hef s)
-
+  exact h2 s.2 (Decomposition_DF_bigger_than_source hdec s) (ShellingOrderSmallestFacet r hwf (ExistsFacetofDecomposable hdec) s) habs 
+    (ShellingOrderSmallestFacet_bigger r hwf (ExistsFacetofDecomposable hdec) s)
 
 lemma ShellableofDecomposable_intervals {R : K.facets → Finset α}  {DF : K.faces → K.facets} (hdec : IsDecomposition R DF)
-{r : LinearOrder K.facets} (hcomp : CompatibleOrder DF r.toPartialOrder) (hwf : WellFounded r.lt) (hef : ExistsFacet K) (s : K.facets) :
-DecompositionInterval hdec s = DecompositionInterval (ShellableIsDecomposable (ShellableofDecomposable hdec hcomp hwf) hef) s := by 
+{r : LinearOrder K.facets} (hcomp : CompatibleOrder DF r.toPartialOrder) (hwf : WellFounded r.lt) (s : K.facets) :
+DecompositionInterval hdec s = DecompositionInterval (ShellableIsDecomposable (ShellableofDecomposable hdec hcomp hwf)
+  (ExistsFacetofDecomposable hdec)) s := by 
   ext t 
   rw [DecompositionInterval_eq, DecompositionInterval_eq]
-  rw [ShellableofDecomposable_smallestfacet hdec hcomp hwf hef]
+  rw [ShellableofDecomposable_smallestfacet hdec hcomp hwf]
 
 
 

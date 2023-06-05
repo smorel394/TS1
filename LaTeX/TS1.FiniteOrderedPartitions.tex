@@ -1,0 +1,63 @@
+\section{Finite linearly ordered partitions}
+
+We fix a set $\alpha$.
+
+\subsection{Almost finite linearly ordered partitions}
+
+\begin{subdefi}[AFLOPartitions]
+An \emph{almost finite linearly ordered partition} (AFLO partition) of $\alpha$ is a total preorder $s$ on $\alpha$ such that:
+\begin{itemize}
+\item[(1)] For every element $a$ of $\alpha$, the half-infinite interval $]\leftarrow,a]$ for $s$ is equal to $\alpha$
+or finite.
+
+\item[(2)] The antisymmetrization of $s$ is finite.
+
+\end{itemize}
+\end{subdefi}
+
+\begin{subdefi}[AFLOPartitions.PartialOrder]
+We define a partial order on AFLO partitions by restricting the partial order on preorders.
+
+\end{subdefi}
+
+\begin{sublemma}[AFLO\_has\_finite\_blocks]
+If $s$ is an AFLO partition and $x$ is any nonmaximal element of the antisymmetrization of $s$, then the preimage of
+$x$ in $\alpha$ is finite.
+
+\end{sublemma}
+
+\begin{subdefi}[AFLOPartition\_is\_ELF]
+We define a structure of essentially locally finite preorder on any AFLO partition.
+
+\end{subdefi}
+
+
+\subsection{Sets of lower sets of AFLO partitions}
+
+We want to characterize the image of the set of AFLO partitions by the map $preorderToPowerset$.
+
+\begin{subdefi}[AFLOPowerset]
+We define AFLOPowerset to be the set of finite subsets $E$ of the powerset of $\alpha$ that are totally ordered by inclusion and such
+that, for every $X\in E$, we have $X$ nonempty, not equal to $\alpha$ and finite.
+
+\end{subdefi}
+
+\begin{sublemma}[AFLO\_preorderToPowerset\_finite]
+If $s$ is an AFLO partition, then $preorderToPowerset(s)$ is a finite set.
+
+\end{sublemma}
+
+\begin{subdefi}[preorderToPowersetFinset]
+For $s$ an AFLO partitions, $preorderToPowersetFinset(s)$ is $preorderToPowerset(s)$ seen as a finite subset of $\alpha$.
+
+\end{subdefi}
+
+\begin{subdefi}[AFLO\_preorderToPowerset]
+For every AFLO partition $s$, the finite set $preorderToPowersetFinset(s)$ is in AFLOPowerset.
+
+\end{subdefi}
+
+\begin{sublemma}[AFLO\_powersetToPreorder]
+If $E$ is an element of AFLOPowerset, then $powersetToPreorder(E)$ is an AFLO partition.
+
+\end{sublemma}

@@ -54,8 +54,8 @@ Set (Finset α) := {s | ∃ (hsf : s ∈ K.facets), IsHomologyFacet hdec ⟨s, h
 
 /- We prove that these sets are finite if K is finite.-/
 
-lemma π₀Facets_finite {R : K.facets → Finset α}  {DF : K.faces → K.facets} (hdec : IsDecomposition R DF)(hfin : 
-FiniteComplex K) : (π₀Facets hdec).Finite := by 
+lemma π₀Facets_finite {R : K.facets → Finset α}  {DF : K.faces → K.facets} (hdec : IsDecomposition R DF)
+(hfin : FiniteComplex K) : (π₀Facets hdec).Finite := by 
   rw [←Set.finite_coe_iff]
   apply @Finite.of_injective _ K.faces hfin (fun s => ⟨s.1, facets_subset (by match s.2 with | ⟨hsf,_⟩ => exact hsf)⟩)
   intro s t heq 
@@ -244,7 +244,7 @@ Finset.sum (Finset.filter (fun s => Quotient.mk (Setoid.ker (DFe DF)) s = x) (Fa
   simp only [ge_iff_le, Quotient_DFe_to_finset_is_facet_aux DF hfin hx, dite_true]
 
 
-
+-- We should not need K to be finite for this.
 lemma Quotient_DFe_to_finset_inj (DF : K.faces → K.facets) (hfin : FiniteComplex K) (x y : Quotient (Setoid.ker (DFe DF))) 
 (hx : x ∈ Finset.image (@Quotient.mk'' _ (Setoid.ker (DFe DF))) (FacesFinset hfin))
 (hy : y ∈ Finset.image (@Quotient.mk'' _ (Setoid.ker (DFe DF))) (FacesFinset hfin))
@@ -267,6 +267,7 @@ lemma Quotient_DFe_to_finset_inj (DF : K.faces → K.facets) (hfin : FiniteCompl
                                             rw [Setoid.ker_def]
                                             exact heq 
 
+-- We should not need K to be finite for this.
 lemma Quotient_DFe_to_finset_surj {R : K.facets → Finset α}  {DF : K.faces → K.facets} (hdec : IsDecomposition R DF) 
 (hfin : FiniteComplex K) (s : Finset α) (hsf : s ∈ FacetsFinset hfin) :
 ∃ (x : Quotient (Setoid.ker (DFe DF))), ∃ (_ : x ∈ Finset.image (@Quotient.mk'' _ (Setoid.ker (DFe DF))) (FacesFinset hfin)),

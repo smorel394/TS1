@@ -1,0 +1,122 @@
+\section{Coxeter complex of a finite symmetric group}
+
+We fix a set $\alpha$. The goal of this section is to define the Coxeter complex (for $\alpha$ arbitrary) and to prove that it is shellable.
+This relies on the fact that the Coxeter complex is decomposable, so we will define restriction and distinguished facet maps that depend on
+an auxiliary linear order on $\alpha$; the restriction map makes sense in general, but for the distinguished facet map we need to assume that
+$\alpha$ is finite (since otherwise the Coxeter complex has no facets).
+
+\subsection{Definition of the Coxeter complex}
+
+For now, we don't assume that $\alpha$ is finite, so we work with almost finite linearly ordered (AFLO) partitions and
+their sets of lower sets, AFLOPowerset.
+
+\begin{sublemma}[AFLOPowerset\_down\_closed]
+If $E$ is an element of $AFLOPowerset$, then so is every subset of $E$.
+
+\end{sublemma}
+
+\begin{subdefi}[CoxeterComplex]
+The \emph{Coxeter complex} is the abstract simplicial complex on the powerset of $\alpha$ whose faces are the nonempty elements of $AFLOPowerset$.
+
+\end{subdefi}
+
+\begin{sublemma}[FacesCoxeterComplex]
+Let $s$ be a finite set of subset of $\alpha$. Then $s$ is a face of the Coxeter complex if and only if $s$ is in AFLOPowerset and $s\ne\varnothing$.
+
+\end{sublemma}
+
+\begin{subdefi}[CoxeterComplextoPartitions]
+An isomorphism of ordered sets between $AFLOPowerset$ and the dual of the set of AFLO partitions, given the functions $powersetToPreorder$ and $preorderToPowerset$.
+
+
+\end{subdefi}
+
+\begin{sublemma}[Faces\_powersetToPreordertoPowerset]
+If $s$ is a face of the Coxeter complex, then $s=preorderToPowerset(powersetToPreorder(s))$.
+
+\end{sublemma}
+
+\begin{sublemma}[CoxeterComplex\_dimension\_face]
+Let $s$ be an element of $AFLOPowerset$, and suppose that $\alpha$ is nonempty. Then the cardinality of $s$ is equal to the
+cardinality of the antisymmetrization of $s$ minus $1$.
+
+\end{sublemma}
+
+\begin{sublemma}[twoStepPreorder\_AFLO]
+For every element $a$ of $\alpha$, the two-step preorder defined by $a$ is an AFLO partition.
+
+\end{sublemma}
+
+\begin{sublemma}[twoStepPreorder\_in\_CoxeterComplex]
+Let $a,b$ be elements of $\alpha$ such that $a\ne b$. Then the image by $preorderToPowerset$ of the two-step preorder defined by $a$
+is a face of the Coxeter complex.
+
+\end{sublemma}
+
+\begin{sublemma}[AFLOPartitions\_IsUpperSet]
+AFLO partitions form an upper set of the set of preorders of $\alpha$.
+
+\end{sublemma}
+
+
+\subsection{The restriction map}
+
+\begin{sublemma}[AscentPartition\_respects\_AFLO]
+Let $r$ be a linear order on $\alpha$ and $s$ be an AFLO partition. Then the ascent partition $AP(r,s)$ is an AFLO partition.
+
+\end{sublemma}
+
+\begin{subdefi}[restriction]
+If $r$ is a linear order on $\alpha$ and $E$ is in $AFLOPowerset$, we define the image of $E$ by the restriction map as an element
+of $AFLOPowerset$: we take $powersetToPreorder(E)$, apply the function $AP(r,\cdot)$ and then apply $preorderToPowerset$.
+
+\end{subdefi}
+
+\begin{sublemma}[restriction\_is\_smaller]
+If $r$ is a linear order on $\alpha$ and $E$ is in $AFLOPowerset$, the image of $E$ by the restriction map is contained in $E$.
+
+\end{sublemma}
+
+\begin{subdefi}[R]
+If $r$ is a linear order on $\alpha$, we define a map $R$ from the set of facets of the Coxeter complex to the set of finite sets of
+subsets of $\alpha$ by restricting the restriction map that we just defined.
+
+\end{subdefi}
+
+
+\subsection{The case of a finite set}
+
+From now, we assume that $\alpha$ is finite.
+
+\begin{sublemma}[AFLOPartitions\_is\_everything]
+Let $s$ be a preorder on $\alpha$. Then $s$ is an AFLO partition if and only if it is a linearly ordered partition (i.e. a total preorder).
+
+\end{sublemma}
+
+\begin{sublemma}[AFLOPowerset\_is\_everything]
+Let $E$ be a finite set of subsets of $\alpha$. Then $E$ is in AFLOPowerset if and only if it is totally ordered by inclusion and does not contain
+$\varnothing$ and $\alpha$.
+
+\end{sublemma}
+
+\begin{sublemma}[Facets\_are\_linear\_orders]
+Let $s$ be face of the Coxeter complex. Then $s$ is a facet if and only $powersetToPreorder(s)$ is a linear order on $\alpha$.
+
+\end{sublemma}
+
+\begin{sublemma}[R\_eq\_empty\_iff]
+Let $r$ be a linear order on $\alpha$ and $s$ be a facet of the Coxeter complex. Then $R(s)=\varnothing$ if and only if
+$preorderToPowerset(s)=r$.
+
+\end{sublemma}
+
+
+\begin{sublemma}[R\_eq\_self\_iff]
+Let $r$ be a linear order on $\alpha$ and $s$ be a facet of the Coxeter complex. Then $R(s)=s$ if and only if
+$preorderToPowerset(s)$ is the dual of $r$.
+
+\end{sublemma}
+
+
+\subsection{The distinguished facet map}
+

@@ -1,0 +1,206 @@
+\section{Decomposable abstract simplicial complexes}
+
+We fix a set $\alpha$ and an abstract simplicial complex $K$ on $\alpha$.
+
+\subsection{Definition of decomposability}
+
+\begin{subdefi}[IsDecomposition]
+Let $R$ be a function from the set of facets of $K$ to the set of finite subset of $\alpha$ and $DF$ be a function
+from the set of faces of $K$ to the set of facets of $K$.
+We say that $R$ and $DF$ define a decomposition of $K$ if:
+\begin{itemize}
+\item[(1)] For every facet $s$ of $K$, we have $R(s)\subset s$.
+\item[(2)] For every face $s$ of $K$ and every facet $t$ of $K$, we have $R(t)\subset s\subset t$ if and only $DF(s)=t$.
+
+\end{itemize}
+\end{subdefi}
+
+In what follows, we just say "$(R,DF)$ is a decomposition of $K$".
+
+\begin{sublemma}[Decomposition\_DF\_bigger\_than\_source]
+Let $(R,DF)$ be a decomposition of $K$.
+Then, for every face $s$ of $K$, we have $s\subset DF(s)$.
+
+\end{sublemma}
+
+\begin{sublemma}[Decomposition\_is\_union]
+Let $(R,DF)$ be a decomposition of $K$.
+Then, for every face $s$ of $K$, there exists a facet $t$ of $K$ such that $R(t)\le s\le t$.
+
+\end{sublemma}
+
+\begin{sublemma}[Decomposition\_is\_disjoint]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a face of $K$.
+If $t_1,t_2$ are facets of $K$ such that $R(t_1)\le s\le t_1$ and $R(t_2)\le s\le t_2$, then
+$t_1=t_2$.
+
+\end{sublemma}
+
+\begin{sublemma}[Decomposition\_DF\_of\_a\_facet]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a facet of $K$. Then $DF(s)=s$.
+
+\end{sublemma}
+
+\begin{sublemma}[Decomposition\_image\_of\_R]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a facet of $K$. If $R(s)\ne\varnothing$, then
+$R(s)$ is a face of $K$.
+
+\end{sublemma}
+
+\begin{sublemma}[Decomposition\_image\_of\_R']
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a facet of $K$. Then $R(s)=\varnothing$ or
+$R(s)$ is a face of $K$.
+
+\end{sublemma}
+
+\begin{sublemma}[Decomposition\_SF\_composed\_with\_R]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a facet of $K$. If $R(s)\ne\varnothing$, then $s=DF(R(s))$.
+
+\end{sublemma}
+
+\begin{sublemma}[Decomposition\_R\_determines\_DF]
+Let $(R,DF_1)$ and $(R,DF_2)$ be decompositions of $K$. Then $DF_1=DF_2$.
+
+\end{sublemma}
+
+
+\subsection{Intervals of a decomposition}
+
+\begin{subdefi}[Interval]
+If $s$ is empty of a face of $K$ and $t$ is a face of $K$, we define $Interval(s,t)$ as the finite set of faces $u$ of $K$
+such that $s\subset u\subset t$.
+
+\end{subdefi}
+
+\begin{subdefi}[DecompositionInterval]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a facet of $K$. The corresponding \emph{decomposition interval}
+is $Interval(R(s),s)$.
+
+\end{subdefi}
+
+\begin{subdefi}[DecompositionInterval\_def]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a facet of $K$. If $t$ is a face of $K$, then $t$ is in the decomposition
+interval of $s$ if and only $R(s)\subset t\subset t$.
+
+\end{subdefi}
+
+\begin{subdefi}[DecompositionInterval\_eq]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a facet of $K$. If $t$ is a face of $K$, then $t$ is in the decomposition
+interval of $s$ if and only $DF(t)=s$.
+
+\end{subdefi}
+
+\begin{sublemma}[Decomposition\_DF\_determines\_R\_intervals]
+Let $(R_1,DF)$ and $(R_2,DF)$ be decompositions of $K$. Then, for every facet $s$ of $K$, we have
+$Interval(R_1(s),s)=Interval(R_2(s),s)$.
+
+\end{sublemma}
+
+
+\subsection{Compatible partial orders on facets}
+
+\begin{subdefi}[CompatibleOrder]
+Let $DF$ be a map from the set of faces of $K$ to the set of facets of $K$ and $r$ be a partial order on the set of
+facets of $K$. We say that $r$ is \emph{compatible} with $DF$ if, for every face $s$ of $K$ and every facet $t$ of $K$,
+if $s\le t$, then $DF(s)\le_r t$.
+
+\end{subdefi}
+
+\begin{sublemma}[OldFacesCompatibleOrder]
+Let $DF$ be a map from the set of faces of $K$ to the set of facets of $K$ and $r$ be a partial order on the set of
+facets of $K$ that is compatible with $DF$. Let $s$ be a facet of $K$ and $t$ be a face of $K$ such that $t\le s$ and
+$t\le DF(t)$. Then $t$ is not in the complex of old faces of $s$ (relative to $r$) if and only if $DF(t)=s$.
+
+\end{sublemma}
+
+\begin{sublemma}[OldFacesDecomposition]
+Let $(R,DF)$ be decomposition of $K$ and $r$ be a partial order on the set of
+facets of $K$ that is compatible with $DF$. Let $s$ be a facet of $K$ and $t$ be a face of $K$ such that $t\le s$.
+Then $t$ is not in the complex of old faces of $s$ (relative to $r$) if and only if $t$ is in the decomposition interval
+corresponding to $s$.
+
+\end{sublemma}
+
+\begin{sublemma}[OldFacesDecomposition']
+Let $(R,DF)$ be decomposition of $K$ and $r$ be a partial order on the set of
+facets of $K$ that is compatible with $DF$. Let $s$ be a facet of $K$ and $t$ be a face of $K$ such that $t\le s$.
+Then $t$ is not in the complex of old faces of $s$ (relative to $r$) if and only if $R(s)\subset t$.
+
+\end{sublemma}
+
+\begin{sublemma}[OldFacesDecomposition\_faces]
+Let $(R,DF)$ be decomposition of $K$ and $r$ be a partial order on the set of
+facets of $K$ that is compatible with $DF$. Let $s$ be a facet of $K$ and $t$ be a face of $K$ such that $t\le s$.
+Then $t$ is in the complex of old faces of $s$ (relative to $r$) if and only if $R(s)$ is not included in $t$.
+
+\end{sublemma}
+
+\begin{sublemma}[OldFacesDecomposition\_empty\_iff]
+Let $(R,DF)$ be decomposition of $K$ and $r$ be a partial order on the set of
+facets of $K$ that is compatible with $DF$. Let $s$ be a facet of $K$. Then the complex of old faces of $s$ relative
+to $r$ is empty if and only the decomposition interval of $s$ is equal to the half-infinite interval $]\leftarrow,s]$.
+
+\end{sublemma}
+
+\begin{sublemma}[OldFacesDecompositionDimensionFacets]
+Let $(R,DF)$ be decomposition of $K$ and $r$ be a partial order on the set of
+facets of $K$ that is compatible with $DF$. Let $s$ be a facet of $K$ and $t$ a facet of the complex of old faces of $s$ relative
+to $r$. Then the cardinality of $t$ is equality to the cardinality of $s$ minus $1$.
+
+\end{sublemma}
+
+\begin{sublemma}[OldFacesDecompositionIsPure]
+Let $(R,DF)$ be decomposition of $K$ and $r$ be a partial order on the set of
+facets of $K$ that is compatible with $DF$. Let $s$ be a facet of $K$. Then the complex of old faces of $s$ relative
+to $r$ is pure.
+
+\end{sublemma}
+
+\begin{sublemma}[OldFacesDecompositionDimension]
+Let $(R,DF)$ be decomposition of $K$ and $r$ be a partial order on the set of
+facets of $K$ that is compatible with $DF$. Let $s$ be a facet of $K$. Then the complex of old faces of $s$ relative
+to $r$ is of dimension $card(s)-2$.
+
+\end{sublemma}
+
+
+\subsection{$\pi_0$ and homology facets}
+
+\begin{subdefi}[IsPi0Facet]
+Let $(R,DF)$ be decomposition of $K$ and $s$ be a facet of $K$. We say that $s$ is a \emph{$\pi_0$ facet} if the decomposition
+interval of $s$ is equal to the half-infinite interval $]\leftarrow,s]$.
+
+\end{subdefi}
+
+\begin{subdefi}[IsHomologyFacet]
+Let $(R,DF)$ be decomposition of $K$ and $s$ be a facet of $K$. We say that $s$ is a \emph{homology facet} if it is not a $\pi_0$ facet
+and if the decomposition interval of $s$ is equal to the singleton $\{s\}$.
+
+\end{subdefi}
+
+\begin{sublemma}[Vertex\_IsPi0Facet]
+Let $(R,DF)$ be decomposition of $K$ and $s$ be a facet of $K$. If the cardinality of $s$ is equal to $1$, then $s$ is a $\pi_0$ facet.
+
+\end{sublemma}
+
+\begin{sublemma}[IsPi0Facet\_iff]
+Let $(R,DF)$ be decomposition of $K$ and $s$ be a facet of $K$. Then $s$ is a $\pi_0$ facet if and only if $R(s)$ is empty or the
+cardinality of $s$ is equal to $1$.
+
+\end{sublemma}
+
+\begin{sublemma}[IsHomologyFacet\_iff]
+Let $(R,DF)$ be decomposition of $K$ and $s$ be a facet of $K$. Then $s$ is a homology facet if and only if $R(s)=s$ is empty and the
+cardinality of $s$ is $>1$.
+
+\end{sublemma}
+
+
+
+
+
+
+
+
+
+

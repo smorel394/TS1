@@ -1,0 +1,195 @@
+\section{Euler-Poincaré characteristic of a finite simplicial complex}
+
+We fix a set $\alpha$ and an abstract simplicial complex $K$ on $\alpha$.
+
+\subsection{Definition}
+
+\begin{subdefi}[FacesFinset]
+If $K$ is a finite complex, we define the finite set of faces of $K$.
+
+\end{subdefi}
+
+\begin{subdefi}[FacetsFinset]
+If $K$ is a finite complex, we define the finite set of facets of $K$.
+
+\end{subdefi}
+
+\begin{subdefi}[EulerPoincareCharacteristic]
+If $K$ is a finite complex, its Euler-Poincaré characteristic is the sum over all faces $s$ of $K$ of
+$(-1)^{card(s)-1}$.
+
+\end{subdefi}
+
+\begin{sublemma}[EulerPoincareCharacteristic\_ext]
+If $K$ and $L$ are finite abstract simplicial complexes with equal sets of faces, then their Euler-Poincaré
+characteristic are equal.
+
+\end{sublemma}
+
+\subsection{The case of decomposable complexes}
+
+\begin{subdefi}[$\pi_0$Facets]
+Let $(R,DF)$ be a decomposition of $K$. We define the set of $\pi_0$ facets of $K$, as a set of finite subsets of $\alpha$.
+
+\end{subdefi}
+
+\begin{subdefi}[HomologyFacets]
+Let $(R,DF)$ be a decomposition of $K$. We define the set of homology facets of $K$, as a set of finite subsets of $\alpha$.
+
+\end{subdefi}
+
+\begin{sublemma}[$\pi_0$Facets\_finite]
+Let $(R,DF)$ be a decomposition of $K$, and suppose that $K$ is finite. Then the set of $\pi_0$ facets of $K$ is finite.
+
+\end{sublemma}
+
+\begin{sublemma}[HomologyFacets\_finite]
+Let $(R,DF)$ be a decomposition of $K$, and suppose that $K$ is finite. Then the set of homology facets of $K$ is finite.
+
+\end{sublemma}
+
+We now introduce some auxiliary definitions that we will need in the calculation.
+
+\begin{subdefi}[DFe]
+If $DF$ is a map from the set of faces of $K$ to the set of facets of $K$, we extend $DF$ to a map $DFe$ from the set of finite
+subsets of $\alpha$ to itself, by sending a finite subset $s$ to $DF(s)$ if $s$ is a face of $K$, and to $\varnothing$ otherwise.
+
+\end{subdefi}
+
+\begin{subdefi}[Quotient\_DFe\_to\_finset]
+Let $DF$ be a map from the set of faces of $K$ to the set of facets of $K$. We define a map from the quotient of $\alpha$ by
+the equivalence relation $\Ker(DFe)$ to the set of finite subsets of $\alpha$ by sending the equivalence class of a finite
+set $s$ to $DFe(s)$.
+
+\end{subdefi}
+
+\begin{sublemma}[Quotient\_DFe\_to\_finset\_is\_facet\_aux \& Quotient\_DFe\_to\_finset\_is\_facet]
+Let $DF$ be a map from the set of faces of $K$ to the set of facets of $K$. Then the map from $\alpha/\Ker(DFe)$ to the set of finite
+subsets of $\alpha$ sends the class of a face of $K$ to a facet of $K$.
+
+\end{sublemma}
+
+\begin{subdefi}[DecompositionInterval']
+If $R$ is a map from the set of facets of $K$ to the set of finite subsets of $\alpha$ and $s$ a facet of $K$, we define the
+interval $[R(s),s]$ as a finite set of nonempty finite subsets of $\alpha$.
+
+\end{subdefi}
+
+\begin{sublemma}[ComparisonIntervals]
+Let $(R,DF)$ be a decomposition of $K$, $s$ be a facet of $K$ and $t$ be a finite subset of $\alpha$.
+Then $t$ is in the decomposition interval of the previous definition if and only if it is a face of $K$ and a member of the 
+decomposition interval defined by $s$.
+
+\end{sublemma}
+
+\begin{subdefi}[Sum\_on\_DecompositionInterval]
+Let $R$ be a map from the set of facets of $K$ to the set of finite subsets of $\alpha$ and $s$ be a finite subset of $\alpha$.
+We define a "sum on the decomposition interval corresponding to $s$" in the following way: if $s$ is a facet of $K$, then it is the
+sum on the elements $t$ of the decomposition interval of $(-1)^{card(t)-1}$, otherwise it is $0$.
+
+\end{subdefi}
+
+\begin{sublemma}[ComparisonFunctionsonQuotient]
+Ler $(R,DF)$ be a decomposition of $K$ and $x$ be an element of $\alpha/\Ker(DFe)$. Suppose that $K$ is a finite complex and
+that $x$ is the class of a face of $K$. Then the sum over $t$ in the class $x$ of $(-1)^{card(t)-1}$ is equal to the
+"sum on the decomposition interval" function applied to the image of $x$ by the quotient of the map $DFe$.
+
+\end{sublemma}
+
+\begin{sublemma}[Quotient\_DFe\_to\_finset\_inj]
+Let $DF$ be a map from the set of faces of $K$ to the set of facets of $K$, and suppose that $K$ is a finite complex.
+Then the map from $\alpha/\Ker(DFe)$ to the set of finite subsets of $\alpha$ defined by $DFe$ is injective.
+\footnote{Why do we need $K$ to be finite ? Surely this is a very general fact. Same remark about the next lemma.
+(I know why the condition is there in the Lean file, it's because I use the "finset" versions of the sets of faces and facets, but this
+is not a good reason.)}
+\end{sublemma}
+
+\begin{sublemma}[Quotient\_DFe\_to\_finset\_surj]
+Let $(R,DF)$ be a decomposition of $K$, and suppose that $K$ is a finite complex.
+Then every facet of $K$ is in the image of the map from $\alpha/\Ker(DFe)$ to the set of finite subsets of $\alpha$ defined by $DFe$.
+\end{sublemma}
+
+\begin{subdefi}[BoringFacets]
+Let $(R,DF)$ be a decomposition of $K$. The set of boring facets is the set of finite subsets of $\alpha$ that are facets of $K$ but
+are neither $\pi_0$ facets nor homology facets.
+
+\end{subdefi}
+
+\begin{sublemma}[BoringFacets\_finite]
+Let $(R,DF)$ be a decomposition of $K$. If $K$ is finite, then the set of boring facets of $K$ is finite.
+
+\end{sublemma}
+
+\begin{sublemma}[every\_facet\_is\_boring\_or\_interesting \& boring\_is\_not\_interesting]
+Let $(R,DF)$ be a decomposition of $K$, and suppose that $K$ is finite. Then the set of facets of $K$, seen as a finite set of
+finite subsets of $K$, is the disjoint union of the set of boring facets and the set of facets that are $\pi_0$ or homology facets.
+
+\end{sublemma}
+
+\begin{sublemma}[pi0\_and\_homology\_are\_disjoint]
+Let $(R,DF)$ be a decomposition of $K$, and suppose that $K$ is finite. Then the sets of $\pi_0$ and homology facets of $K$, seen
+as finite sets of finite subsets of $\alpha$, are disjoint.
+
+\end{sublemma}
+
+
+\begin{sublemma}[AlternatingSumPowerset]
+Let $s$ be a nonempty finite subset of $\alpha$. Then 
+the sum of the function $t\mapsto (-1)^{card(t)}$ on the powerset of $s$ is equal to $0$.
+
+\end{sublemma}
+
+\begin{sublemma}[Sum\_on\_FinsetInterval1]
+Let $s,t$ be finite subsets of $\alpha$ such that $s\subsetneq t$. Then 
+the sum of the function $x\mapsto (-1)^{card(x)}$ on the interval $[s,t]$ is equal to $0$.
+
+\end{sublemma}
+
+\begin{sublemma}[Sum\_on\_FinsetInterval1]
+Let $s$ be a nonempty finite subset of $\alpha$. Then 
+the sum of the function $x\mapsto (-1)^{card(x)-1}$ on the interval $]\varnothing,s]$ is equal to $1$.
+
+\end{sublemma}
+
+\begin{sublemma}[BoringFacet\_image\_by\_R]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a boring facet of $K$. Then $R(s)$ is not empty and not equal to $s$.
+
+\end{sublemma}
+
+\begin{sublemma}[Sum\_on\_DecompositionInterval\_BoringFacet]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a boring facet of $K$. Then the image of $s$ by the sum of the decomposition interval function 
+is equal to $0$.
+
+\end{sublemma}
+
+\begin{sublemma}[$\pi_0$Facet\_interval]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a $\pi_0$ facet of $K$. Then the decomposition interval defined by $s$ is equal to
+$]\varnothing,s]$.
+
+\end{sublemma}
+
+\begin{sublemma}[Sum\_on\_DecompositionInterval\_$\pi_0$Facet]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a $\pi_0$ facet of $K$. Then the image of $s$ by the sum of the decomposition interval function 
+is equal to $1$.
+
+\end{sublemma}
+
+
+\begin{sublemma}[HomologyFacet\_interval]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a homology facet of $K$. Then the decomposition interval defined by $s$ is equal to
+$\{s\}$.
+
+\end{sublemma}
+
+\begin{sublemma}[Sum\_on\_DecompositionInterval\_HomologyFacet]
+Let $(R,DF)$ be a decomposition of $K$ and $s$ be a homology facet of $K$. Then the image of $s$ by the sum of the decomposition interval function 
+is equal to $(-1)^{card(s)-1}$.
+
+\end{sublemma}
+
+\begin{sublemma}[EulerPoincareCharacteristicDecomposable]
+Let $(R,DF)$ be a decomposition of $K$, and suppose that $K$ is finite. Then the Euler-Poincaré characteristic of $K$ is equal to the
+cardinality of the set of $\pi_0$ facets plus the sum over all homology facets of the function $s\mapsto (-1)^{card(s)-1}$.
+
+\end{sublemma}
+

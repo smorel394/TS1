@@ -1,0 +1,112 @@
+\section{Shellable abstract simplicial complexes}
+
+We fix a set $\alpha$ and an abstract simplicial complex $K$ on $\alpha$.
+
+\subsection{Shelling orders}
+
+\begin{subdefi}[IsShellingOrder]
+A linear order $r$ on the facets of $K$ is called a \emph{shelling order} if it is well-founded and if, for
+every facet $s$ of $K$, the complex of old faces corresponding to $s$ is either empty or pure of dimension
+$card(s)-2$.
+
+\end{subdefi}
+
+
+\subsection{The restriction map}
+
+\begin{subdefi}[ShellingOrderRestriction\_aux \& ShellingOrderRestriction]
+The "restriction map" for a partial order $s$ on the facets of $K$. It sends a facet $s$ of $K$ to the set
+of vertices $a$ of $K$ such that $a\in s$ and $s\setminus\{a\}$ is a face of the complex of old faces.
+
+\end{subdefi}
+
+\begin{sublemma}[ShellingOrderRestriction\_mem]
+Let $r$ be a partial order on the facets of $K$, $s$ be a facet of $K$ and $a$ be an element of $\alpha$. Then $a$ is
+in the image of $s$ by the restriction map if and only if $a\in s$, $s\ne\{a\}$ and there exists a facet $u$ of $K$ such
+that $u<_r s$ and $s\setminus\{a\}\subset u$.
+
+\end{sublemma}
+
+\begin{sublemma}[ShellingOrderRestriction\_smaller]
+Let $r$ be a partial order on the facets of $K$ and $s$ be a facet of $K$. Then the image of $s$ by the restriction map is
+contained in $s$.
+
+\end{sublemma}
+
+\begin{sublemma}[not\_containing\_restriction\_is\_old\_face]
+Let $r$ be a partial order on the facets of $K$, $s$ be a facet of $K$ and $t$ be a face of $K$ such that $t\subset s$ and
+the image of $s$ by the restriction map is not contained in $t$. Then $t$ is a face of the complex of old faces defined by $s$.
+
+\end{sublemma}
+
+\begin{sublemma}[old\_face\_does\_not\_contain\_restriction]
+Let $r$ be a partial order on the facets of $K$, $s$ be a facet of $K$ and $t$ be a finite subset of $\alpha$. We suppose that
+the complex of old faces defined by $s$ is pure of dimension $card(s)-2$ and that $t$ is a face of this complex. Then
+the image of $s$ by the restriction map is not contained in $t$.
+
+\end{sublemma}
+
+
+\subsection{The smallest facet map}
+
+\begin{subdefi}[ExistsFacet]
+We say that $K$ satisfies condition $ExistsFacet$ if every face of $K$ is contained in a facet.
+
+\end{subdefi}
+
+\begin{sublemma}[Noetherian\_ExistsFacet]
+If the face poset of $K$ is Noetherian, then $K$ satisfies condition $ExistsFacet$.
+
+\end{sublemma}
+
+\begin{subdefi}[ShellingOrderSmallestFacet]
+Let $r$ be a well-order on the facets of $K$; we suppose that $K$ satisfies condition $ExistsFacet$.
+The smallest facet map sends a face $s$ of $K$ to the smallest (for $r$) facet containing $s$.
+
+\end{subdefi}
+
+\begin{sublemma}[ShellingOrderSmallestFacet\_bigger]
+Let $r$ be a well-order on the facets of $K$; we suppose that $K$ satisfies condition $ExistsFacet$.
+Then every face of $K$ is contained in its image by the smallest facet map.
+
+\end{sublemma}
+
+\begin{sublemma}[ShellingOrderSmallestFacet\_smallest]
+Let $r$ be a well-order on the facets of $K$; we suppose that $K$ satisfies condition $ExistsFacet$.
+Let $s$ be a face of $K$ and $u$ be a facet of $K$ such that $s\le u$. Then $u$ is bigger for $r$ or equal
+to the image of $s$ by the smallest facet map.
+
+\end{sublemma}
+
+
+\subsection{Shellability vs decomposability}
+
+\begin{sublemma}[ShellableIsDecomposable]
+Let $r$ be a shelling order on the facets of $K$, and suppose that $K$ satisfies condition $ExistsFacet$. Then the restriction
+map and the smallest facet map form a decomposition of $K$.
+
+\end{sublemma}
+
+\begin{sublemma}[ShellableofDecomposable]
+Let $(R,DF)$ be a decomposition of $K$, and $r$ be a well-order on the facets of $K$ that is compatible with $DF$. Then $r$ is a
+shelling order.
+
+\end{sublemma}
+
+\begin{sublemma}[ExistsFacetofDecomposable]
+Let $(R,DF)$ be a decomposition of $K$. Then $K$ satifies condition $ExistsFacet$.
+
+\end{sublemma}
+
+\begin{sublemma}[ShellableofDecomposable\_smallestfacet]
+Let $(R,DF)$ be a decomposition of $K$, and $r$ be a well-order on the facets of $K$ that is compatible with $DF$. Then the smallest facet
+map for $r$ is equal to $DF$.
+
+\end{sublemma}
+
+\begin{sublemma}[ShellableofDecomposable\_intervals]
+Let $(R,DF)$ be a decomposition of $K$, and $r$ be a well-order on the facets of $K$ that is compatible with $DF$. For every facet
+$s$ of $K$. the decomposition interval of $s$ for $(R,DF)$ is equal to its decomposition interval for the decomposition defined by
+the shelling order $r$.
+
+\end{sublemma}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.1)  4 JUN 2023 19:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.1)  5 JUN 2023 12:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -546,7 +546,10 @@ File: l3backend-pdftex.def 2022-01-12 L3 backend support: PDF output (pdfTeX)
 (./TS1.aux (./TS1.general_preorder_stuff.aux)
 (./TS1.AbstractSimplicialComplex.aux) (./TS1.FacePoset.aux)
 (./TS1.OrderOnFacets.aux) (./TS1.preorder_to_powerset.aux)
-(./TS1.ordered_partitions.aux))
+(./TS1.ordered_partitions.aux) (./TS1.WeakBruhatOrder.aux)
+(./TS1.FiniteOrderedPartitions.aux) (./TS1.Decomposability.aux)
+(./TS1.Shellability.aux) (./TS1.EulerPoincareCharacteristic.aux)
+(./TS1.FiniteCoxeterComplex.aux) (./TS1.FiniteWeightedComplex.aux))
 \openout1 = `TS1.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 3.
@@ -813,36 +816,192 @@ Underfull \hbox (badness 4752) in paragraph at lines 159--160
 []\OT1/ptm/m/it/12 Let $\OML/cmm/m/it/12 r$
  []
 
-[21]) [22] (./TS1.aux (./TS1.general_preorder_stuff.aux)
-(./TS1.AbstractSimplicialComplex.aux) (./TS1.FacePoset.aux)
-(./TS1.OrderOnFacets.aux) (./TS1.preorder_to_powerset.aux)
-(./TS1.ordered_partitions.aux))
+[21]) [22]
+\openout2 = `TS1.WeakBruhatOrder.aux'.
+
+ (./TS1.WeakBruhatOrder.tex
+Overfull \hbox (14.13309pt too wide) in paragraph at lines 43--44
+[]
+ []
+
+[23
+
+
+
+]
+Overfull \hbox (120.01976pt too wide) in paragraph at lines 88--90
+[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 100--101
+[]\OT1/ptm/m/it/12 Let $\OML/cmm/m/it/12 a; b; x$ \OT1/ptm/m/it/12 be el-e-ment
+s of $\OML/cmm/m/it/12 $\OT1/ptm/m/it/12 . Then
+ []
+
+[24]) [25]
+\openout2 = `TS1.FiniteOrderedPartitions.aux'.
+
+ (./TS1.FiniteOrderedPartitions.tex
+Underfull \hbox (badness 5607) in paragraph at lines 37--38
+\OT1/ptm/m/n/12 We want to char-ac-ter-ize the im-age of the set of AFLO par-ti
+-tions by the map
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--47
+[]\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 is an AFLO par-ti-t
+ion, then
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 51--52
+[]\OT1/ptm/m/n/12 For $\OML/cmm/m/it/12 s$ \OT1/ptm/m/n/12 an AFLO par-ti-tions
+,
+ []
+
+
+Underfull \hbox (badness 2790) in paragraph at lines 51--52
+\OML/cmm/m/it/12 preorderToPowersetFinset\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 s\OT
+1/cmr/m/n/12 )$ \OT1/ptm/m/n/12 is $\OML/cmm/m/it/12 preorderToPowerset\OT1/cmr
+/m/n/12 (\OML/cmm/m/it/12 s\OT1/cmr/m/n/12 )$ \OT1/ptm/m/n/12 seen as a fi-nite
+ sub-set of
+ []
+
+
+Underfull \hbox (badness 1622) in paragraph at lines 61--62
+[]\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 E$ \OT1/ptm/m/it/12 is an el-e-ment of 
+AFLOPow-er-set, then
+ []
+
+) [26
+
+
+
+]
+\openout2 = `TS1.Decomposability.aux'.
+
+ (./TS1.Decomposability.tex [27
+
+
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 94--96
+[]\OT1/ptm/m/it/12 Let $\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 R[]; DF\OT1/cmr/m/n/1
+2 )$ \OT1/ptm/m/it/12 and
+ []
+
+
+Underfull \hbox (badness 6047) in paragraph at lines 94--96
+\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 R[]; DF\OT1/cmr/m/n/12 )$ \OT1/ptm/m/it/12 be
+ de-com-po-si-tions of $\OML/cmm/m/it/12 K$\OT1/ptm/m/it/12 . Then, for ev-ery 
+facet $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 of $\OML/cmm/m/it/12 K$\OT1/ptm/m/i
+t/12 , we have
+ []
+
+[28]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 167.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\pi' on input line 167.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 167.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 167.
+
+) [29]
+\openout2 = `TS1.Shellability.aux'.
+
+ (./TS1.Shellability.tex [30
+
+
+
+]) [31]
+\openout2 = `TS1.EulerPoincareCharacteristic.aux'.
+
+
+(./TS1.EulerPoincareCharacteristic.tex
+Underfull \hbox (badness 10000) in paragraph at lines 67--69
+[]
+ []
+
+[32
+
+
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 124--126
+[]\OT1/ptm/m/it/12 Let
+ []
+
+[33]
+Underfull \hbox (badness 1173) in paragraph at lines 185--187
+[]\OT1/ptm/m/it/12 Let $\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 R; DF\OT1/cmr/m/n/12 
+)$ \OT1/ptm/m/it/12 be a de-
+ []
+
+) [34]
+\openout2 = `TS1.FiniteCoxeterComplex.aux'.
+
+ (./TS1.FiniteCoxeterComplex.tex
+Underfull \hbox (badness 3724) in paragraph at lines 29--30
+\OML/cmm/m/it/12 AFLOPowerset$ \OT1/ptm/m/n/12 and the dual of the set of AFLO 
+par-ti-tions, given the func-tions
+ []
+
+[35
+
+
+
+]) [36]
+\openout2 = `TS1.FiniteWeightedComplex.aux'.
+
+ (./TS1.FiniteWeightedComplex.tex) [37
+
+
+
+] (./TS1.aux
+(./TS1.general_preorder_stuff.aux) (./TS1.AbstractSimplicialComplex.aux)
+(./TS1.FacePoset.aux) (./TS1.OrderOnFacets.aux) (./TS1.preorder_to_powerset.aux
+) (./TS1.ordered_partitions.aux) (./TS1.WeakBruhatOrder.aux)
+(./TS1.FiniteOrderedPartitions.aux) (./TS1.Decomposability.aux)
+(./TS1.Shellability.aux) (./TS1.EulerPoincareCharacteristic.aux)
+(./TS1.FiniteCoxeterComplex.aux) (./TS1.FiniteWeightedComplex.aux))
 Package rerunfilecheck Info: File `TS1.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 15516 strings out of 478287
- 261415 string characters out of 5849290
- 718157 words of memory out of 5000000
- 33163 multiletter control sequences out of 15000+600000
- 493809 words of font info for 94 fonts, out of 8000000 for 9000
+ 15917 strings out of 478287
+ 272803 string characters out of 5849290
+ 719157 words of memory out of 5000000
+ 33344 multiletter control sequences out of 15000+600000
+ 495493 words of font info for 96 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  113i,8n,109p,10612b,443s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
-/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhv
-b8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/s
-hare/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/te
-xmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on TS1.pdf (22 pages, 191584 bytes).
+type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+y8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm1
+0.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/
+share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/t
+exmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/urw/times/utmri8a.pfb>
+Output written on TS1.pdf (37 pages, 256534 bytes).
 PDF statistics:
- 598 PDF objects out of 1000 (max. 8388607)
- 546 compressed objects within 6 object streams
- 267 named destinations out of 1000 (max. 500000)
- 361 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 944 PDF objects out of 1000 (max. 8388607)
+ 870 compressed objects within 9 object streams
+ 437 named destinations out of 1000 (max. 500000)
+ 569 words of extra memory for PDF output out of 10000 (max. 10000000)
 

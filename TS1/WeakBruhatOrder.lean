@@ -98,31 +98,6 @@ constructor
 
 /- Inversions vs the AscentPartition map. -/
 
-/-Depreceated.
-lemma Inversions_of_descent_partition (r : LinearOrder α) {s : Preorder α} (htot : Total s.le) :
-Inversions r.lt s.lt = Inversions r.lt (DescentPartition r htot).lt := by 
-ext ⟨a,b⟩
-rw [Inversions_def, Inversions_def]
-constructor
-. intro ⟨hrab, hsba⟩ 
-  rw [and_iff_right hrab]
-  rw [←(@TotalPreorder_lt_iff_not_le _ (DescentPartition r htot) (DescentPartition_is_total r htot))]
-  change ¬(s.le a b ∨ (s.le b a ∧ ∀ (c d : α), s.le b c → s.le c d → s.le d a → (r.le b c ∧ r.le c d ∧ r.le d a)))
-  rw [not_or, not_and]
-  rw [TotalPreorder_lt_iff_not_le htot]
-  rw [and_iff_right hsba]
-  intro hsba' 
-  by_contra habs
-  exact @not_lt_of_le _ r.toPartialOrder.toPreorder _ _ (habs b b (s.le_refl b) (s.le_refl b) hsba').2.2 hrab    
-. intro ⟨hrab, hba⟩ 
-  rw [and_iff_right hrab]
-  rw [←(@TotalPreorder_lt_iff_not_le _ (DescentPartition r htot) (DescentPartition_is_total r htot))] at hba 
-  change ¬(s.le a b ∨ (s.le b a ∧ ∀ (c d : α), s.le b c → s.le c d → s.le d a → (r.le b c ∧ r.le c d ∧ r.le d a))) at hba
-  rw [not_or] at hba
-  rw [←(TotalPreorder_lt_iff_not_le htot)]
-  exact hba.1 
- -/ 
-
 lemma Inversions_of_AscentPartition (r : LinearOrder α) {s : Preorder α} (htot : Total s.le) :
 Inversions r.lt s.lt = Inversions r.lt (AscentPartition r htot).lt := by 
 ext ⟨a,b⟩
@@ -149,7 +124,7 @@ constructor
   rw [←(TotalPreorder_lt_iff_not_le htot)]
   exact hba.1 
 
-/- The inversions between r and its dual are all the couples (a,b) such rthat r.lt a b. -/
+/- The inversions between r and its dual are all the couples (a,b) such that r.lt a b. -/
 
 lemma Inversions_dual_order (r : LinearOrder α) (a b : α) :
 (a,b) ∈ Inversions r.lt (dual r).lt ↔ r.lt a b := by 
@@ -190,7 +165,8 @@ lemma Inversions_determine_linear_order_aux (r : LinearOrder α) {s₁ s₂ : Pr
 lemma Inversions_determine_linear_order (r : LinearOrder α) {s₁ s₂ : Preorder α} (hlins₁ : IsLinearOrder α s₁.le) (hlins₂ : IsLinearOrder α s₂.le)
 (heq : Inversions r.lt s₁.lt = Inversions r.lt s₂.lt) : s₁ = s₂ := 
 le_antisymm (Inversions_determine_linear_order_aux r hlins₁ hlins₂ heq) (Inversions_determine_linear_order_aux r hlins₂ hlins₁ (Eq.symm heq))
-
+-- This actually follows from LinearOrders_eq_iff_no_inversions and WeakBruhatOrder_iff. It would probably be possible to reformulate things
+-- to have a shorter overall proof.
 
 /- Definition of the weak Bruhat order (with basis r): it is the partial order on the set of linear orders on α given by s ≤ s' if and only 
 Inversions r s ⊆ Inversions r s'.-/
@@ -198,11 +174,6 @@ Inversions r s ⊆ Inversions r s'.-/
 def WeakBruhatOrder (r : LinearOrder α): PartialOrder {s : Preorder α | IsLinearOrder α s.le} :=
 PartialOrder.lift (fun s => Inversions r.lt s.1.lt) (fun s₁ s₂ heq => by have h:= Inversions_determine_linear_order r s₁.2 s₂.2 heq
                                                                          rw [SetCoe.ext_iff] at h; exact h)
-
-/-Useless ?
-lemma WeakBruhatOrder_lt (r : LinearOrder α) {s₁ s₂ : Preorder α} (hlins₁ : IsLinearOrder α s₁.le) (hlins₂ : IsLinearOrder α s₂.le) :
-(WeakBruhatOrder r).lt ⟨s₁, hlins₁⟩ ⟨s₂, hlins₂⟩ ↔ Inversions r.lt s₁.lt ⊂ Inversions r.lt s₂.lt := by tauto 
- -/
 
 
 lemma WeakBruhatOrder_iff (r : LinearOrder α) {s₁ s₂ : Preorder α} (hlins₁ : IsLinearOrder α s₁.le) (hlins₂ : IsLinearOrder α s₂.le) :
@@ -578,6 +549,7 @@ lemma Transposition_is_injective (a b  : α) : Function.Injective (Transposition
 /- Now we have the transposition, we introduce the transposed preorder.-/
 
 noncomputable def TransposedPreorder (s : Preorder α) (a b : α) := @Preorder.lift _ _ s (Transposition a b)
+-- Could use Preorder.lift.
 
 noncomputable def Transposed_of_linear_is_linear {s : Preorder α} (hlin : IsLinearOrder α s.le) (a b  : α) :
 IsLinearOrder α (TransposedPreorder s a b).le := by 
@@ -585,6 +557,7 @@ IsLinearOrder α (TransposedPreorder s a b).le := by
   . refine {toIsPreorder := @instIsPreorderLeToLE α (TransposedPreorder s a b), toIsAntisymm := ?_}
     refine {antisymm := fun x y hxy hyx => Transposition_is_injective _ _ (hlin.toIsPartialOrder.toIsAntisymm.antisymm _ _ hxy hyx)}
   . refine {total := fun x y => hlin.toIsTotal.total _ _}
+-- Could use properties of Preorder.lift ?
 
 
 /- Construction of a covering element of s (for the weak Bruhat order) if we are given a t such that s ≤ t and Inversions s t is finite.-/
