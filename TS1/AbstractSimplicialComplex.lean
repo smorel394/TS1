@@ -371,7 +371,6 @@ structure SimplicialMap {U : Type u} {V : Type v} [DecidableEq V] (K : AbstractS
 notation:100 K:100 " →ₛ " L:100 => SimplicialMap K L  --not sure how to choose the parsing precedence
 
 
-
 namespace SimplicialMap
 
 variable {U : Type u} {V : Type v} {W : Type w}
@@ -381,6 +380,8 @@ variable {K : AbstractSimplicialComplex U} {L : AbstractSimplicialComplex V} {M 
 def toFaceMap (f : K →ₛ L) : K.faces → L.faces := 
 fun s => ⟨(s : Finset U).image f.vertex_map, f.face s.1 s.2⟩ 
 
+
+
 def comp (g : L →ₛ M) (f : K →ₛ L) : K →ₛ M :=
 { vertex_map := g.vertex_map ∘ f.vertex_map,
   face := fun _ hs => by rw [←Finset.image_image]
@@ -388,6 +389,15 @@ def comp (g : L →ₛ M) (f : K →ₛ L) : K →ₛ M :=
                          apply f.face
                          exact hs
 }
+
+
+lemma toFaceMap_comp  (f : K →ₛ L) (g : L →ₛ M) : toFaceMap (g.comp f) = (toFaceMap g)∘(toFaceMap f) := by
+  ext s a 
+  unfold toFaceMap 
+  simp only [Finset.mem_image, Function.comp_apply, exists_exists_and_eq_and]
+  constructor 
+  . exact fun h => by match h with | ⟨b, _⟩ => exists b 
+  . exact fun h => by match h with | ⟨b, _⟩ => exists b 
 
 
 def id (L : AbstractSimplicialComplex V) : L →ₛ L :=

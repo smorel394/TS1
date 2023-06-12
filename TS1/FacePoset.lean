@@ -26,6 +26,23 @@ variable [DecidableEq α] (K : AbstractSimplicialComplex α)
 instance FacePoset : _root_.PartialOrder K.faces :=  
 PartialOrder.lift (fun (s : K.faces) => (s.1 : Finset α)) (fun _ _ hst => SetCoe.ext hst)
 
+/- Simplicial maps induce order morphisms between face posets.-/
+
+namespace SimplicialMap 
+
+variable {α β : Type u} 
+variable [DecidableEq α] [DecidableEq β]
+variable {K : AbstractSimplicialComplex α} {L : AbstractSimplicialComplex β}
+
+def toFaceMapOrderHom (f : K →ₛ L) : OrderHom K.faces L.faces where  
+toFun := f.toFaceMap 
+monotone':= fun s t hst => by change Finset.image f.vertex_map s.1 ⊆ Finset.image f.vertex_map t.1
+                              apply Finset.image_subset_image 
+                              exact hst  
+
+
+end SimplicialMap 
+
 /- The poset of faces of K is s LocallyFiniteOrderBot. -/
 
 
