@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.1)  5 JUN 2023 15:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.1)  22 JUN 2023 01:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -41,21 +41,21 @@ Package: tocbasic 2021/11/13 v3.35 KOMA-Script package (handling toc-files)
 )
 Package tocbasic Info: babel extension for `toc' omitted
 (tocbasic)             because of missing \bbl@set@language on input line 135.
-Package scrartcl Info: You've used standard option `12pt'.
+Package scrartcl Info: You've used standard option `10pt'.
 (scrartcl)             This is correct!
-(scrartcl)             Internally I'm using `fontsize=12pt'.
+(scrartcl)             Internally I'm using `fontsize=10pt'.
 (scrartcl)             If you'd like to set the option with \KOMAoptions,
-(scrartcl)             you'd have to use `fontsize=12pt' there
-(scrartcl)             instead of `12pt', too.
+(scrartcl)             you'd have to use `fontsize=10pt' there
+(scrartcl)             instead of `10pt', too.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/leqno.clo
 File: leqno.clo 2016/12/29 v1.2b Standard LaTeX option (left equation numbers)
 )
-Class scrartcl Info: File `scrsize12pt.clo' used to setup font sizes on input l
+Class scrartcl Info: File `scrsize10pt.clo' used to setup font sizes on input l
 ine 2242.
 
-(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrsize12pt.clo
-File: scrsize12pt.clo 2021/11/13 v3.35 KOMA-Script font size class option (12pt
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrsize10pt.clo
+File: scrsize10pt.clo 2021/11/13 v3.35 KOMA-Script font size class option (10pt
 )
 )
 (/usr/share/texlive/texmf-dist/tex/latex/koma-script/typearea.sty
@@ -67,21 +67,21 @@ Package: typearea 2021/11/13 v3.35 KOMA-Script package (type area)
 \ta@temp=\skip51
 \footheight=\skip52
 Package typearea Info: These are the values describing the layout:
-(typearea)             DIV  = 12
+(typearea)             DIV  = 8
 (typearea)             BCOR = 0.0pt
 (typearea)             \paperwidth      = 597.50793pt
-(typearea)              \textwidth      = 448.13095pt
-(typearea)              DIV departure   = -6%
-(typearea)              \evensidemargin = 2.4185pt
-(typearea)              \oddsidemargin  = 2.4185pt
+(typearea)              \textwidth      = 373.44246pt
+(typearea)              DIV departure   = -4%
+(typearea)              \evensidemargin = 39.76274pt
+(typearea)              \oddsidemargin  = 39.76274pt
 (typearea)             \paperheight     = 845.04694pt
-(typearea)              \textheight     = 635.5pt
-(typearea)              \topmargin      = -41.72441pt
-(typearea)              \headheight     = 18.125pt
-(typearea)              \headsep        = 21.75pt
-(typearea)              \topskip        = 12.0pt
-(typearea)              \footskip       = 50.75pt
-(typearea)              \baselineskip   = 14.5pt
+(typearea)              \textheight     = 538.0pt
+(typearea)              \topmargin      = 0.36087pt
+(typearea)              \headheight     = 15.0pt
+(typearea)              \headsep        = 18.0pt
+(typearea)              \topskip        = 10.0pt
+(typearea)              \footskip       = 42.0pt
+(typearea)              \baselineskip   = 12.0pt
 (typearea)              on input line 1743.
 )
 \c@part=\count186
@@ -589,7 +589,7 @@ LaTeX Font Info:    Trying to load font information for U+rsfs on input line 3.
 (/usr/share/texlive/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
-Package xypdf Info: Line width: 0.47998pt on input line 3.
+Package xypdf Info: Line width: 0.39998pt on input line 3.
 Package hyperref Info: Link coloring OFF on input line 3.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
@@ -637,20 +637,10 @@ LaTeX Font Info:    Trying to load font information for OT1+phv on input line 1
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1phv.fd
 File: ot1phv.fd 2020/03/25 scalable font definitions for OT1/phv.
-)
-Underfull \hbox (badness 1748) in paragraph at lines 50--51
-[]\OT1/ptm/m/n/12 Any struc-ture of lo-cally fi-nite
- []
+) [2
 
-[2
-
-]
-Underfull \hbox (badness 2591) in paragraph at lines 120--123
-[]\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 r; s$ \OT1/ptm/m/it/12 are pre-
- []
-
-[3]
-Overfull \hbox (56.03668pt too wide) in paragraph at lines 180--181
+] [3]
+Overfull \hbox (6.1495pt too wide) in paragraph at lines 180--181
 []
  []
 
@@ -666,7 +656,6 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 185.
 
-[4]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 195.
@@ -679,51 +668,29 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 195.
 
-
-Underfull \hbox (badness 4954) in paragraph at lines 252--253
-[]\OT1/ptm/m/n/12 If $\OML/cmm/m/it/12 a; b$ \OT1/ptm/m/n/12 are el-e-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 263--265
-[]\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 a; b$
- []
-
-[5]) [6]
+[4]) [5]
 \openout2 = `TS1.AbstractSimplicialComplex.aux'.
 
- (./TS1.AbstractSimplicialComplex.tex [7
+ (./TS1.AbstractSimplicialComplex.tex [6
 
 
 
-] [8]
-Underfull \hbox (badness 1472) in paragraph at lines 199--200
-[]\OT1/ptm/m/n/12 Given a sim-pli-cial map $\OML/cmm/m/it/12 f$ \OT1/ptm/m/n/12
- from $\OML/cmm/m/it/12 K$ \OT1/ptm/m/n/12 to $\OML/cmm/m/it/12 L$\OT1/ptm/m/n/
-12 , we get a map
- []
-
-[9]) [10]
+] [7]) [8]
 \openout2 = `TS1.FacePoset.aux'.
 
- (./TS1.FacePoset.tex [11
+ (./TS1.FacePoset.tex [9
 
 
 
 ]
-Underfull \hbox (badness 3557) in paragraph at lines 118--120
-[]\OT1/ptm/m/it/12 Let $\OML/cmm/m/it/12 S$
+Underfull \hbox (badness 10000) in paragraph at lines 134--135
+[]\OT1/ptm/m/it/10 The fol-low-ing are
  []
 
-
-Underfull \hbox (badness 5288) in paragraph at lines 134--135
-[]\OT1/ptm/m/it/12 The fol-low-
- []
-
-[12]) [13]
+) [10]
 \openout2 = `TS1.OrderOnFacets.aux'.
 
- (./TS1.OrderOnFacets.tex) [14
+ (./TS1.OrderOnFacets.tex) [11
 
 
 
@@ -732,20 +699,70 @@ Underfull \hbox (badness 5288) in paragraph at lines 134--135
 
  (./TS1.preorder_to_powerset.tex
 Underfull \hbox (badness 10000) in paragraph at lines 25--26
-[]\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 is a to-tal pre-ord
+[]\OT1/ptm/m/it/10 If $\OML/cmm/m/it/10 s$ \OT1/ptm/m/it/10 is a to-tal pre-ord
 er, then
  []
 
 
-Underfull \hbox (badness 1215) in paragraph at lines 44--45
-[]\OT1/ptm/m/it/12 The func-tion $\OML/cmm/m/it/12 powersetToPreorder$ \OT1/ptm
-/m/it/12 is an-ti-
+Underfull \hbox (badness 3895) in paragraph at lines 38--40
+[]\OT1/ptm/m/n/10 If $\OML/cmm/m/it/10 E$ \OT1/ptm/m/n/10 is a set of sub-sets 
+of $\OML/cmm/m/it/10 $\OT1/ptm/m/n/10 , we de-fine a pre-order
  []
 
 
-Underfull \hbox (badness 3792) in paragraph at lines 57--58
-[]\OT1/ptm/m/it/12 For ev-ery pre-order $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 o
-n $\OML/cmm/m/it/12 $\OT1/ptm/m/it/12 , we have
+Underfull \hbox (badness 10000) in paragraph at lines 57--58
+[]\OT1/ptm/m/it/10 For ev-ery pre-order $\OML/cmm/m/it/10 s$ \OT1/ptm/m/it/10 o
+n $\OML/cmm/m/it/10 $\OT1/ptm/m/it/10 , we have
+ []
+
+[12
+
+
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 113--115
+[]\OT1/ptm/m/it/10 Let $\OML/cmm/m/it/10 E$ \OT1/ptm/m/it/10 be a set of sub-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 113--115
+\OT1/ptm/m/it/10 sets of $\OML/cmm/m/it/10 $\OT1/ptm/m/it/10 . If $\OML/cmm/m/
+it/10 powersetToPreorder\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 E\OT1/cmr/m/n/10 )$ \
+OT1/ptm/m/it/10 is to-tal and es-sen-tially lo-cally fi-nite, then
+ []
+
+
+Underfull \hbox (badness 3735) in paragraph at lines 119--121
+[]\OT1/ptm/m/it/10 Let $\OML/cmm/m/it/10 s$ \OT1/ptm/m/it/10 be a pre-order on 
+$\OML/cmm/m/it/10 $\OT1/ptm/m/it/10 . If $\OML/cmm/m/it/10 s$ \OT1/ptm/m/it/10
+ is to-tal
+ []
+
+
+Underfull \hbox (badness 2486) in paragraph at lines 119--121
+\OT1/ptm/m/it/10 and es-sen-tially lo-cally fi-nite, then, for ev-ery sub-set $
+\OML/cmm/m/it/10 E$ \OT1/ptm/m/it/10 of $\OML/cmm/m/it/10 preorderToPowerset\OT
+1/cmr/m/n/10 (\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 )$\OT1/ptm/m/it/10 , we have
+ []
+
+[13]
+Underfull \hbox (badness 10000) in paragraph at lines 185--186
+[]\OT1/ptm/m/it/10 Let $\OML/cmm/m/it/10 s$ \OT1/ptm/m/it/10 be a pre-order on 
+$\OML/cmm/m/it/10 $\OT1/ptm/m/it/10 . If
+ []
+
+) [14]
+\openout2 = `TS1.ordered_partitions.aux'.
+
+ (./TS1.ordered_partitions.tex
+Overfull \hbox (870.15208pt too wide) in paragraph at lines 48--49
+[]
+ []
+
+
+Underfull \hbox (badness 2050) in paragraph at lines 84--85
+[]\OT1/ptm/m/it/10 If $\OML/cmm/m/it/10 s$ \OT1/ptm/m/it/10 is a lin-ear or-der
+, then
  []
 
 [15
@@ -753,153 +770,89 @@ n $\OML/cmm/m/it/12 $\OT1/ptm/m/it/12 , we have
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 113--115
-[]\OT1/ptm/m/it/12 Let $\OML/cmm/m/it/12 E$ \OT1/ptm/m/it/12 be a set of sub-
- []
-
-
-Underfull \hbox (badness 3088) in paragraph at lines 113--115
-\OT1/ptm/m/it/12 sets of $\OML/cmm/m/it/12 $\OT1/ptm/m/it/12 . If $\OML/cmm/m/
-it/12 powersetToPreorder\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 E\OT1/cmr/m/n/12 )$ \
-OT1/ptm/m/it/12 is to-tal and es-sen-tially lo-cally fi-nite, then
- []
-
-[16] [17]
-Underfull \hbox (badness 2913) in paragraph at lines 196--198
-[]\OT1/ptm/m/n/12 Let $\OML/cmm/m/it/12 s$
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 202--203
-[]
- []
-
-) [18]
-\openout2 = `TS1.ordered_partitions.aux'.
-
- (./TS1.ordered_partitions.tex
-Overfull \hbox (1092.8397pt too wide) in paragraph at lines 48--49
+Underfull \hbox (badness 10000) in paragraph at lines 121--122
 []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 58--59
-[]\OT1/ptm/m/it/12 The pre-order
+Underfull \hbox (badness 3417) in paragraph at lines 144--145
+[]\OT1/ptm/m/it/10 If $\OML/cmm/m/it/10 r$ \OT1/ptm/m/it/10 is a lin-ear or-der
+ and $\OML/cmm/m/it/10 s$ \OT1/ptm/m/it/10 is a to-tal pre-order, then
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 63--64
-[]\OT1/ptm/m/it/12 The pre-order
+Overfull \hbox (295.18716pt too wide) in paragraph at lines 154--155
+[]
+ []
+
+[16]
+Underfull \hbox (badness 3271) in paragraph at lines 234--235
+[]\OT1/ptm/m/it/10 Let $\OML/cmm/m/it/10 r$ \OT1/ptm/m/it/10 be a lin-ear or-de
+r on $\OML/cmm/m/it/10 $\OT1/ptm/m/it/10 . Then
+ []
+
+[17]) [18]
+\openout2 = `TS1.WeakBruhatOrder.aux'.
+
+ (./TS1.WeakBruhatOrder.tex
+Underfull \hbox (badness 10000) in paragraph at lines 43--44
+[]\OT1/ptm/m/it/10 Let
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 68--69
-[]\OT1/ptm/m/it/12 The pre-order
+Underfull \hbox (badness 1221) in paragraph at lines 82--84
+[]\OT1/ptm/m/it/10 If $\OML/cmm/m/it/10 s; t$ \OT1/ptm/m/it/10 are lin-ear or-d
+ers on $\OML/cmm/m/it/10 $ \OT1/ptm/m/it/10 such that
+ []
+
+
+Overfull \hbox (59.4686pt too wide) in paragraph at lines 88--90
+[]
  []
 
 [19
 
 
 
-]
-Overfull \hbox (45.09364pt too wide) in paragraph at lines 121--122
-[]
- []
-
-[20]
-Overfull \hbox (402.8819pt too wide) in paragraph at lines 154--155
-[]
- []
-
-
-Underfull \hbox (badness 4752) in paragraph at lines 159--160
-[]\OT1/ptm/m/it/12 Let $\OML/cmm/m/it/12 r$
- []
-
-[21]) [22]
-\openout2 = `TS1.WeakBruhatOrder.aux'.
-
- (./TS1.WeakBruhatOrder.tex
-Overfull \hbox (14.13309pt too wide) in paragraph at lines 43--44
-[]
- []
-
-[23
-
-
-
-]
-Overfull \hbox (120.01976pt too wide) in paragraph at lines 88--90
-[]
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 100--101
-[]\OT1/ptm/m/it/12 Let $\OML/cmm/m/it/12 a; b; x$ \OT1/ptm/m/it/12 be el-e-ment
-s of $\OML/cmm/m/it/12 $\OT1/ptm/m/it/12 . Then
- []
-
-[24]) [25]
+]) [20]
 \openout2 = `TS1.FiniteOrderedPartitions.aux'.
 
  (./TS1.FiniteOrderedPartitions.tex
-Underfull \hbox (badness 5607) in paragraph at lines 37--38
-\OT1/ptm/m/n/12 We want to char-ac-ter-ize the im-age of the set of AFLO par-ti
--tions by the map
- []
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 46--47
-[]\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 is an AFLO par-ti-t
+[]\OT1/ptm/m/it/10 If $\OML/cmm/m/it/10 s$ \OT1/ptm/m/it/10 is an AFLO par-ti-t
 ion, then
  []
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 51--52
-[]\OT1/ptm/m/n/12 For $\OML/cmm/m/it/12 s$ \OT1/ptm/m/n/12 an AFLO par-ti-tions
+[]\OT1/ptm/m/n/10 For $\OML/cmm/m/it/10 s$ \OT1/ptm/m/n/10 an AFLO par-ti-tions
 ,
  []
 
 
-Underfull \hbox (badness 2790) in paragraph at lines 51--52
-\OML/cmm/m/it/12 preorderToPowersetFinset\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 s\OT
-1/cmr/m/n/12 )$ \OT1/ptm/m/n/12 is $\OML/cmm/m/it/12 preorderToPowerset\OT1/cmr
-/m/n/12 (\OML/cmm/m/it/12 s\OT1/cmr/m/n/12 )$ \OT1/ptm/m/n/12 seen as a fi-nite
- sub-set of
+Underfull \hbox (badness 10000) in paragraph at lines 56--57
+[]\OT1/ptm/m/n/10 For ev-ery AFLO par-ti-tion $\OML/cmm/m/it/10 s$\OT1/ptm/m/n/
+10 , the fi-nite set
  []
 
 
-Underfull \hbox (badness 1622) in paragraph at lines 61--62
-[]\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 E$ \OT1/ptm/m/it/12 is an el-e-ment of 
+Underfull \hbox (badness 10000) in paragraph at lines 61--62
+[]\OT1/ptm/m/it/10 If $\OML/cmm/m/it/10 E$ \OT1/ptm/m/it/10 is an el-e-ment of 
 AFLOPow-er-set, then
  []
 
-) [26
+) [21
 
 
 
 ]
 \openout2 = `TS1.Decomposability.aux'.
 
- (./TS1.Decomposability.tex [27
+ (./TS1.Decomposability.tex [22
 
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 94--96
-[]\OT1/ptm/m/it/12 Let $\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 R[]; DF\OT1/cmr/m/n/1
-2 )$ \OT1/ptm/m/it/12 and
- []
-
-
-Underfull \hbox (badness 6047) in paragraph at lines 94--96
-\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 R[]; DF\OT1/cmr/m/n/12 )$ \OT1/ptm/m/it/12 be
- de-com-po-si-tions of $\OML/cmm/m/it/12 K$\OT1/ptm/m/it/12 . Then, for ev-ery 
-facet $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 of $\OML/cmm/m/it/12 K$\OT1/ptm/m/i
-t/12 , we have
- []
-
-[28]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 167.
@@ -916,64 +869,53 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 167.
 
-) [29]
+[23]) [24]
 \openout2 = `TS1.Shellability.aux'.
 
- (./TS1.Shellability.tex [30
+ (./TS1.Shellability.tex [25
 
 
 
-]) [31]
+]) [26]
 \openout2 = `TS1.EulerPoincareCharacteristic.aux'.
 
 
-(./TS1.EulerPoincareCharacteristic.tex
-Underfull \hbox (badness 10000) in paragraph at lines 67--69
-[]
- []
-
-[32
+(./TS1.EulerPoincareCharacteristic.tex [27
 
 
 
-]
-Underfull \hbox (badness 10000) in paragraph at lines 124--126
-[]\OT1/ptm/m/it/12 Let
- []
-
-[33]
-Underfull \hbox (badness 1173) in paragraph at lines 185--187
-[]\OT1/ptm/m/it/12 Let $\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 R; DF\OT1/cmr/m/n/12 
-)$ \OT1/ptm/m/it/12 be a de-
- []
-
-) [34]
+] [28]) [29]
 \openout2 = `TS1.FiniteCoxeterComplex.aux'.
 
- (./TS1.FiniteCoxeterComplex.tex
-Underfull \hbox (badness 3724) in paragraph at lines 29--30
-\OML/cmm/m/it/12 AFLOPowerset$ \OT1/ptm/m/n/12 and the dual of the set of AFLO 
-par-ti-tions, given the func-tions
+
+(./TS1.FiniteCoxeterComplex.tex
+Underfull \hbox (badness 10000) in paragraph at lines 29--30
+[]\OT1/ptm/m/n/10 An iso-mor-phism of or-dered sets be-tween
  []
 
-[35
+[30
 
 
 
 ]
-Underfull \hbox (badness 7888) in paragraph at lines 129--131
-\OT1/ptm/m/n/12 we de-fine the im-age of $\OML/cmm/m/it/12 E$ \OT1/ptm/m/n/12 b
-y the dis-tin-guished facet map as an el-e-ment of
+Underfull \hbox (badness 1221) in paragraph at lines 164--165
+[]\OT1/ptm/m/it/10 The Cox-eter com-plex is nonempty if and only of
  []
 
-
-Underfull \hbox (badness 1365) in paragraph at lines 135--136
-[]\OT1/ptm/m/it/12 If $\OML/cmm/m/it/12 r$ \OT1/ptm/m/it/12 is a lin-ear or-der
- on $\OML/cmm/m/it/12 $ \OT1/ptm/m/it/12 and $\OML/cmm/m/it/12 E$ \OT1/ptm/m/i
-t/12 is in
+[31]
+Underfull \hbox (badness 2111) in paragraph at lines 220--222
+[]\OT1/ptm/m/n/10 If $\OML/cmm/m/it/10 card\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 \
+OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^U \OT1/cmr/m/n/10 2$\OT1/ptm/m/n/10 , an eq
+uiv-a-lence be-
  []
 
-[36] [37] [38]) [39]
+[32]
+Underfull \hbox (badness 1314) in paragraph at lines 283--284
+[]\OT1/ptm/m/it/10 If $\OML/cmm/m/it/10 $ \OT1/ptm/m/it/10 is nonempty, then t
+he Euler-
+ []
+
+) [33]
 \openout2 = `TS1.FiniteWeightedComplex.aux'.
 
  (./TS1.FiniteWeightedComplex.tex
@@ -990,40 +932,31 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 5.
 
 
-Underfull \hbox (badness 1253) in paragraph at lines 29--30
-[]\OT1/ptm/m/n/12 Definition of the set of pos-i-tive el-e-ments of
+Underfull \hbox (badness 6758) in paragraph at lines 89--90
+[]\OT1/ptm/m/it/10 If $\OML/cmm/m/it/10 s$ \OT1/ptm/m/it/10 is a pos-i-tive AFL
+O par-ti-tion, then
+ []
+
+[34
+
+
+
+]
+Underfull \hbox (badness 5711) in paragraph at lines 119--121
+[]\OT1/ptm/m/n/10 If $\OML/cmm/m/it/10 r$ \OT1/ptm/m/n/10 is a lin-ear or-der o
+n $\OML/cmm/m/it/10 $\OT1/ptm/m/n/10 , we de-fine the re-stric-
  []
 
 
-Underfull \hbox (badness 4995) in paragraph at lines 51--52
-[]\OT1/ptm/m/n/12 The par-tial or-der on pos-i-tive
+Underfull \hbox (badness 5417) in paragraph at lines 119--121
+\OT1/ptm/m/n/10 tion map from the set of pos-i-tive el-e-ments of AFLOPow-er-se
+t to it-self: it sends $\OML/cmm/m/it/10 E$ \OT1/ptm/m/n/10 to
  []
 
-
-Underfull \hbox (badness 6559) in paragraph at lines 61--62
-[]\OT1/ptm/m/it/12 The set of pos-i-tive el-e-ments of
- []
-
-[40
+[35] [36] [37]) [38] [39
 
 
-
-] [41] [42] [43] [44]
-Underfull \hbox (badness 10000) in paragraph at lines 347--349
-[]\OT1/ptm/m/it/12 Suppose that $\OML/cmm/m/it/12 $ \OT1/ptm/m/it/12 is
- []
-
-) [45]
-Underfull \hbox (badness 3058) in paragraph at lines 60--62
-\OT1/ptm/m/it/12 for ev-ery pre-order $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 on 
-$\OML/cmm/m/it/12 $\OT1/ptm/m/it/12 , the car-di-nal-ity of the set of blocks 
-of $\OML/cmm/m/it/12 s$ \OT1/ptm/m/it/12 is equal to
- []
-
-[46
-
-
-] [47] (./TS1.aux (./TS1.general_preorder_stuff.aux)
+] (./TS1.aux (./TS1.general_preorder_stuff.aux)
 (./TS1.AbstractSimplicialComplex.aux) (./TS1.FacePoset.aux)
 (./TS1.OrderOnFacets.aux) (./TS1.preorder_to_powerset.aux)
 (./TS1.ordered_partitions.aux) (./TS1.WeakBruhatOrder.aux)
@@ -1034,31 +967,32 @@ Package rerunfilecheck Info: File `TS1.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 16063 strings out of 478287
- 275236 string characters out of 5849290
- 719157 words of memory out of 5000000
- 33362 multiletter control sequences out of 15000+600000
- 495493 words of font info for 96 fonts, out of 8000000 for 9000
+ 16048 strings out of 478287
+ 275066 string characters out of 5849290
+ 722130 words of memory out of 5000000
+ 33355 multiletter control sequences out of 15000+600000
+ 493783 words of font info for 89 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 113i,8n,109p,10612b,443s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 113i,8n,109p,10612b,445s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cms
-y10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-</usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-d
-ist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1
-/urw/times/utmri8a.pfb>
-Output written on TS1.pdf (47 pages, 294503 bytes).
+/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
+8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/s
+hare/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/
+texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/font
+s/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/tim
+es/utmri8a.pfb>
+Output written on TS1.pdf (39 pages, 298232 bytes).
 PDF statistics:
- 1193 PDF objects out of 1200 (max. 8388607)
- 1104 compressed objects within 12 object streams
- 565 named destinations out of 1000 (max. 500000)
+ 1162 PDF objects out of 1200 (max. 8388607)
+ 1080 compressed objects within 11 object streams
+ 557 named destinations out of 1000 (max. 500000)
  713 words of extra memory for PDF output out of 10000 (max. 10000000)
 

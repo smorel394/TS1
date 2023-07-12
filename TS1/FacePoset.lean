@@ -9,6 +9,8 @@ import Mathlib.Data.Finset.Lattice
 
 set_option autoImplicit false
 
+open Classical 
+
 universe u 
 
 variable {α : Type u} 
@@ -34,12 +36,205 @@ variable {α β : Type u}
 variable [DecidableEq α] [DecidableEq β]
 variable {K : AbstractSimplicialComplex α} {L : AbstractSimplicialComplex β}
 
-def toFaceMapOrderHom (f : K →ₛ L) : OrderHom K.faces L.faces where  
+noncomputable def toFaceMapOrderHom (f : K →ₛ L) : OrderHom K.faces L.faces where  
 toFun := f.toFaceMap 
-monotone':= fun s t hst => by change Finset.image f.vertex_map s.1 ⊆ Finset.image f.vertex_map t.1
+monotone':= fun s t hst => by unfold SimplicialMap.toFaceMap 
+                              change _ ⊆ _ 
                               apply Finset.image_subset_image 
-                              exact hst  
+                              intro a 
+                              rw [face_to_finset_vertices_mem', face_to_finset_vertices_mem']
+                              exact fun h => hst h 
 
+/- Deprecated, as we don't need to localize by equivalences anymore.-/
+/- An equivalence of simplicial complexes induces an order isomorphism on the face posets.-/
+
+/-
+def EquivtoEquivFaces (f : AbstractSimplicialComplexEquiv K L) : Equiv K.faces L.faces where 
+toFun := f.toFun.toFaceMap 
+invFun := f.invFun.toFaceMap 
+left_inv := f.almost_left_inv 
+right_inv := f.almost_right_inv
+
+def EquivtoOrderIsoFaces (f : AbstractSimplicialComplexEquiv K L) : OrderIso K.faces L.faces := 
+{EquivtoEquivFaces f with 
+map_rel_iff' := by intro s t
+                   simp only [Equiv.toFun_as_coe, Equiv.invFun_as_coe, Equiv.coe_fn_mk]
+                   unfold EquivtoEquivFaces
+                   simp only [Equiv.coe_fn_mk]
+                   constructor 
+                   . intro hst 
+                     rw[←(f.almost_left_inv s), ←(f.almost_left_inv t)]
+                     exact (toFaceMapOrderHom f.invFun).monotone' hst                      
+                   . exact fun hst => (toFaceMapOrderHom f.toFun).monotone' hst 
+}
+
+/- Conversely, a simplicial map that is bijective on the face posets can be completes to an equivalence.-/
+
+
+lemma BijectiveOnFacesIsEquiv (f : K →ₛ L) (hf : Function.Bijective f.toFaceMap) (hne : Nonempty α) : 
+∃ (F : AbstractSimplicialComplexEquiv K L), F.toFun = f := by
+  have inj : ∀ {a b : α}, a ∈ K.vertices → b ∈ K.vertices → f.vertex_map a = f.vertex_map b → a = b := by 
+    intro a b hav hbv 
+    rw [mem_vertices] at hav hbv 
+    intro hab
+    have heq' : f.toFaceMap ⟨{a},hav⟩ = f.toFaceMap ⟨{b},hbv⟩ := by 
+      unfold SimplicialMap.toFaceMap 
+      simp only [Finset.image_singleton, Subtype.mk.injEq, Finset.singleton_inj]
+      exact hab 
+    have h := hf.injective heq'
+    simp only [Subtype.mk.injEq, Finset.singleton_inj] at h
+    exact h 
+  have surj : ∀ {b : β}, b ∈ L.vertices → (∃ (a : α), a ∈ K.vertices ∧ f.vertex_map a =b) := by 
+    intro b hbv 
+    rw [mem_vertices] at hbv 
+    set s:= Classical.choose (hf.surjective ⟨{b}, hbv⟩) 
+    exists Classical.choose (K.nonempty_of_mem s.2)
+    have ha := Classical.choose_spec (K.nonempty_of_mem s.2)
+    constructor 
+    . rw [mem_vertices_iff]
+      exists s
+    . suffices h : ∀ {a : α}, a ∈ s.1 → f.vertex_map a = b 
+      . exact h ha 
+      . intro a ha 
+        have hs : f.toFaceMap s = ⟨{b}, hbv⟩ := Classical.choose_spec (hf.surjective ⟨{b}, hbv⟩)
+        rw [←SetCoe.ext_iff] at hs
+        unfold SimplicialMap.toFaceMap at hs 
+        simp only [Subtype.mk.injEq] at hs
+        have h : f.vertex_map a ∈ Finset.image f.vertex_map s.1 := by 
+          simp only [Finset.mem_image]
+          exists a 
+        rw [hs, Finset.mem_singleton] at h 
+        exact h 
+  have fvertex : ∀ {a : α}, a ∈ K.vertices → f.vertex_map a ∈ L.vertices := by 
+        intro a hav
+        rw [mem_vertices_iff]
+        exists f.toFaceMap ⟨{a}, hav⟩
+        unfold SimplicialMap.toFaceMap 
+        simp only [Finset.image_singleton, Finset.mem_singleton]
+  have orderiso : ∀ {s t : K.faces}, s ≤ t ↔ f.toFaceMap s ≤ f.toFaceMap t := by  
+    intro s t 
+    constructor 
+    . exact fun h => (toFaceMapOrderHom f).monotone' h  
+    . intro hst 
+      change s.1 ⊆ t.1 
+      intro a has 
+      have hafs : f.vertex_map a ∈ Finset.image f.vertex_map t.1 := by 
+        unfold SimplicialMap.toFaceMap at hst 
+        simp only [Subtype.mk_le_mk, Finset.le_eq_subset] at hst
+        apply hst 
+        rw [Finset.mem_image]
+        exists a 
+      rw [Finset.mem_image] at hafs 
+      match hafs with 
+      | ⟨b, hbt, heq⟩ => have hav : a ∈ K.vertices := by rw [mem_vertices_iff]; exists s 
+                         have hbv : b ∈ K.vertices := by rw [mem_vertices_iff]; exists t 
+                         rw [←(inj hbv hav heq)]
+                         exact hbt  
+  set g : β → α := by 
+      intro b 
+      by_cases hbv : b ∈ L.vertices 
+      . exact Classical.choose (surj hbv) 
+      . exact Classical.choice hne 
+  have gvertex : ∀ {b : β}, b ∈ L.vertices → g b ∈ K.vertices := by 
+    intro b hbv 
+    simp only [hbv, dite_true]
+    exact (Classical.choose_spec (surj hbv)).1 
+  have leftinv : ∀ {a : α}, a ∈ K.vertices → g (f.vertex_map a) = a := by 
+      intro a hav  
+      have hbv : f.vertex_map a ∈ L.vertices := fvertex hav 
+      simp only [hbv, dite_true]
+      exact inj (Classical.choose_spec (surj hbv)).1 hav (Classical.choose_spec (surj hbv)).2
+  have rightinv : ∀ {b : β}, b ∈ L.vertices → f.vertex_map (g b) = b := by 
+      intro b hbv 
+      simp only [hbv, dite_true]
+      unfold SimplicialMap.vertex_map 
+      exact (Classical.choose_spec (surj hbv)).2 
+  have gfaces : ∀ t ∈ L, (t : Finset β).image g ∈ K := by 
+      intro t htf 
+      set s := Classical.choose (hf.surjective ⟨t, htf⟩)
+      have hseq : f.toFaceMap s = ⟨t, htf⟩ := Classical.choose_spec (hf.surjective ⟨t, htf⟩)
+      suffices heq : Finset.image g t = s.1 
+      . rw [heq]; exact s.2 
+      . ext a 
+        constructor 
+        . intro ha 
+          rw [Finset.mem_image] at ha 
+          match ha with 
+          | ⟨b, hbt, hab⟩ => have hfa : f.vertex_map a = b := by 
+                               rw [←hab]
+                               apply rightinv 
+                               rw [mem_vertices_iff]
+                               exists ⟨t, htf⟩ 
+                             have hav : a ∈ K.vertices := by rw [←hab]
+                                                             apply gvertex 
+                                                             rw [mem_vertices_iff]
+                                                             exists ⟨t, htf⟩ 
+                             rw [←Finset.singleton_subset_iff]
+                             change ⟨{a}, hav⟩ ≤ s 
+                             rw [orderiso]
+                             change _ ⊆ _ 
+                             rw [hseq]
+                             unfold SimplicialMap.toFaceMap 
+                             simp only [Finset.image_singleton, Finset.singleton_subset_iff]
+                             rw [hfa]
+                             exact hbt 
+        . intro has 
+          have hav : a ∈ K.vertices := by 
+            rw [mem_vertices_iff]
+            exists s 
+          rw [←Finset.singleton_subset_iff] at has 
+          change ⟨{a}, hav⟩ ≤ s at has 
+          rw [orderiso, hseq] at has 
+          unfold SimplicialMap.toFaceMap at has
+          simp only [Finset.image_singleton, Subtype.mk_le_mk, Finset.le_eq_subset, Finset.singleton_subset_iff] at has
+          rw [←(leftinv hav), Finset.mem_image]
+          exists f.vertex_map a 
+  set F : AbstractSimplicialComplexEquiv K L := 
+     {toFun := f 
+      invFun := {vertex_map := g
+                 face := gfaces 
+                } 
+      almost_left_inv := by intro s 
+                            ext a 
+                            unfold SimplicialMap.toFaceMap
+                            simp only [Finset.mem_image, exists_exists_and_eq_and]
+                            constructor 
+                            . intro has 
+                              match has with 
+                              | ⟨b, hbs, hba⟩ => have hbv : b ∈ K.vertices := by rw [mem_vertices_iff]; exists s 
+                                                 simp only [fvertex hbv, dite_true] at hba
+                                                 have hb := Classical.choose_spec (surj (fvertex hbv))
+                                                 rw [hba] at hb 
+                                                 rw [inj hb.1 hbv hb.2] 
+                                                 exact hbs 
+                            . intro has 
+                              have hav : a ∈ K.vertices := by rw [mem_vertices_iff]; exists s 
+                              exists a 
+                              rw [and_iff_right has]
+                              simp only [fvertex hav, dite_true]
+                              exact inj (Classical.choose_spec (surj (fvertex hav))).1 hav (Classical.choose_spec (surj (fvertex hav))).2 
+      almost_right_inv := by intro t 
+                             ext b 
+                             unfold SimplicialMap.toFaceMap 
+                             simp only [Finset.mem_image, exists_exists_and_eq_and]
+                             constructor 
+                             . intro hbt 
+                               match hbt with 
+                               | ⟨a, hat, hab⟩ => 
+                                 have hav : a ∈ L.vertices := by rw [mem_vertices_iff]; exists t 
+                                 simp only [hav, dite_true] at hab
+                                 rw [(Classical.choose_spec (surj hav)).2] at hab 
+                                 rw [←hab]
+                                 exact hat
+                             . intro hbt 
+                               exists b 
+                               rw [and_iff_right hbt]
+                               have hbv : b ∈ L.vertices := by rw [mem_vertices_iff]; exists t 
+                               simp only [hbv, dite_true]
+                               exact (Classical.choose_spec (surj hbv)).2
+      }
+  exists F  
+-/
 
 end SimplicialMap 
 
