@@ -75,12 +75,16 @@ noncomputable def FacePoset : AbstractSimplicialComplexCat.{u} ⥤ PartOrdCat.{u
   map F := SimplicialMap.toFaceMapOrderHom F  
   map_id := fun C => by simp only; unfold SimplicialMap.toFaceMapOrderHom 
                         apply OrderHom.ext 
-                        tauto
+                        simp only 
+                        change SimplicialMap.toFaceMap (SimplicialMap.id C.2) = _ 
+                        rw [id_toFaceMap]
+                        aesop        
   map_comp := fun f g => by simp only; unfold SimplicialMap.toFaceMapOrderHom  
                             apply OrderHom.ext 
                             erw [OrderHom.comp_coe] 
                             simp only [PartOrdCat.coe_of] 
-                            tauto
+                            exact SimplicialMap.toFaceMap_comp f g  
+
 
 
 /- The category of abstract simplicial complexes is equivalent to a full sucategory of the category of presheaves on the category
@@ -91,16 +95,8 @@ fully faithful embedding will be the composition of the Yoneda embedding and of 
 noncomputable def FintypeNEtoAbstractSimplicialComplex : FintypeNECat ⥤ AbstractSimplicialComplexCat where 
   obj α := @AbstractSimplicialComplexCat.of α (Simplex α)  
   map f := by simp only; apply AbstractSimplicialComplexCat.mk; exact MapSimplex f   
-  map_id := by intro S; simp only [id_eq]
-               change MapSimplex (fun x => x) = _ 
-               rw [MapSimplex.id]
-               tauto  
-  map_comp := by intro S T U f g; simp only [id_eq]
-                 change MapSimplex (g ∘ f) = _ 
-                 rw [←MapSimplex.comp]
-                 tauto 
-
-#exit 
+  map_id := by aesop
+  map_comp := by aesop  
 
 
 noncomputable def AbstractSimplicialComplextoPresheaf : AbstractSimplicialComplexCat ⥤ FintypeNECatᵒᵖ ⥤ Type u := by

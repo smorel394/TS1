@@ -24,10 +24,15 @@ open Classical
 # Abstract Simplicial Complex
 
 In this file, we define abstract simplicial complexes over a vertex set `V`. An abstract simplicial
-complex is collection of simplices which is closed by inclusion (of vertices).
+complex is a collection of (nonempty) simplices which is closed by inclusion (of vertices).
 
-We model them as downwards-closed collections of finite subsets of `V`.
+We model them as downwards-closed collections of nonempty finite subsets of `V` such that every singleton
+of 'V' is a face. We also give a function constructing on abstract simplicial complex from an
+abstract simplicial complex on a type α, defined as a downwards-closed collection of nonempty
+finite subsets of α.
 
+
+/- Rewrite the next part.-/
 ## Main definitions
 
 * `AbstractSimplicialComplex V`: An abstract simplicial complex with vertices in `V`.
@@ -54,19 +59,129 @@ set_option autoImplicit false
 
 universe u v w
 
-
 @[ext]
 structure AbstractSimplicialComplex (V : Type u) :=
 (faces : Set (Finset V))
 (nonempty_of_mem : ∀ {s : Finset V}, s ∈ faces → s.Nonempty)
 (down_closed : ∀ {s t : Finset V}, s ∈ faces → t ⊆ s → t.Nonempty → t ∈ faces)
+(vertices : ∀ {a : V}, {a} ∈ faces)
+
+
+@[ext]
+structure AbstractSimplicialComplexOn (α : Type u) :=
+(faces : Set (Finset α))
+(nonempty_of_mem : ∀ {s : Finset α}, s ∈ faces → s.Nonempty)
+(down_closed : ∀ {s t : Finset α}, s ∈ faces → t ⊆ s → t.Nonempty → t ∈ faces)
+
+variable {α V : Type u}
+
+instance : Membership (Finset V) (AbstractSimplicialComplex V) := ⟨fun s K => s ∈ K.faces⟩ 
+
+instance : Membership (Finset α) (AbstractSimplicialComplexOn α) := ⟨fun s K => s ∈ K.faces⟩ 
+
+/- Going from an AbstractSimplicialComplexOn to an AbstractSimplicialComplex. We need to define vertices for
+the first type of object.-/
+
+namespace AbstractSimplicialComplexOn
+
+def vertices (K : AbstractSimplicialComplexOn α) : Set α := {v : α | {v} ∈ K}
+
+lemma mem_vertices (K : AbstractSimplicialComplexOn α) (v : α) : v ∈ K.vertices ↔ {v} ∈ K := Iff.rfl
+
+lemma vertices_eq (K : AbstractSimplicialComplexOn α) : K.vertices = ⋃ s ∈ K.faces, (s : Set α) := by
+  ext v
+  constructor
+  . intro hv
+    rw [Set.mem_iUnion]
+    simp only [Set.mem_iUnion, Finset.mem_coe, exists_prop]
+    exists {v}
+    exact ⟨hv, Finset.mem_singleton_self v⟩
+  . intro hv
+    rw [Set.mem_iUnion] at hv
+    simp only [Set.mem_iUnion, Finset.mem_coe, exists_prop] at hv
+    match hv with 
+    | ⟨s,hsf,hsv⟩ => exact K.down_closed hsf (Finset.singleton_subset_iff.mpr hsv) (Finset.singleton_nonempty v) 
+
+
+lemma mem_vertices_iff (K : AbstractSimplicialComplexOn α) (x : α) : x ∈ K.vertices ↔ ∃ (s : K.faces), x ∈ s.1 := by
+  rw [mem_vertices]
+  constructor
+  . exact fun hx => by simp only [Subtype.exists, exists_prop]; exists {x}; exact ⟨hx, Finset.mem_singleton.mpr (Eq.refl x)⟩
+  . exact fun hx => by simp only [Subtype.exists, exists_prop] at hx 
+                       match hx with
+                       |  ⟨s, hsf, hsx⟩ => exact K.down_closed hsf (Finset.singleton_subset_iff.mpr hsx) (Finset.singleton_nonempty _)          
+
+
+
+lemma face_subset_vertices (K : AbstractSimplicialComplexOn α) (s : K.faces) : ↑s.1 ⊆ K.vertices := by 
+  rw [vertices_eq]
+  have h := Set.subset_iUnion (fun (t : K.faces) => (t : Set α)) s 
+  simp only [Set.iUnion_coe_set] at h
+  exact h 
+
+
+/-Hopefully this will be useless now, as one of the goals was to avoid this construction.-/
+/-
+noncomputable def face_to_finset_vertices {K : AbstractSimplicialComplex V} (s : K.faces) : Finset (K.vertices) := 
+s.1.subtype (fun a => a ∈ K.vertices)
+
+lemma face_to_finset_vertices_mem {K : AbstractSimplicialComplex V} (s : K.faces) (a : V) :
+(∃ (hav : a ∈ K.vertices), ⟨a, hav⟩ ∈ (face_to_finset_vertices s)) ↔ a ∈ s.1 := by 
+  unfold face_to_finset_vertices
+  simp only [Finset.mem_subtype, exists_prop, and_iff_right_iff_imp]
+  exact fun has => by rw [mem_vertices_iff]; exists s 
+
+lemma face_to_finset_vertices_mem' {K : AbstractSimplicialComplex V} (s : K.faces) {a : V} (hav : a ∈ K.vertices) :
+⟨a, hav⟩ ∈ (face_to_finset_vertices s) ↔ a ∈ s.1 := by 
+  unfold face_to_finset_vertices
+  simp only [Finset.mem_subtype]
+
+
+lemma face_to_finset_vertices_eq {K : AbstractSimplicialComplex V} (s : K.faces) :
+s.1 = Finset.image (fun a => ↑a) (face_to_finset_vertices s) := by 
+  ext a 
+  simp only [Finset.mem_image, Subtype.exists, exists_and_right, exists_eq_right]
+  apply Iff.symm 
+  exact face_to_finset_vertices_mem _ _ -/
+
+def toAbstractSimplicialComplex (K : AbstractSimplicialComplexOn α) : AbstractSimplicialComplex K.vertices where 
+faces := {s : Finset K.vertices | ∃ (t : Finset α), t ∈ K.faces ∧ (∀ (a : K.vertices), a ∈ s ↔ a.1 ∈ t)}
+nonempty_of_mem := by 
+  intro s hsf 
+  simp only [Subtype.forall, Set.mem_setOf_eq] at hsf
+  match hsf with 
+  | ⟨t, ⟨htf, hst⟩⟩ => 
+    match (K.nonempty_of_mem htf) with
+    | ⟨a, hat⟩ => 
+    have hav : a ∈ K.vertices := by rw [mem_vertices_iff]; exists ⟨t, htf⟩
+    exists ⟨a, hav⟩
+    exact (hst a hav).mpr hat  
+down_closed := by 
+  intro s t hsf hts htne 
+  simp only [Subtype.forall, Set.mem_setOf_eq] at hsf|-
+  match hsf with 
+  | ⟨s', ⟨hsf', hss'⟩⟩ => 
+    sorry
+vertices := by 
+  intro a 
+  simp only [Subtype.forall, Set.mem_setOf_eq, Finset.mem_singleton]
+  exists {a.1}
+  constructor
+  . erw [←mem_vertices]; exact a.2
+  . intro b hbv 
+    rw [←Subtype.coe_inj]
+    simp only [Finset.mem_singleton]
+
+
+end AbstractSimplicialComplexOn
+
+
 
 
 namespace AbstractSimplicialComplex
 
 variable {V : Type u}
 
-instance : Membership (Finset V) (AbstractSimplicialComplex V) := ⟨fun s K => s ∈ K.faces⟩ 
 
 
 /-- Construct an abstract simplicial complex by removing the empty face for you. -/
@@ -101,62 +216,6 @@ lemma face_card_nonzero {K : AbstractSimplicialComplex V} {s : Finset V} (hsf : 
 
 /- Vertices are the element a of V such that {a} is a face.-/
 
-def vertices (K : AbstractSimplicialComplex V) : Set V := {v : V | {v} ∈ K}
-
-lemma mem_vertices (K : AbstractSimplicialComplex V) (v : V) : v ∈ K.vertices ↔ {v} ∈ K := Iff.rfl
-
-lemma vertices_eq (K : AbstractSimplicialComplex V) : K.vertices = ⋃ s ∈ K.faces, (s : Set V) := by
-  ext v
-  constructor
-  . intro hv
-    rw [Set.mem_iUnion]
-    simp only [Set.mem_iUnion, Finset.mem_coe, exists_prop]
-    exists {v}
-    exact ⟨hv, Finset.mem_singleton_self v⟩
-  . intro hv
-    rw [Set.mem_iUnion] at hv
-    simp only [Set.mem_iUnion, Finset.mem_coe, exists_prop] at hv
-    match hv with 
-    | ⟨s,hsf,hsv⟩ => exact K.down_closed hsf (Finset.singleton_subset_iff.mpr hsv) (Finset.singleton_nonempty v) 
-
-
-lemma mem_vertices_iff (K : AbstractSimplicialComplex V) (x : V) : x ∈ K.vertices ↔ ∃ (s : K.faces), x ∈ s.1 := by
-  rw [mem_vertices]
-  constructor
-  . exact fun hx => by simp only [Subtype.exists, exists_prop]; exists {x}; exact ⟨hx, Finset.mem_singleton.mpr (Eq.refl x)⟩
-  . exact fun hx => by simp only [Subtype.exists, exists_prop] at hx 
-                       match hx with
-                       |  ⟨s, hsf, hsx⟩ => exact K.down_closed hsf (Finset.singleton_subset_iff.mpr hsx) (Finset.singleton_nonempty _)          
-
-
-
-lemma face_subset_vertices (K : AbstractSimplicialComplex V) (s : K.faces) : ↑s.1 ⊆ K.vertices := by 
-  rw [vertices_eq]
-  have h := Set.subset_iUnion (fun (t : K.faces) => (t : Set V)) s 
-  simp only [Set.iUnion_coe_set] at h
-  exact h 
-
-noncomputable def face_to_finset_vertices {K : AbstractSimplicialComplex V} (s : K.faces) : Finset (K.vertices) := 
-s.1.subtype (fun a => a ∈ K.vertices)
-
-lemma face_to_finset_vertices_mem {K : AbstractSimplicialComplex V} (s : K.faces) (a : V) :
-(∃ (hav : a ∈ K.vertices), ⟨a, hav⟩ ∈ (face_to_finset_vertices s)) ↔ a ∈ s.1 := by 
-  unfold face_to_finset_vertices
-  simp only [Finset.mem_subtype, exists_prop, and_iff_right_iff_imp]
-  exact fun has => by rw [mem_vertices_iff]; exists s 
-
-lemma face_to_finset_vertices_mem' {K : AbstractSimplicialComplex V} (s : K.faces) {a : V} (hav : a ∈ K.vertices) :
-⟨a, hav⟩ ∈ (face_to_finset_vertices s) ↔ a ∈ s.1 := by 
-  unfold face_to_finset_vertices
-  simp only [Finset.mem_subtype]
-
-
-lemma face_to_finset_vertices_eq {K : AbstractSimplicialComplex V} (s : K.faces) :
-s.1 = Finset.image (fun a => ↑a) (face_to_finset_vertices s) := by 
-  ext a 
-  simp only [Finset.mem_image, Subtype.exists, exists_and_right, exists_eq_right]
-  apply Iff.symm 
-  exact face_to_finset_vertices_mem _ _ 
 
 /- Facets. -/
 
@@ -415,13 +474,9 @@ localization when defining the catgeory of abstract simplicial complexes.-/
 
 
 @[ext]
-structure SimplicialMap {U : Type u} {V : Type v} (K : AbstractSimplicialComplex U) (L : AbstractSimplicialComplex V) :=
+structure SimplicialMap {U : Type u} {V : Type v} [DecidableEq V] (K : AbstractSimplicialComplex U) (L : AbstractSimplicialComplex V) :=
 (vertex_map : K.vertices → L.vertices)
-(face_map : K.faces → L.faces)
-(compatibility_vertex_face : ∀ (a : K.vertices), face_map ⟨{a.1}, a.2⟩ = ⟨{(vertex_map a).1}, (vertex_map a).2⟩)
-(compatibility_face_vertex : ∀ (s : K.faces) (b : V), b ∈ (face_map s).1 ↔ (∃ (a : U) (has : a ∈ s.1), 
-  (vertex_map ⟨a, face_subset_vertices K s has⟩).1 = b))
-
+(face : ∀ (s : K.faces), Finset.image (fun a => ↑(vertex_map a)) (face_to_finset_vertices s) ∈ L.faces)
 
 
 
@@ -429,19 +484,13 @@ notation:100 K:100 " →ₛ " L:100 => SimplicialMap K L  --not sure how to choo
 
 namespace SimplicialMap
 
-variable {α : Type u} {β : Type v} {γ : Type w}
-variable {K : AbstractSimplicialComplex α} {L : AbstractSimplicialComplex β} {M : AbstractSimplicialComplex γ}
+variable {U : Type u} {V : Type v} {W : Type w}
+variable [DecidableEq V] [DecidableEq W]
+variable {K : AbstractSimplicialComplex U} {L : AbstractSimplicialComplex V} {M : AbstractSimplicialComplex W}
 
-lemma ext_vertex {K : AbstractSimplicialComplex α} {L : AbstractSimplicialComplex β} (f g : SimplicialMap K L) :
-f.vertex_map = g.vertex_map → f = g := by 
-  intro heq 
-  ext s a 
-  . rw [heq]
-  . rw [f.compatibility_face_vertex, g.compatibility_face_vertex, heq]
+/- If f is a map from U to V such that, for every face s of K, f(s) is a face of L, then f defines a simplicial map from K to L.-/
 
-/- If f is a map from α to β such that, for every face s of K, f(s) is a face of L, then f defines a simplicial map from K to L.-/
-
-noncomputable def SimplicialMapofMap (f : α → β) (hf : ∀ (s : Finset α), s ∈ K.faces → Finset.image f s ∈ L.faces) :
+def SimplicialMapofMap (f : U → V) (hf : ∀ (s : Finset U), s ∈ K.faces → Finset.image f s ∈ L.faces) :
 K →ₛ L 
     where 
   vertex_map := by 
@@ -449,81 +498,143 @@ K →ₛ L
     refine ⟨f a, ?_⟩
     rw [mem_vertices] at hav |- 
     exact hf {a} hav 
-  face_map := fun s => ⟨Finset.image f s, hf s.1 s.2⟩
-  compatibility_vertex_face := fun _ => by simp only [Finset.image_singleton]
-  compatibility_face_vertex := fun _ _ => by simp only [Finset.mem_image, exists_prop]
-
-
+  face := by 
+    intro ⟨s, hsf⟩
+    convert hf s hsf
+    ext b 
+    simp only [Finset.mem_image, Subtype.exists, exists_and_right]
+    constructor 
+    . intro hb 
+      match hb with 
+      | ⟨a, has, hab⟩ => 
+        rw [face_to_finset_vertices_mem] at has 
+        exists a 
+    . intro hb 
+      match hb with 
+      | ⟨a, has, hab⟩ => 
+        exists a 
+        rw [and_iff_left hab]
+        rw [face_to_finset_vertices_mem]
+        exact has 
 
 /- If f is any map from a fintype α to a fintype β, it defines a simplicial map between the corresponding simplices.-/
 
-noncomputable def MapSimplex (f : α → β) : SimplicialMap (Simplex α) (Simplex β) := 
+noncomputable def MapSimplex {α β : Type u} (f : α → β) : SimplicialMap (Simplex α) (Simplex β) := 
 {
 vertex_map := fun ⟨a, _⟩ => by refine ⟨f a, ?_⟩
                                rw [vertices_Simplex]
                                simp only [Set.top_eq_univ, Set.mem_univ]
-face_map := by 
-  intro ⟨s, hsf⟩
-  refine ⟨Finset.image f s, ?_⟩
-  rw [←faces_Simplex] at hsf |-
-  simp only [Finset.Nonempty.image_iff, hsf]
-compatibility_vertex_face := fun _ => by simp only [Finset.image_singleton]
-compatibility_face_vertex := fun _ _ => by simp only [Finset.mem_image, exists_prop]
+face := fun s => by change Finset.Nonempty _ 
+                    simp only [Finset.Nonempty.image_iff]
+                    match (Simplex α).nonempty_of_mem s.2 with 
+                    | ⟨a, has⟩ => have hav : a ∈ (Simplex α).vertices := by rw [mem_vertices_iff]; exists s 
+                                  exists ⟨a, hav⟩
+                                  rw [face_to_finset_vertices_mem']
+                                  exact has 
 }
+
+
+noncomputable def toFaceMap (f : K →ₛ L) : K.faces → L.faces := 
+fun s => (⟨Finset.image (fun a => ↑(f.vertex_map a)) (face_to_finset_vertices s), f.face s⟩ : L.faces)
 
 
 def comp (g : L →ₛ M) (f : K →ₛ L) : K →ₛ M :=
 { vertex_map := g.vertex_map ∘ f.vertex_map,
-  face_map := g.face_map ∘ f.face_map,
-  compatibility_vertex_face := by 
-    intro a
-    simp only [Function.comp_apply]
-    rw [f.compatibility_vertex_face a, g.compatibility_vertex_face (f.vertex_map a)]
-  compatibility_face_vertex := by 
-    intro s c 
-    simp only [Function.comp_apply]
-    rw [g.compatibility_face_vertex]
-    simp_rw [f.compatibility_face_vertex]
-    constructor
-    . intro hc 
-      match hc with 
-      | ⟨b, ⟨a, has, hab⟩, hbc⟩ => 
-        exists a; exists has 
-        have hav : a ∈ K.vertices := face_subset_vertices K s has 
-        have hbv : b ∈ L.vertices := by rw [←hab]; exact (f.vertex_map ⟨a, hav⟩).2
-        have hab' : f.vertex_map ⟨a, hav⟩ = ⟨b, hbv⟩ := by rw [←SetCoe.ext_iff]; simp only [hab]
-        rw [hab', hbc]
-    . intro hc 
-      match hc with 
-      | ⟨a, has, hac⟩ => 
-        set b := f.vertex_map ⟨a, face_subset_vertices K s has⟩
-        exists b.1
-        simp only [Subtype.coe_eta, exists_prop]
-        constructor 
-        . exists a; exists has 
-        . simp only [hac]
+  face := fun s => by set t := g.toFaceMap (f.toFaceMap s) 
+                      have heq : Finset.image (fun a => (↑((g.vertex_map ∘ f.vertex_map) a) : W)) (face_to_finset_vertices s) = t.1 := by 
+                        ext c 
+                        simp only [Function.comp_apply, Finset.mem_image, Subtype.exists]
+                        unfold toFaceMap 
+                        simp only [Finset.mem_image, Subtype.exists]
+                        constructor 
+                        . intro hc 
+                          match hc with 
+                        | ⟨a, hav, hac⟩ => exists (f.vertex_map ⟨a, hav⟩).1
+                                           exists (f.vertex_map ⟨a, hav⟩).2 
+                                           simp only [Subtype.coe_eta]
+                                           rw [face_to_finset_vertices_mem'] at hac |- 
+                                           simp only [Finset.mem_image, Subtype.exists]
+                                           rw [and_iff_left hac.2]
+                                           exists a; exists hav 
+                                           rw [face_to_finset_vertices_mem']
+                                           exact ⟨hac.1, rfl⟩
+                        . intro hb 
+                          match hb with 
+                          | ⟨b, hbv, hbc⟩ => 
+                            rw [face_to_finset_vertices_mem'] at hbc  
+                            rw [Finset.mem_image, Subtype.exists] at hbc
+                            match hbc.1 with 
+                            | ⟨a, hav, hab⟩ => 
+                              exists a; exists hav 
+                              rw [face_to_finset_vertices_mem'] at hab |-
+                              rw [and_iff_right hab.1]
+                              have hab' : f.vertex_map ⟨a, hav⟩ = ⟨b, hbv⟩ := by 
+                               rw [←SetCoe.ext_iff] 
+                               simp only [hab] 
+                              rw [←hbc.2, hab'] 
+                      rw [heq]; exact t.2 
 }
 
 
-noncomputable def id (K : AbstractSimplicialComplex α) : K →ₛ K :=
+lemma toFaceMap_comp  (f : K →ₛ L) (g : L →ₛ M) : toFaceMap (g.comp f) = (toFaceMap g)∘(toFaceMap f) := by
+  ext s c 
+  unfold toFaceMap 
+  simp only [Finset.mem_image, Subtype.exists, Function.comp_apply]
+  constructor 
+  .  intro hc 
+     match hc with 
+     | ⟨a, hav, hac⟩ => exists (f.vertex_map ⟨a, hav⟩).1 
+                        exists (f.vertex_map ⟨a, hav⟩).2
+                        rw [face_to_finset_vertices_mem'] at hac |- 
+                        simp only [Finset.mem_image, Subtype.exists, Subtype.coe_eta]
+                        constructor 
+                        . exists a; exists hav 
+                          rw [face_to_finset_vertices_mem']
+                          exact ⟨hac.1, rfl⟩
+                        . unfold comp at hac 
+                          simp only [Function.comp_apply] at hac
+                          exact hac.2 
+  . intro hc
+    match hc with 
+    | ⟨b, hbv, hbc⟩ => rw [face_to_finset_vertices_mem'] at hbc 
+                       simp only [Finset.mem_image, Subtype.exists] at hbc
+                       match hbc.1 with 
+                      | ⟨a, hav, hab⟩ => 
+                        exists a; exists hav 
+                        rw [face_to_finset_vertices_mem'] at hab |- 
+                        rw [and_iff_right hab.1]
+                        unfold comp 
+                        simp only [Function.comp_apply]
+                        have hab' : f.vertex_map ⟨a, hav⟩ = ⟨b, hbv⟩ := by 
+                          rw [←SetCoe.ext_iff]
+                          simp only [hab]
+                        rw [hab', hbc.2]
+
+
+noncomputable def id (K : AbstractSimplicialComplex U) : K →ₛ K :=
 { vertex_map := fun a => a
-  face_map := fun s => s
-  compatibility_vertex_face := fun _ => by simp only
-  compatibility_face_vertex := fun _ _ => by simp only [exists_prop, exists_eq_right]
-}
+  face := fun s => by rw [←face_to_finset_vertices_eq]; exact s.2}
 
-lemma MapSimplex.id : MapSimplex (fun x => x) = SimplicialMap.id (Simplex α) := by 
-  apply SimplicialMap.ext_vertex 
-  unfold MapSimplex SimplicialMap.id  
-  simp only 
+lemma id_toFaceMap (K : AbstractSimplicialComplex U) : (id K).toFaceMap = fun s => s := by 
+  unfold toFaceMap 
+  ext s a 
+  unfold SimplicialMap.id 
+  simp only [Finset.mem_image, Subtype.exists, exists_and_right, exists_eq_right]
+  rw [face_to_finset_vertices_mem]
 
-lemma MapSimplex.comp (f : α → β) (g : β → γ) : (MapSimplex g).comp (MapSimplex f) = MapSimplex (g ∘ f) := by 
-  apply SimplicialMap.ext_vertex 
-  unfold MapSimplex SimplicialMap.comp 
-  simp only [Function.comp_apply]
 
 end SimplicialMap
 
+/-Not necessary anymore.
+variable {U : Type u} {V : Type v} {W : Type w}
+variable [DecidableEq U] [DecidableEq V]
+
+structure AbstractSimplicialComplexEquiv (K : AbstractSimplicialComplex U) (L : AbstractSimplicialComplex V) where
+toFun : SimplicialMap K L
+invFun : SimplicialMap L K 
+almost_left_inv : ∀ (s : K.faces), invFun.toFaceMap (toFun.toFaceMap s) = s 
+almost_right_inv : ∀ (t : L.faces), toFun.toFaceMap (invFun.toFaceMap t) = t 
+-/
 
 
 /- Subcomplex generated by a set of faces, or by one face. -/
