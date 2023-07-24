@@ -2,6 +2,11 @@ import Mathlib.Tactic
 import Mathlib.CategoryTheory.FintypeCat
 import Mathlib.CategoryTheory.ConcreteCategory.BundledHom
 import Mathlib.Order.Category.NonemptyFinLinOrdCat
+import Mathlib.CategoryTheory.ConcreteCategory.Basic
+import Mathlib.Data.Real.NNReal
+import Mathlib.Topology.Basic
+import Mathlib.Topology.Category.TopCat.Basic
+import Mathlib.Topology.Instances.NNReal 
 
 
 
@@ -213,5 +218,56 @@ end Skeleton
 noncomputable def isSkeleton : IsSkeletonOf FintypeNECat Skeleton Skeleton.incl where
   skel := Skeleton.is_skeletal
   eqv := by infer_instance
+
+
+/- We define the geometric realization, sending an object S of FintypeNECat to the topological simplex on S.-/
+
+
+noncomputable section 
+
+open BigOperators CategoryTheory NNReal 
+
+attribute [local instance] CategoryTheory.ConcreteCategory.hasCoeToSort --CategoryTheory.ConcreteCategory.funLike 
+
+def toTopObj (S : FintypeNECat) := {f : S → ℝ≥0 | ∑ i, f i = 1}
+
+instance (S : FintypeNECat) : CoeFun S.toTopObj fun _ => S → ℝ≥0 :=
+  ⟨fun f => (f : S → ℝ≥0)⟩
+
+@[ext]
+theorem toTopObj.ext {S : FintypeNECat} (f g : S.toTopObj) : (f : S → ℝ≥0) = g → f = g :=
+  Subtype.ext
+
+def toTopMap {S T : FintypeNECat} (f : S ⟶ T) : S.toTopObj → T.toTopObj := fun g =>
+  ⟨fun i => ∑ j in Finset.univ.filter fun k => f k = i, g j, by
+    simp only [Finset.sum_congr, toTopObj, Set.mem_setOf]
+    rw [← Finset.sum_biUnion]
+    have hg := g.2
+    dsimp [toTopObj] at hg
+    convert hg
+    · simp [Finset.eq_univ_iff_forall]
+    · intro i _ j _ h
+      rw [Function.onFun, disjoint_iff_inf_le]
+      intro e he
+      simp only [Finset.bot_eq_empty, Finset.not_mem_empty]
+      apply h
+      simp only [Finset.mem_univ, forall_true_left,
+        ge_iff_le, Finset.le_eq_subset, Finset.inf_eq_inter, Finset.mem_inter,
+        Finset.mem_filter, true_and] at he
+      rw [← he.1, he.2]⟩
+
+@[simp]
+theorem coe_toTopMap {S T : FintypeNECat} (f : S ⟶ T) (g : S.toTopObj) (i : T) :
+    toTopMap f g i = ∑ j in Finset.univ.filter fun k => f k = i, g j :=
+  rfl
+
+
+@[continuity]
+theorem continuous_toTopMap {S T : FintypeNECat} (f : S ⟶ T) : Continuous (FintypeNECat.toTopMap f) := by 
+  refine' Continuous.subtype_mk (continuous_pi fun i => _) _
+  dsimp only [coe_toTopMap]
+  exact continuous_finset_sum _ (fun j _ => (continuous_apply _).comp continuous_subtype_val)
+
+end 
 
 end FintypeNECat

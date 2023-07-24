@@ -1,4 +1,4 @@
-import TS1.FacePoset
+import TS1.FacePoset 
 import TS1.FintypeNECat
 import Mathlib.CategoryTheory.Category.Cat
 import Mathlib.Order.Category.PartOrdCat
@@ -6,6 +6,13 @@ import Mathlib.Tactic
 import Mathlib.AlgebraicTopology.SimplexCategory
 import Mathlib.CategoryTheory.Yoneda
 import Mathlib.CategoryTheory.Functor.Category
+import Mathlib.CategoryTheory.Adjunction.FullyFaithful
+import Mathlib.CategoryTheory.Adjunction.Reflective
+
+
+
+
+
 
 
 
@@ -100,7 +107,6 @@ noncomputable def FintypeNEtoAbstractSimplicialComplex : FintypeNECat ⥤ Abstra
                  rw [←MapSimplex.comp]
                  tauto 
 
-#exit 
 
 
 noncomputable def AbstractSimplicialComplextoPresheaf : AbstractSimplicialComplexCat ⥤ FintypeNECatᵒᵖ ⥤ Type u := by
@@ -152,28 +158,23 @@ def HomSimplexTypetoAbstractSimplicialComplex {α β : Type u} {K : AbstractSimp
   refine ⟨g, ?_⟩
   intro S hSne 
   have hSf : S ∈ (Simplex α).faces := by rw [←faces_Simplex]; exact hSne 
-  have heq : Finset.image g S = (f.toFaceMap ⟨S, hSf⟩).1 := by 
-    unfold toFaceMap 
+  have heq : Finset.image g S = (f.face_map ⟨S, hSf⟩).1 := by  
     ext b 
     simp only [Finset.mem_image, Subtype.exists]
     constructor 
     . intro hb  
       match hb with 
       | ⟨a, haS, hab⟩ => 
-        exists a 
-        have hav : a ∈ (Simplex α).vertices := by rw [vertices_Simplex]; simp only [Set.top_eq_univ, Set.mem_univ]
-        exists hav 
-        rw [face_to_finset_vertices_mem']
-        exact ⟨haS, hab⟩
+        rw [←hab,  f.compatibility_face_vertex]
+        exists a; exists haS 
     . intro hb 
+      rw [f.compatibility_face_vertex] at hb 
       match hb with 
-      | ⟨a, hav, haS, hab⟩ => 
-        exists a 
-        rw [face_to_finset_vertices_mem'] at haS 
-        rw [and_iff_right haS]
-        exact hab 
+      | ⟨a, has, hab⟩ => 
+        exists a
   rw [heq]
-  exact (f.toFaceMap ⟨S, hSf⟩).2
+  exact (f.face_map ⟨S, hSf⟩).2
+
 
 lemma HomTypetoAbstractSimplicialComplex_image {α β : Type u} {K : AbstractSimplicialComplex β}
 (f : HomTypetoAbstractSimplicialComplex α K) (a : α) : f.1 a ∈ K.vertices := by 
@@ -217,38 +218,32 @@ HomTypetoAbstractSimplicialComplex α K → HomTypetoAbstractSimplicialComplex �
   intro S hSne 
   set T := Finset.image g.1 S 
   have hTf : T ∈ K.faces := g.2 S hSne 
-  have hTeq : (f.toFaceMap ⟨T, hTf⟩).1 = Finset.image (fun a => (f.vertex_map ⟨g.1 a, 
+  have hTeq : (f.face_map ⟨T, hTf⟩).1 = Finset.image (fun a => (f.vertex_map ⟨g.1 a, 
     HomTypetoAbstractSimplicialComplex_image g a⟩).1) S := by 
     ext b
-    unfold toFaceMap 
     simp only [Set.mem_setOf_eq, Finset.mem_image, Subtype.exists]
     constructor 
-    . intro hb 
+    . intro hb; rw [f.compatibility_face_vertex] at hb  
       match hb with 
-      | ⟨a, hav, haS, hab⟩ => 
-        rw [face_to_finset_vertices_mem'] at haS 
-        simp only [Finset.mem_image] at haS
-        match haS with 
-        | ⟨x, hxS, hxa⟩ => 
-          exists x 
-          rw [and_iff_right hxS]
-          simp_rw [hxa]
-          exact hab 
+      | ⟨a, haS, hab⟩ =>
+         simp only [Finset.mem_image] at haS
+         match haS with
+         | ⟨c, hcS, hca⟩ =>
+           exists c
+           rw [and_iff_right hcS]
+           simp_rw [hca, hab] 
     . intro hb 
       match hb with 
       | ⟨a, haS, hab⟩ => 
-        simp_rw [face_to_finset_vertices_mem']
-        exists (g.1 a)
-        have hav : g.1 a ∈ K.vertices := by 
-          rw [mem_vertices_iff]
-          exists ⟨T, hTf⟩
+        rw [f.compatibility_face_vertex]
+        exists g.1 a
+        have h : g.1 a ∈ Finset.image g.1 S := by
           simp only [Set.mem_setOf_eq, Finset.mem_image]
-          exists a 
-        exists hav
-        rw [and_iff_right (Finset.mem_image_of_mem _ haS)]
-        exact hab  
+          exists a
+        exists h 
   rw [←hTeq]
-  exact (f.toFaceMap ⟨T, hTf⟩).2
+  exact (f.face_map ⟨T, hTf⟩).2
+
 
 def HomTypetoAbstractSimplicialComplex_func1_func2 {α α' : Type u} (g : α → α') {β β' : Type u} {K : AbstractSimplicialComplex β}
 {L : AbstractSimplicialComplex β'} (f : K →ₛ L) :
@@ -361,8 +356,11 @@ noncomputable def AbstractSimplicialComplextoPresheaf_comp_app_inv_aux (K : Abst
 {S T : FintypeNECat.{u}ᵒᵖ} (f : S ⟶ T) :
 ((AbstractSimplicialComplextoPresheaf2.obj K).map f) ≫ (AbstractSimplicialComplextoPresheaf_comp_app_inv_aux K T) = 
 CategoryTheory.types.comp (AbstractSimplicialComplextoPresheaf_comp_app_inv_aux K S)
-((AbstractSimplicialComplextoPresheaf.obj K).map f) := by tauto 
-  
+((AbstractSimplicialComplextoPresheaf.obj K).map f) := by 
+  ext g 
+  apply SimplicialMap.ext_vertex 
+  tauto
+
 
 noncomputable def AbstractSimplicialComplextoPresheaf_comp_app_inv (K : AbstractSimplicialComplexCat) :
 AbstractSimplicialComplextoPresheaf2.obj K ⟶ AbstractSimplicialComplextoPresheaf.obj K 
@@ -375,7 +373,10 @@ AbstractSimplicialComplextoPresheaf.obj K ≅ AbstractSimplicialComplextoPreshea
     where 
   hom := AbstractSimplicialComplextoPresheaf_comp_app K  
   inv := AbstractSimplicialComplextoPresheaf_comp_app_inv K 
-  hom_inv_id := by tauto  
+  hom_inv_id := by 
+    ext g 
+    apply SimplicialMap.ext_vertex 
+    tauto 
   inv_hom_id := by tauto 
 
 
@@ -407,14 +408,18 @@ noncomputable def AbstractSimplicialComplextoPresheaf_comp_inv :
 AbstractSimplicialComplextoPresheaf2 ⟶ AbstractSimplicialComplextoPresheaf 
     where 
   app := AbstractSimplicialComplextoPresheaf_comp_app_inv
-  naturality _ _ f := by tauto 
+  naturality _ _ f := by 
+    ext g 
+    apply SimplicialMap.ext_vertex
+    tauto
+
 
 noncomputable def AbstractSimplicialComplextoPresheaf_comp_equiv :
 AbstractSimplicialComplextoPresheaf ≅ AbstractSimplicialComplextoPresheaf2 
     where 
   hom := AbstractSimplicialComplextoPresheaf_comp 
   inv := AbstractSimplicialComplextoPresheaf_comp_inv 
-  hom_inv_id := by tauto 
+  hom_inv_id := by ext g; apply SimplicialMap.ext_vertex; tauto  
   inv_hom_id := by tauto 
 
 
@@ -424,10 +429,79 @@ def ElementtoMap {S : FintypeNECat.{u}ᵒᵖ} (a : S.unop.1) : S ⟶ (Opposite.o
   apply Quiver.Hom.op 
   exact fun _ => a 
 
+lemma ElementtoMap_naturality {S T : FintypeNECat.{u}ᵒᵖ} (f : S ⟶ T) (a : T.unop.1) :
+ElementtoMap (f.unop a) = f ≫ (ElementtoMap a) := by tauto
+
+lemma ElementtoMap_PUnit (a : (Opposite.op (FintypeNECat.of.{u} PUnit)).unop.1) :
+ElementtoMap a = CategoryTheory.CategoryStruct.id _ := by 
+  unfold ElementtoMap 
+  apply Quiver.Hom.unop_inj 
+  simp only [Opposite.unop_op, Quiver.Hom.unop_op, unop_id]
+  change _ = fun x => x 
+  ext x 
+  exact PUnit.ext a x 
+
 
 def PresheafMap (F : FintypeNECat.{u}ᵒᵖ ⥤ Type u) {S : FintypeNECatᵒᵖ} (e : F.obj S) : 
 S.unop.1 → F.obj (Opposite.op (FintypeNECat.of PUnit)) :=  
 fun a => F.map (ElementtoMap a) e  
+
+lemma PresheafMap_self (P : FintypeNECat.{u}ᵒᵖ ⥤ Type u) (a : P.obj (Opposite.op (FintypeNECat.of PUnit))) :
+∀ x, PresheafMap P a x = a := by 
+  intro x 
+  unfold PresheafMap 
+  rw [ElementtoMap_PUnit x]
+  simp only [FunctorToTypes.map_id_apply]
+
+lemma PresheafMap_naturality1 (F : FintypeNECat.{u}ᵒᵖ ⥤ Type u) {S T : FintypeNECatᵒᵖ} (f : S ⟶ T)
+(e : F.obj S) : PresheafMap F (F.map f e) = (PresheafMap F e) ∘ f.unop := by 
+  ext a 
+  unfold PresheafMap 
+  rw [←(@Function.comp_apply _ _ _ (F.map (ElementtoMap a)) (F.map f) e)]
+  change ((F.map f) ≫ _) e = _ 
+  rw [←F.map_comp, ←ElementtoMap_naturality]
+  simp only [Function.comp_apply]
+
+lemma PresheafMap_naturality2 {P Q : FintypeNECat.{u}ᵒᵖ ⥤ Type u} (f : P ⟶ Q) {S : FintypeNECatᵒᵖ} (u : P.obj S) :
+PresheafMap Q (f.app S u) = (f.app (Opposite.op (FintypeNECat.of PUnit))) ∘ (PresheafMap P u) := by 
+  unfold PresheafMap 
+  ext a 
+  rw [←(@Function.comp_apply _ _ _ (Q.map (ElementtoMap a)) (f.app S) u)]
+  change ((f.app _) ≫ (Q.map _)) u = _ 
+  rw [←f.naturality] 
+  tauto
+
+
+noncomputable def PresheafMap_factorization {P : FintypeNECat.{u}ᵒᵖ ⥤ Type u} {T : FintypeNECat.{u}ᵒᵖ} (e : P.obj T)
+{s : Finset (P.obj (Opposite.op (FintypeNECat.of PUnit)))} (hsne : s.Nonempty) (heq : s = Finset.image (PresheafMap P e) ⊤) :  
+T ⟶ (Opposite.op (@FintypeNECat.of s {FinsetCoe.fintype s with Nonempty := Finset.Nonempty.to_subtype hsne})) := by 
+  apply Quiver.Hom.op 
+  intro a 
+  have has := a.2 
+  simp_rw [heq, Finset.mem_image] at has 
+  exact Classical.choose has 
+
+
+lemma PresheafMap_factorization_prop1 {P : FintypeNECat.{u}ᵒᵖ ⥤ Type u} {T : FintypeNECat.{u}ᵒᵖ} (e : P.obj T) 
+{s : Finset (P.obj (Opposite.op (FintypeNECat.of PUnit)))} (hsne : s.Nonempty) 
+(heq : s = Finset.image (PresheafMap P e) ⊤) : 
+∀ (a : s), PresheafMap P e ((PresheafMap_factorization e hsne heq).unop a) = a := by 
+  intro a 
+  have has := a.2 
+  simp_rw [heq, Finset.mem_image] at has 
+  exact (Classical.choose_spec has).2 
+
+
+lemma PresheafMap_factorization_prop2 {P : FintypeNECat.{u}ᵒᵖ ⥤ Type u} {T : FintypeNECat.{u}ᵒᵖ} (e : P.obj T) 
+{s : Finset (P.obj (Opposite.op (FintypeNECat.of PUnit)))} (hsne : s.Nonempty) 
+{g : T ⟶ (Opposite.op (@FintypeNECat.of s {FinsetCoe.fintype s with Nonempty := Finset.Nonempty.to_subtype hsne}))}
+(hg : ∀ (a : s), PresheafMap P e (g.unop a) = a) :
+PresheafMap P (P.map g e) = fun a => a.1 := by 
+  rw [PresheafMap_naturality1]
+  ext a 
+  simp only [Finset.coe_sort_coe, Opposite.unop_op, Function.comp_apply]
+  exact hg a 
+  
 
 def PresheafFaces (F : FintypeNECat.{u}ᵒᵖ ⥤ Type u) :=
 {s : Finset (F.obj (Opposite.op (FintypeNECat.of PUnit))) | ∃ (S : FintypeNECatᵒᵖ) (e : F.obj S), s = Finset.image (PresheafMap F e) ⊤} 
@@ -536,13 +610,16 @@ PresheaftoAbstractSimplicialComplex_obj F ⟶ PresheaftoAbstractSimplicialComple
 
 
 lemma PresheaftoAbstractSimplicialComplex_map_id (F : FintypeNECat.{u}ᵒᵖ ⥤ Type u) :
-PresheaftoAbstractSimplicialComplex_map (CategoryStruct.id F) = SimplicialMap.id (PresheaftoAbstractSimplicialComplex_obj F).2 := 
-by tauto
+PresheaftoAbstractSimplicialComplex_map (CategoryStruct.id F) = SimplicialMap.id (PresheaftoAbstractSimplicialComplex_obj F).2 := by
+  apply SimplicialMap.ext_vertex 
+  tauto 
+
 
 lemma PresheaftoAbstractSimplicialComplex_map_comp {F : FintypeNECat.{u}ᵒᵖ ⥤ Type u} {G : FintypeNECat.{u}ᵒᵖ ⥤ Type u} 
 {H : FintypeNECat.{u}ᵒᵖ ⥤ Type u} (u : F ⟶ G) (v : G ⟶ H) :
 PresheaftoAbstractSimplicialComplex_map (u ≫ v) = 
-(PresheaftoAbstractSimplicialComplex_map u) ≫ (PresheaftoAbstractSimplicialComplex_map v) := by tauto 
+(PresheaftoAbstractSimplicialComplex_map u) ≫ (PresheaftoAbstractSimplicialComplex_map v) := by 
+  apply SimplicialMap.ext_vertex; tauto 
 
 
 noncomputable def PresheaftoAbstractSimplicialComplex : (FintypeNECat.{u}ᵒᵖ ⥤ Type u) ⥤ AbstractSimplicialComplexCat.{u} where 
@@ -552,102 +629,440 @@ noncomputable def PresheaftoAbstractSimplicialComplex : (FintypeNECat.{u}ᵒᵖ 
   map_comp u v := PresheaftoAbstractSimplicialComplex_map_comp u v  
 
 
+/- A simpler characterization of the faces of PresheaftoAbstractSimplicialComplex.obj P.-/
+
+lemma PresheaftoAbstractSimplicialComplex_mem_faces (P : FintypeNECat.{u}ᵒᵖ ⥤ Type u) 
+(s : Finset (P.obj (Opposite.op (FintypeNECat.of PUnit)))) (hsne : s.Nonempty) :
+s ∈ (PresheaftoAbstractSimplicialComplex.obj P).2.faces ↔ 
+(∃ (e : P.obj (Opposite.op (@FintypeNECat.of s {FinsetCoe.fintype s with Nonempty := Finset.Nonempty.to_subtype hsne}))),
+PresheafMap P e = fun a => a.1) := by 
+  constructor 
+  . intro hsf
+    match hsf with 
+    | ⟨S, e, hSs⟩ => 
+      exists (P.map (PresheafMap_factorization e hsne hSs) e)
+      exact PresheafMap_factorization_prop2 e hsne (PresheafMap_factorization_prop1 e hsne hSs)
+  . intro hs 
+    match hs with 
+    | ⟨e, hes⟩ => 
+      exists (Opposite.op (@FintypeNECat.of s {FinsetCoe.fintype s with Nonempty := Finset.Nonempty.to_subtype hsne}))
+      exists e 
+      rw [hes]
+      ext a 
+      simp only [Finset.coe_sort_coe, Opposite.unop_op, Finset.top_eq_univ, Finset.mem_image, Finset.mem_univ,
+        true_and]
+      constructor 
+      . exact fun has => by exists ⟨a, has⟩ 
+      . intro ha 
+        match ha with 
+        | ⟨b, hba⟩ => rw [←hba]; exact b.2
+
 /- Now we need the unit and counit of the adjunction. -/
 
 /- Unit.-/
 
-noncomputable def Unit.PresheaftoAbstractSimplicialComplex_app (K : AbstractSimplicialComplexCat.{u}) :
-K ⟶ PresheaftoAbstractSimplicialComplex.obj (AbstractSimplicialComplextoPresheaf2.obj K) := by
-  set L := PresheaftoAbstractSimplicialComplex.obj (AbstractSimplicialComplextoPresheaf2.obj K)
-  set f : K.2.vertices → L.1 := by 
-    intro ⟨a, hav⟩ 
-    change ((AbstractSimplicialComplextoPresheaf2.obj K).obj (Opposite.op (FintypeNECat.of PUnit)))
-    unfold AbstractSimplicialComplextoPresheaf2 AbstractSimplicialComplextoPresheaf_obj 
-      HomTypetoAbstractSimplicialComplex
-    simp only [Opposite.unop_op, Set.coe_setOf]
-    refine ⟨fun _ => a, ?_⟩ 
-    intro s hsne 
-    simp only [Opposite.unop_op] at s
-    have heq : Finset.image (fun _ => a) s = {a} := sorry 
-    rw [heq]
-    erw [←mem_vertices]
-    exact hav 
-  have hf : ∀ {a : K.1} (hav : a ∈ K.2.vertices), f ⟨a, hav⟩ ∈ L.2.vertices := sorry
-  set f' : K.2.vertices → L.2.vertices := fun a => ⟨f a, hf a.2⟩  
-  refine {vertex_map := f', face :=?_}
-  sorry 
+noncomputable def Unit.PresheaftoAbstractSimplicialComplex_app_app (P : FintypeNECat.{u}ᵒᵖ ⥤ Type u) (S : FintypeNECatᵒᵖ) :
+P.obj S ⟶ ((PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2).obj P).obj S := by 
+  intro u 
+  simp only [Functor.comp_obj]
+  unfold AbstractSimplicialComplextoPresheaf2 AbstractSimplicialComplextoPresheaf_obj 
+    HomTypetoAbstractSimplicialComplex
+  simp only [Set.coe_setOf]
+  refine ⟨PresheafMap P u, ?_⟩
+  intro s hsne 
+  unfold PresheaftoAbstractSimplicialComplex PresheaftoAbstractSimplicialComplex_obj PresheafFaces 
+  change ∃ _ _, _ 
+  have hsfin : Fintype s := FinsetCoe.fintype s 
+  letI : FintypeNE s := {hsfin with Nonempty := Finset.Nonempty.to_subtype hsne}  
+  exists Opposite.op (FintypeNECat.of s) 
+  set f : S ⟶ Opposite.op (FintypeNECat.of s) := by 
+    apply Quiver.Hom.op 
+    exact fun a => a.1  
+  exists P.map f u 
+  have heq : PresheafMap P (P.map f u) = (PresheafMap P u) ∘ (fun a => a.1) := by 
+    rw [PresheafMap_naturality1]
+    simp only [Opposite.unop_op, Quiver.Hom.unop_op]
+  have hseq : (s : Finset ↑S.unop) = Finset.image (fun (a : ↑(Opposite.op (FintypeNECat.of { x // x ∈ s })).unop) => a.1) ⊤ := by 
+    simp only [Opposite.unop_op, Finset.top_eq_univ]
+    ext a 
+    simp only [Finset.mem_image, Finset.mem_univ, true_and] 
+    constructor 
+    . exact fun has => by exists ⟨a, has⟩  
+    . intro has 
+      match has with 
+      | ⟨b, hba⟩ => rw [←hba]; exact b.2
+  rw [heq, ←Finset.image_image, ←hseq]
+  
+lemma Unit.PresheaftoAbstractSimplicialComplex_app_naturality (P : FintypeNECat.{u}ᵒᵖ ⥤ Type u) {S T : FintypeNECatᵒᵖ}
+(f : S ⟶ T) :
+(P.map f) ≫ (PresheaftoAbstractSimplicialComplex_app_app P T)  = 
+(PresheaftoAbstractSimplicialComplex_app_app P S) ≫
+((PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2).obj P).map f := by 
+  ext u 
+  unfold PresheaftoAbstractSimplicialComplex_app_app
+  simp only [Functor.comp_obj, Set.coe_setOf, id_eq, types_comp_apply]
+  unfold PresheaftoAbstractSimplicialComplex AbstractSimplicialComplextoPresheaf2 AbstractSimplicialComplextoPresheaf_obj 
+  rw [←SetCoe.ext_iff]
+  simp only 
+  rw [PresheafMap_naturality1]
+  tauto
 
 
-#exit 
+noncomputable def Unit.PresheaftoAbstractSimplicialComplex_app (P : FintypeNECat.{u}ᵒᵖ ⥤ Type u) :
+P ⟶ (PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2).obj P where
+  app := Unit.PresheaftoAbstractSimplicialComplex_app_app P  
+  naturality _ _ := Unit.PresheaftoAbstractSimplicialComplex_app_naturality P 
 
-noncomputable def Unit.PresheaftoAbstractSimplicialComplex : 𝟭 AbstractSimplicialComplexCat.{u} ⟶
-AbstractSimplicialComplextoPresheaf2 ⋙ PresheaftoAbstractSimplicialComplex where
-  app := sorry 
-  naturality := sorry
+lemma Unit.PresheaftoAbstractSimplicialComplex_naturality {P Q : FintypeNECat.{u}ᵒᵖ ⥤ Type u}  
+(f : P ⟶ Q) :
+f ≫ (Unit.PresheaftoAbstractSimplicialComplex_app Q) = (Unit.PresheaftoAbstractSimplicialComplex_app P) ≫
+(PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2).map f := by 
+  ext S u 
+  unfold PresheaftoAbstractSimplicialComplex_app PresheaftoAbstractSimplicialComplex_app_app 
+  rw [←SetCoe.ext_iff]
+  simp only [Set.mem_setOf_eq, Functor.comp_obj, Set.coe_setOf, id_eq, FunctorToTypes.comp, Functor.comp_map]
+  rw [PresheafMap_naturality2]
+  tauto
+
+
+
+noncomputable def Unit.PresheaftoAbstractSimplicialComplex : 
+(𝟭 (FintypeNECat.{u}ᵒᵖ ⥤ Type u))  ⟶
+PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2 
+where 
+  app := Unit.PresheaftoAbstractSimplicialComplex_app 
+  naturality _ _ := Unit.PresheaftoAbstractSimplicialComplex_naturality 
 
 
 /- Counit. -/
 
-noncomputable def Counit.PresheaftoAbstractSimplicialComplex : 
-PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2 ⟶ 
-(𝟭 (FintypeNECat.{u}ᵒᵖ ⥤ Type u)) where 
-  app := sorry 
-  naturality := sorry 
-
-
-
-/- We prove that the functors AbstractSimplicialComplextoPresheaf(2) are fully faithful.-/
-
-lemma AbstractSimplicialComplextoPresheaf2_faithful_aux {K L : AbstractSimplicialComplexCat} (f : K ⟶ L)
-{S : FintypeNECatᵒᵖ} (h : (AbstractSimplicialComplextoPresheaf2.obj K).obj S) (a : S.unop)
-(hav : h.1 a ∈ K.2.vertices) :
-f.vertex_map ⟨h.1 a, hav⟩ = ((AbstractSimplicialComplextoPresheaf2.map f).app S h).1 a := by 
-  unfold AbstractSimplicialComplextoPresheaf2 AbstractSimplicialComplextoPresheaf_map
-  simp only [Set.mem_setOf_eq]
-  unfold HomTypetoAbstractSimplicialComplex_func2
-  simp only [Set.mem_setOf_eq]
+noncomputable def Counit.PresheaftoAbstractSimplicialComplex_app_aux (K : AbstractSimplicialComplexCat.{u}) :
+((AbstractSimplicialComplextoPresheaf2 ⋙ PresheaftoAbstractSimplicialComplex).obj K).1 → K.1 := by 
+  intro f 
+  apply f.1 
+  simp only [Opposite.unop_op]
+  unfold FintypeNECat.of Bundled.of
+  simp only 
+  exact PUnit.unit
   
 
-lemma AbstractSimplicialComplextoPresheaf2_faithful : Faithful AbstractSimplicialComplextoPresheaf2 where
-map_injective := by
-  intro K L f g heq
-  change _ = (_ : SimplicialMap K.2 L.2)
+noncomputable def Counit.PresheaftoAbstractSimplicialComplex_app (K : AbstractSimplicialComplexCat.{u}) :
+((AbstractSimplicialComplextoPresheaf2 ⋙ PresheaftoAbstractSimplicialComplex).obj K) ⟶ K := by 
+  apply SimplicialMapofMap (Counit.PresheaftoAbstractSimplicialComplex_app_aux K)
+  intro s hsf 
+  simp only [Functor.comp_obj] at hsf
+  unfold PresheaftoAbstractSimplicialComplex 
+  simp only at hsf 
+  match hsf with 
+  | ⟨S, f, hSs⟩ => 
+    have heq : (PresheaftoAbstractSimplicialComplex_app_aux K) ∘ (PresheafMap (AbstractSimplicialComplextoPresheaf2.obj K) f) = 
+        fun a => f.1 a := by 
+      ext a 
+      unfold PresheaftoAbstractSimplicialComplex_app_aux AbstractSimplicialComplextoPresheaf2 AbstractSimplicialComplextoPresheaf_obj
+        PresheafMap ElementtoMap HomTypetoAbstractSimplicialComplex HomTypetoAbstractSimplicialComplex_func1 
+      simp only [Set.coe_setOf, Set.mem_setOf_eq, Functor.comp_obj, Opposite.unop_op, id_eq, Function.comp_apply]
+      rfl
+    erw [hSs, Finset.image_image, heq]
+    apply f.2 
+    simp only [Finset.top_eq_univ]
+    rw [Finset.univ_nonempty_iff]
+    exact S.unop.2.2
+  
+lemma Counit.PresheaftoAbstractSimplicialComplex_naturality {K L : AbstractSimplicialComplexCat.{u}} (f : K ⟶ L) :
+((AbstractSimplicialComplextoPresheaf2 ⋙ PresheaftoAbstractSimplicialComplex).map f) ≫ 
+(Counit.PresheaftoAbstractSimplicialComplex_app L) = (Counit.PresheaftoAbstractSimplicialComplex_app K) ≫ f := by 
+  apply SimplicialMap.ext_vertex 
+  tauto 
+
+
+noncomputable def Counit.PresheaftoAbstractSimplicialComplex : 
+AbstractSimplicialComplextoPresheaf2 ⋙ PresheaftoAbstractSimplicialComplex ⟶ 𝟭 AbstractSimplicialComplexCat.{u} where
+  app := Counit.PresheaftoAbstractSimplicialComplex_app  
+  naturality _ _ := Counit.PresheaftoAbstractSimplicialComplex_naturality 
+
+
+/- Now we define the adjunction.-/
+
+lemma coeur_LT_aux1 (P : FintypeNECat.{u}ᵒᵖ ⥤ Type u) (a : P.obj (Opposite.op (FintypeNECat.of PUnit)))  
+(f : ((PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2).obj P).obj (Opposite.op (FintypeNECat.of PUnit)))  
+(hfa : ∀ x, f.1 x = a) 
+(hfv : f ∈ ((PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2 
+⋙ PresheaftoAbstractSimplicialComplex).obj P).2.vertices) : 
+((Counit.PresheaftoAbstractSimplicialComplex.app (PresheaftoAbstractSimplicialComplex.obj P)).vertex_map ⟨f, hfv⟩).1 = a := by 
+  have x : (Opposite.op (FintypeNECat.of.{u} PUnit)).unop.1 := by 
+    simp only [Opposite.unop_op]
+    exact PUnit.unit
+  rw [←(hfa x)]
+  apply SimplicialMapofMap.vertex_map 
+
+
+lemma coeur_LT_aux2 (P : FintypeNECat.{u}ᵒᵖ ⥤ Type u) (a : P.obj (Opposite.op (FintypeNECat.of PUnit))) 
+(hav : a ∈ (PresheaftoAbstractSimplicialComplex.obj P).2.vertices) : ∀ x,
+((PresheaftoAbstractSimplicialComplex.map (Unit.PresheaftoAbstractSimplicialComplex.app P)).vertex_map ⟨a, hav⟩).1.1 x = a := by 
+  intro x 
+  unfold PresheaftoAbstractSimplicialComplex PresheaftoAbstractSimplicialComplex_obj PresheaftoAbstractSimplicialComplex_map
+  unfold Unit.PresheaftoAbstractSimplicialComplex Unit.PresheaftoAbstractSimplicialComplex_app Unit.PresheaftoAbstractSimplicialComplex_app_app
+  simp only [Opposite.unop_op, Set.mem_setOf_eq, Functor.comp_obj, Functor.id_obj, Set.coe_setOf, id_eq]
+  rw [SimplicialMapofMap.vertex_map]
+  exact PresheafMap_self P a _ 
+
+noncomputable def Coeur : CategoryTheory.Adjunction.CoreUnitCounit PresheaftoAbstractSimplicialComplex.{u}
+AbstractSimplicialComplextoPresheaf2.{u} where 
+unit := Unit.PresheaftoAbstractSimplicialComplex 
+counit := Counit.PresheaftoAbstractSimplicialComplex 
+left_triangle := by 
+  ext P 
+  apply SimplicialMap.ext_vertex 
   ext ⟨a, hav⟩
-  set S:= Opposite.op (FintypeNECat.of PUnit.{u_1+1}) 
-  set h : (AbstractSimplicialComplextoPresheaf2.obj K).obj S := by 
-    refine ⟨fun _ => a, ?_⟩
+  simp only [Functor.comp_obj, Functor.id_obj, NatTrans.comp_app, whiskerRight_app, Functor.associator_hom_app,
+  whiskerLeft_app, Category.id_comp, NatTrans.id_app']
+  change _ = a 
+  simp only [Functor.comp_obj, Functor.id_obj] at hav 
+  rw [@SetCoe.ext_iff _ _ _ ⟨a, hav⟩]
+  change SimplicialMap.vertex_map (SimplicialMap.comp _ _) ⟨a, hav⟩ = _
+  unfold SimplicialMap.comp 
+  simp only [Functor.comp_obj, Functor.id_obj, Function.comp_apply]
+  rw [←SetCoe.ext_iff]
+  change _ = a 
+  apply coeur_LT_aux1 
+  apply coeur_LT_aux2 
+right_triangle := by tauto 
+
+noncomputable def Adjunction.PresheaftoAbstractSimplicialComplex : CategoryTheory.Adjunction
+PresheaftoAbstractSimplicialComplex AbstractSimplicialComplextoPresheaf2 := CategoryTheory.Adjunction.mkOfUnitCounit Coeur 
+
+/- We show that the functor AbstractSimplicialComplextoPresheaf2 is reflective. This means that it is fully faithful, and we
+prove this by proving that the counit of the adjunction is an isomorphism.-/
+
+/- The inverse of the counit.-/
+
+noncomputable def InverseCounit.PresheaftoAbstractSimplicialComplex_app_aux (K : AbstractSimplicialComplexCat.{u}) 
+(a : K.1) (hav : a ∈ K.2.vertices) : (AbstractSimplicialComplextoPresheaf2.obj K).obj (Opposite.op (FintypeNECat.of PUnit)) := by
+  set f : PUnit → K.1 := fun _ => a 
+  set g : (AbstractSimplicialComplextoPresheaf2.obj K).obj (Opposite.op (FintypeNECat.of PUnit)) := by 
+    refine ⟨f, ?_⟩
     simp only [Opposite.unop_op, Set.mem_setOf_eq]
     intro s hsne 
-    have hs : s = {PUnit.unit} := by 
-      simp only [Opposite.unop_op] at s
-      unfold FintypeNECat.of Bundled.of at s 
-      simp only at s
-      ext a 
-      simp only [Opposite.unop_op, Finset.mem_singleton, iff_true]
-      match hsne with 
-      | ⟨b, hbs⟩ => have hab : a = b := by simp 
-                    rw [hab]; exact hbs 
-    simp only [hs, Opposite.unop_op, Finset.image_singleton]
-    rw [mem_vertices] at hav 
+    have heq : Finset.image (fun _ => a) s = {a} := by 
+      ext b 
+      simp only [Opposite.unop_op, Finset.mem_image, exists_and_right, Finset.mem_singleton]
+      constructor 
+      . exact fun h => Eq.symm h.2 
+      . intro h 
+        rw [h]
+        simp only [and_true]
+        exact hsne 
+    erw [heq]
     exact hav 
-  rw [AbstractSimplicialComplextoPresheaf2_faithful_aux f h PUnit.unit, 
-    AbstractSimplicialComplextoPresheaf2_faithful_aux g h PUnit.unit, heq]
-  
+  exact g 
 
-lemma AbstractSimplicialComplextoPresheaf2_full : Full AbstractSimplicialComplextoPresheaf2 where
-  preimage := by 
-    intro K L F 
-    sorry  
-  witness := sorry 
+noncomputable def InverseCounit.PresheaftoAbstractSimplicialComplex_app (K : AbstractSimplicialComplexCat.{u}) :
+K ⟶ ((AbstractSimplicialComplextoPresheaf2 ⋙ PresheaftoAbstractSimplicialComplex).obj K) where 
+vertex_map := by 
+  intro a 
+  refine ⟨InverseCounit.PresheaftoAbstractSimplicialComplex_app_aux K a.1 a.2, ?_⟩
+  rw [mem_vertices]
+  unfold PresheaftoAbstractSimplicialComplex PresheaftoAbstractSimplicialComplex_obj
+  simp only [Functor.comp_obj]
+  change ∃ _, _ 
+  exists (Opposite.op (FintypeNECat.of PUnit))
+  exists InverseCounit.PresheaftoAbstractSimplicialComplex_app_aux K a.1 a.2  
+face_map := by
+  intro ⟨s, hsf⟩ 
+  set t := Finset.image (fun (a : s) => InverseCounit.PresheaftoAbstractSimplicialComplex_app_aux K ↑a 
+    (by rw [mem_vertices_iff]; exists ⟨s, hsf⟩; exact a.2)) ⊤ 
+  refine ⟨t, ?_⟩
+  change ∃ _, _ 
+  have hsfin : Fintype s := by 
+    exact FinsetCoe.fintype s  
+  have hsne : Nonempty s := by 
+    simp only [nonempty_subtype]
+    exact K.2.nonempty_of_mem hsf 
+  haveI : FintypeNE s := {hsfin with Nonempty := hsne}
+  exists (Opposite.op (FintypeNECat.of s)) 
+  set f : s → K.1 := fun a => ↑a 
+  exists ⟨f, ?_⟩
+  .  simp only [Opposite.unop_op, Set.mem_setOf_eq]
+     intro S hSne 
+     simp only [Opposite.unop_op] at S
+     apply K.2.down_closed hsf 
+     . intro a ha 
+       simp only [Finset.mem_image] at ha
+       match ha with 
+       | ⟨b, _, hab⟩ => rw [←hab]; exact b.2 
+     . simp only [Finset.Nonempty.image_iff, hSne]
+  . ext b 
+    simp only [Finset.top_eq_univ, Finset.univ_eq_attach, Finset.mem_image, Finset.mem_attach, true_and,
+      Subtype.exists, Opposite.unop_op, Set.mem_setOf_eq, Finset.mem_univ]
+    constructor 
+    . intro hb 
+      match hb with 
+      | ⟨a, has, _, hab⟩ => 
+        exists ⟨a, has⟩
+    . intro hb 
+      match hb with 
+      | ⟨⟨a, has⟩, hab⟩ => 
+        exists a; exists has  
+        constructor 
+        . rw [@Finset.top_eq_univ _ (Finset.Subtype.fintype s)]
+          apply @Finset.mem_univ _ (Finset.Subtype.fintype s)
+        . tauto 
+compatibility_vertex_face := by tauto  
+compatibility_face_vertex := by 
+  intro s b 
+  simp only [Functor.comp_obj, Finset.top_eq_univ, Finset.univ_eq_attach]
+  erw [Finset.mem_image]
+  constructor 
+  . intro hb 
+    match hb with 
+    | ⟨a, _, hab⟩ => 
+      exists a.1; exists a.2   
+  . intro hb 
+    match hb with 
+    | ⟨a, has, hab⟩ => 
+    exists ⟨a, has⟩
+    simp only [Finset.mem_attach, true_and]
+    exact hab 
+
+lemma InverseCounit.PresheaftoAbstractSimplicialComplex_naturality {K L : AbstractSimplicialComplexCat}
+(f : K ⟶ L) : 
+f ≫ (InverseCounit.PresheaftoAbstractSimplicialComplex_app L) = (InverseCounit.PresheaftoAbstractSimplicialComplex_app K) ≫
+((AbstractSimplicialComplextoPresheaf2 ⋙ PresheaftoAbstractSimplicialComplex).map f) := by
+  apply SimplicialMap.ext_vertex 
+  tauto
+
+noncomputable def InverseCounit.PresheaftoAbstractSimplicialComplex :
+𝟭 AbstractSimplicialComplexCat.{u} ⟶ AbstractSimplicialComplextoPresheaf2 ⋙ PresheaftoAbstractSimplicialComplex  where
+  app := InverseCounit.PresheaftoAbstractSimplicialComplex_app  
+  naturality _ _ := InverseCounit.PresheaftoAbstractSimplicialComplex_naturality 
 
 
-lemma AbstractSimplicialComplextoPresheaf_faithful : Faithful AbstractSimplicialComplextoPresheaf := 
-@Faithful.of_iso _ _ _ _ _ _ AbstractSimplicialComplextoPresheaf2_faithful AbstractSimplicialComplextoPresheaf_comp_equiv.symm  
+noncomputable def IsIsoCounit.PresheaftoAbstractSimplicialComplex :
+IsIso Counit.PresheaftoAbstractSimplicialComplex where 
+out := by 
+  exists InverseCounit.PresheaftoAbstractSimplicialComplex 
+  constructor 
+  . ext K 
+    apply SimplicialMap.ext_vertex 
+    tauto
+  . ext K 
+    apply SimplicialMap.ext_vertex 
+    tauto 
+
+/- We deduce that the right adjoint AbstractSimplicialComplextoPresheaf2 is fully faithful.-/
+
+noncomputable def AbstractSimplicialComplextoPresheaf2_full : Full AbstractSimplicialComplextoPresheaf2 := 
+@rFullOfCounitIsIso _ _ _ _ _ _ Adjunction.PresheaftoAbstractSimplicialComplex IsIsoCounit.PresheaftoAbstractSimplicialComplex 
+
+lemma AbstractSimplicialComplextoPresheaf2_faithful : Faithful AbstractSimplicialComplextoPresheaf2 := 
+@R_faithful_of_counit_isIso _ _ _ _ _ _ Adjunction.PresheaftoAbstractSimplicialComplex IsIsoCounit.PresheaftoAbstractSimplicialComplex
+
+/- We finally deduce that AbstractSimplicialComplextoPresheaf2 is reflective.-/
+
+noncomputable instance AbstractSimplicialComplextoPresheaf2_reflective : Reflective AbstractSimplicialComplextoPresheaf2 where
+toFull := AbstractSimplicialComplextoPresheaf2_full
+toFaithful := AbstractSimplicialComplextoPresheaf2_faithful
+toIsRightAdjoint := {left := PresheaftoAbstractSimplicialComplex, adj := Adjunction.PresheaftoAbstractSimplicialComplex}
+
+
+/- We identify the essential image of AbstractSimplicialComplextoPResheaf2: it is the full subcategory of concrete presheaves,
+i.e. presheaves P such that P(S) -> (Hom(*,S) -> P(*)) is injective for every S. As the functor is reflective, we know
+that P is in its essential if and only if the unit of the adjunction is an isomorphism at P, so we first prove that this is
+the one if and only if P is concrete.-/
+
+def IsConcretePresheaf (P : FintypeNECatᵒᵖ ⥤ Type u) := ∀ (S : FintypeNECatᵒᵖ),
+Function.Injective (fun (e : P.obj S) => PresheafMap P e)
 
 
 
-lemma AbstractSimplicialComplextoPresheaf_full : Full AbstractSimplicialComplextoPresheaf := 
-@Full.ofIso _ _ _ _ _ _ AbstractSimplicialComplextoPresheaf2_full AbstractSimplicialComplextoPresheaf_comp_equiv.symm  
+lemma IsConcretePresheaf.unit_IsIso_inv {P : FintypeNECat.{u}ᵒᵖ ⥤ Type u} {S : FintypeNECatᵒᵖ} 
+(f : ((PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2).obj P).obj S) :
+∃ (e : P.obj S), PresheafMap P e = f.1 := by 
+  set T := Finset.image f.1 ⊤ 
+  have hTf : T ∈ (PresheaftoAbstractSimplicialComplex.obj P).2.faces := by 
+    refine f.2 ⊤ ?_ 
+    rw [Finset.top_eq_univ, Finset.univ_nonempty_iff]
+    exact S.unop.2.2
+  have hTne := ((PresheaftoAbstractSimplicialComplex.obj P).2.nonempty_of_mem hTf)
+  rw [PresheaftoAbstractSimplicialComplex_mem_faces P T hTne] at hTf 
+  set e := Classical.choose hTf 
+  set g : Opposite.op (@FintypeNECat.of T {FinsetCoe.fintype T with Nonempty := Finset.Nonempty.to_subtype hTne}) ⟶ S := by 
+    apply Quiver.Hom.op 
+    intro a 
+    refine ⟨f.1 a, ?_⟩
+    simp only [Set.mem_setOf_eq, Finset.top_eq_univ, Finset.mem_image, Finset.mem_univ, true_and,
+      exists_apply_eq_apply, hTne]
+  exists P.map g e 
+  rw [PresheafMap_naturality1, Classical.choose_spec hTf] 
+  ext a 
+  simp only [Set.mem_setOf_eq, Finset.top_eq_univ, Finset.coe_sort_coe, Opposite.unop_op, Quiver.Hom.unop_op,
+    Function.comp_apply]
+
+
+lemma IsConcretePresheaf.unit_IsIso {P : FintypeNECat.{u}ᵒᵖ ⥤ Type u} (hconc : IsConcretePresheaf P) :
+IsIso (Unit.PresheaftoAbstractSimplicialComplex.app P) := by 
+  refine @NatIso.isIso_of_isIso_app _ _ _ _ _ _ (Unit.PresheaftoAbstractSimplicialComplex.app P) ?_ 
+  intro S 
+  refine {out := ?_}
+  set I : ((PresheaftoAbstractSimplicialComplex ⋙ AbstractSimplicialComplextoPresheaf2).obj P).obj S → P.obj S := 
+    fun f => Classical.choose (IsConcretePresheaf.unit_IsIso_inv f)
+  exists I 
+  simp only [Functor.id_obj, Functor.comp_obj, Set.mem_setOf_eq]
+  constructor 
+  . ext a 
+    simp only [types_comp_apply, types_id_apply]
+    apply hconc S  
+    simp only 
+    rw [Classical.choose_spec (IsConcretePresheaf.unit_IsIso_inv ((Unit.PresheaftoAbstractSimplicialComplex.app P).app S a))]
+    tauto
+  . ext f 
+    have hI := Classical.choose_spec (IsConcretePresheaf.unit_IsIso_inv f)
+    simp only [types_comp_apply, types_id_apply]
+    unfold Unit.PresheaftoAbstractSimplicialComplex Unit.PresheaftoAbstractSimplicialComplex_app
+      Unit.PresheaftoAbstractSimplicialComplex_app_app 
+    simp only [Functor.comp_obj, Set.coe_setOf, id_eq]
+    rw [←SetCoe.ext_iff]
+    simp only 
+    exact hI 
+
+
+
+lemma IsConcretePresheaf_of_unit_IsIso {P : FintypeNECat.{u}ᵒᵖ ⥤ Type u}
+(hiso : IsIso (Unit.PresheaftoAbstractSimplicialComplex.app P)) : IsConcretePresheaf P := by 
+  intro S u v huv 
+  set eta := Unit.PresheaftoAbstractSimplicialComplex.app P
+  simp only [Functor.id_obj, Functor.comp_obj] at eta
+  have heq : eta.app S u = eta.app S v := by 
+    simp only 
+    unfold Unit.PresheaftoAbstractSimplicialComplex Unit.PresheaftoAbstractSimplicialComplex_app 
+      Unit.PresheaftoAbstractSimplicialComplex_app_app 
+    simp only [Functor.comp_obj, Set.coe_setOf, id_eq]
+    rw [←SetCoe.ext_iff]
+    exact huv 
+  set eta' := (@CategoryTheory.inv _ _ _ _ eta hiso) 
+  apply_fun (eta'.app S) at heq
+  rw [←(@Function.comp_apply _ _ _ (eta'.app S) (eta.app S) u), ←(@Function.comp_apply _ _ _ (eta'.app S) (eta.app S) v)] at heq
+  change ((eta.app S) ≫ _) u = ((eta.app S) ≫ _) v at heq 
+  rw [←NatTrans.vcomp_app] at heq   
+  simp only [NatTrans.vcomp_eq_comp, IsIso.hom_inv_id, NatTrans.id_app, types_id_apply] at heq
+  exact heq 
+
+lemma IsConcretePresheaf_iff_essImage (P : FintypeNECat.{u}ᵒᵖ ⥤ Type u) :
+P ∈ Functor.essImage AbstractSimplicialComplextoPresheaf2 ↔ IsConcretePresheaf P := by 
+  constructor 
+  . exact fun h => IsConcretePresheaf_of_unit_IsIso (Functor.essImage.unit_isIso h)   
+  . exact fun h => @mem_essImage_of_unit_isIso _ _ _ _ _ _ P (IsConcretePresheaf.unit_IsIso h)
+
+lemma IsConcretePresheaf_iff_essImage' (P : FintypeNECat.{u}ᵒᵖ ⥤ Type u) :
+P ∈ Functor.essImage AbstractSimplicialComplextoPresheaf ↔ IsConcretePresheaf P := by 
+  rw [←IsConcretePresheaf_iff_essImage, Functor.essImage_eq_of_natIso AbstractSimplicialComplextoPresheaf_comp_equiv]
+
+
+/- The geometric realization: we define it on FintypeNECat by sending S to the standard simplex on S, extend it to
+FintypeNECatᵒᵖ ⥤ Type u  by left Kan extension along Yoneda, and then restrict it to AbstractSimplicialComplexCat via
+the reflective functor AbstractSimplicialComplextoPresheaf2.-/
+
+
 
 
 end AbstractSimplicialComplexCat 

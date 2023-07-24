@@ -432,7 +432,8 @@ namespace SimplicialMap
 variable {α : Type u} {β : Type v} {γ : Type w}
 variable {K : AbstractSimplicialComplex α} {L : AbstractSimplicialComplex β} {M : AbstractSimplicialComplex γ}
 
-lemma ext_vertex {K : AbstractSimplicialComplex α} {L : AbstractSimplicialComplex β} (f g : SimplicialMap K L) :
+@[simp]
+lemma ext_vertex  (f g : SimplicialMap K L) :
 f.vertex_map = g.vertex_map → f = g := by 
   intro heq 
   ext s a 
@@ -453,6 +454,8 @@ K →ₛ L
   compatibility_vertex_face := fun _ => by simp only [Finset.image_singleton]
   compatibility_face_vertex := fun _ _ => by simp only [Finset.mem_image, exists_prop]
 
+lemma SimplicialMapofMap.vertex_map (f : α → β) (hf : ∀ (s : Finset α), s ∈ K.faces → Finset.image f s ∈ L.faces) (a : K.vertices) :
+((SimplicialMapofMap f hf).vertex_map a).1 = f a.1 := sorry
 
 
 /- If f is any map from a fintype α to a fintype β, it defines a simplicial map between the corresponding simplices.-/
@@ -519,8 +522,10 @@ lemma MapSimplex.id : MapSimplex (fun x => x) = SimplicialMap.id (Simplex α) :=
 
 lemma MapSimplex.comp (f : α → β) (g : β → γ) : (MapSimplex g).comp (MapSimplex f) = MapSimplex (g ∘ f) := by 
   apply SimplicialMap.ext_vertex 
-  unfold MapSimplex SimplicialMap.comp 
+  ext ⟨a, hav⟩
+  unfold MapSimplex SimplicialMap.comp   
   simp only [Function.comp_apply]
+
 
 end SimplicialMap
 
